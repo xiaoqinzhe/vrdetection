@@ -1,6 +1,4 @@
 import tensorflow as tf
-from net_utils import exp_average_summary
-
 
 def sparse_softmax(logits, labels, name, loss_weight=1, ignore_bg=False):
     labels = tf.cast(labels, dtype=tf.int32)
@@ -12,16 +10,30 @@ def sparse_softmax(logits, labels, name, loss_weight=1, ignore_bg=False):
     loss = tf.multiply(loss, loss_weight, name=name)
     return loss
 
-
 def l1_loss(preds, targets, name, target_weights=None, loss_weight=1):
     l1 = tf.abs(tf.subtract(preds, targets))
     if target_weights is not None:
         l1 = tf.multiply(target_weights, l1)
-    batch_loss = tf.reduce_sum(l1, reduction_indices=[1])
+    batch_loss = tf.reduce_sum(l1, axis=1)
     loss = tf.reduce_mean(batch_loss)
     loss = tf.multiply(loss, loss_weight, name=name)
     return loss
 
+def exp_average_summary(ops, dep_ops, decay=0.9, name='avg', scope_pfix='',
+                        raw_pfix=' (raw)', avg_pfix=' (avg)'):
+    averages = tf.train.ExponentialMovingAverage(decay, name=name)
+    averages_op = averages.apply(ops)
+
+    for op in ops:
+        tf.summary.scalar(scope_pfix + op.name + raw_pfix, op)
+        tf.summary.scalar(scope_pfix + op.name + avg_pfix,
+                          averages.average(op))
+
+    with tf.control_dependencies([averages_op]):
+        for i, dep_op in enumerate(dep_ops):
+            dep_ops[i] = tf.identity(dep_op, name=dep_op.name.split(':')[0])
+
+    return dep_ops
 
 def total_loss_and_summaries(losses, name):
     total_loss = tf.add_n(losses, name=name)
@@ -39,7 +51,7 @@ def accuracy(pred, labels, name, ignore_bg=False):
         one = tf.constant([1], tf.float32)
         # in case zero foreground preds
         num_preds = tf.maximum(tf.reduce_sum(mask), one)
-        acc_op = tf.squeeze(tf.div(tf.reduce_sum(tf.mul(correct_pred, mask)), num_preds))
+        acc_op = tf.squeeze(tf.div(tf.reduce_sum(tf.multiply(correct_pred, mask)), num_preds))
     else:
         acc_op = tf.reduce_mean(correct_pred, tf.float32)
 

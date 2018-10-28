@@ -1,20 +1,6 @@
 import tensorflow as tf
 
-def exp_average_summary(ops, dep_ops, decay=0.9, name='avg', scope_pfix='',
-                        raw_pfix=' (raw)', avg_pfix=' (avg)'):
-    averages = tf.train.ExponentialMovingAverage(decay, name=name)
-    averages_op = averages.apply(ops)
 
-    for op in ops:
-        tf.summary.scalar(scope_pfix + op.name + raw_pfix, op)
-        tf.summary.scalar(scope_pfix + op.name + avg_pfix,
-                          averages.average(op))
-
-    with tf.control_dependencies([averages_op]):
-        for i, dep_op in enumerate(dep_ops):
-            dep_ops[i] = tf.identity(dep_op, name=dep_op.name.split(':')[0])
-
-    return dep_ops
 
 def exp_average(vec, curr_avg, decay=0.9):
     vec_avg = tf.reduce_mean(vec, 0)

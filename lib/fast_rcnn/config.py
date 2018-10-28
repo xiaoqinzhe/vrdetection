@@ -36,6 +36,15 @@ __C.TRAIN.LEARNING_RATE = 0.001
 __C.TRAIN.MOMENTUM = 0.9
 __C.TRAIN.GAMMA = 0.1
 __C.TRAIN.STEPSIZE = 50000
+
+__C.TRAIN.WEIGHT_REG = False
+
+# Weight decay, for regularization
+__C.TRAIN.WEIGHT_DECAY = 0.0001
+
+# Whether to have weight decay on bias as well
+__C.TRAIN.BIAS_DECAY = False
+
 # Scales to use during training (can list multiple scales)
 # Each scale is the pixel size of an image's shortest side
 __C.TRAIN.SCALES = (600,)
@@ -74,9 +83,9 @@ __C.TRAIN.BBOX_REG = True
 __C.TRAIN.BBOX_THRESH = 0.5
 
 # Iterations between snapshots
-__C.TRAIN.SNAPSHOT_FREQ = 50000
+__C.TRAIN.SNAPSHOT_FREQ = 10000
 __C.TRAIN.DISPLAY_FREQ = 10
-__C.TRAIN.SUMMARY_FREQ = 250
+__C.TRAIN.SUMMARY_FREQ = 100
 
 # solver.prototxt specifies the snapshot path prefix, this adds an optional
 # infix to yield the path: <prefix>[_<infix>]_iters_XYZ.caffemodel
@@ -84,7 +93,7 @@ __C.TRAIN.SNAPSHOT_INFIX = ''
 __C.TRAIN.SNAPSHOT_PREFIX = ''
 
 # Normalize the targets (subtract empirical mean, divide by empirical stddev)
-__C.TRAIN.BBOX_NORMALIZE_TARGETS = True
+__C.TRAIN.BBOX_NORMALIZE_TARGETS = False
 __C.TRAIN.BBOX_TARGET_NORMALIZATION_FILE = 'data/vg/bbox_distribution.npy'
 # Deprecated (inside weights)
 __C.TRAIN.BBOX_INSIDE_WEIGHTS = (1.0, 1.0, 1.0, 1.0)
@@ -100,7 +109,7 @@ __C.TRAIN.BBOX_NORMALIZE_STDS = (0.1, 0.1, 0.2, 0.2)
 __C.TRAIN.ASPECT_GROUPING = True
 
 # Use RPN to detect objects
-__C.TRAIN.USE_RPN_DB = True
+__C.TRAIN.USE_RPN_DB = False
 
 # Testing options
 #
@@ -129,7 +138,7 @@ __C.TEST.FG_THRESH = 0.5
 __C.TEST.HAS_RPN = False
 
 # Use RPN Database
-__C.TEST.USE_RPN_DB = True
+__C.TEST.USE_RPN_DB = False
 #
 # MISC
 #
@@ -149,6 +158,7 @@ __C.PIXEL_MEANS = np.array([[[102.9801, 115.9465, 122.7717]]])
 # For reproducibility
 __C.RNG_SEED = 3
 
+
 # A small number that's used many times
 __C.EPS = 1e-14
 
@@ -158,12 +168,30 @@ __C.ROOT_DIR = osp.abspath(osp.join(osp.dirname(__file__), '..', '..'))
 # Data directory
 __C.DATA_DIR = osp.abspath(osp.join(__C.ROOT_DIR, 'data'))
 
-
+__C.VRD_DIR = osp.join(__C.ROOT_DIR, 'data/vrd/')
 __C.VG_DIR = osp.abspath(osp.join(__C.ROOT_DIR, 'data/vg/'))
 
+# __C.WORD2VEC_FILE = osp.join(__C.ROOT_DIR, 'data/word2vec/GoogleNews-vectors-negative300.bin')
+__C.WORD2VEC_FILE = osp.join(__C.ROOT_DIR, 'data/word2vec/glove.6B.300d.txt')
 
 # Default GPU device id
 __C.GPU_ID = 0
+
+__C.DATASET = 'vrd'
+
+__C.TRAIN.USE_VALDB = True
+
+# train mode
+__C.TRAIN.MODE = 'cls'
+
+__C.TRAIN.USE_SAMPLE_GRAPH = False
+
+__C.MODEL_PARAMS = {'if_pred_cls': False, 'if_pred_bbox': False, 'if_pred_rel': True, 'if_pred_spt': False,
+                    'use_context': True, 'use_spatial': False, 'use_class': False,
+                    'stop_gradient': True,}
+
+__C.TEST.REL_EVAL = True
+__C.TEST.METRIC_EVAL = False
 
 
 def get_output_dir(imdb, net=None):

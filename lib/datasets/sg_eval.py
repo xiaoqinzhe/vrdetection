@@ -1,10 +1,11 @@
 import numpy as np
+from fast_rcnn.config import cfg
 
 def eval_relation_recall(sg_entry,
                          roidb_entry,
                          result_dict,
                          mode,
-                         iou_thresh):
+                         iou_thresh, num_k=1, use_gt_rel = cfg.TEST.METRIC_EVAL):
 
     # gt
     gt_inds = np.where(roidb_entry['max_overlaps'] == 1)[0]
@@ -33,22 +34,54 @@ def eval_relation_recall(sg_entry,
     predicate_preds = predicate_preds.reshape(num_boxes, num_boxes, -1)
 
     # no bg
-    predicate_preds = predicate_preds[:, :, 1:]
-    predicates = np.argmax(predicate_preds, 2).ravel() + 1
-    predicate_scores = predicate_preds.max(axis=2).ravel()
+    if cfg.TRAIN.USE_SAMPLE_GRAPH:
+        predicate_preds = predicate_preds[:, :, 1:]
+
     relations = []
-    keep = []
-    for i in xrange(num_boxes):
-        for j in xrange(num_boxes):
-            if i != j:
-                keep.append(num_boxes*i + j)
+    predicates = []
+    predicate_scores = []
+    if use_gt_rel and not cfg.TRAIN.USE_SAMPLE_GRAPH:
+        for rel in gt_relations:
+            i, j = rel[0], rel[1]
+            arg_sort = np.argsort(-predicate_preds[i][j])
+            for k in range(num_k):
                 relations.append([i, j])
-    # take out self relations
-    predicates = predicates[keep]
-    predicate_scores = predicate_scores[keep]
+                if cfg.TRAIN.USE_SAMPLE_GRAPH: predicates.append(arg_sort[k] + 1)
+                else: predicates.append(arg_sort[k])
+                predicate_scores.append(predicate_preds[i][j][arg_sort[k]])
+    else:
+        for i in xrange(num_boxes):
+            for j in xrange(num_boxes):
+                if i != j:
+                    arg_sort = np.argsort(-predicate_preds[i][j])
+                    for k in range(num_k):
+                        relations.append([i, j])
+                        if cfg.TRAIN.USE_SAMPLE_GRAPH: predicates.append(arg_sort[k]+1)
+                        else: predicates.append(arg_sort[k])
+                        predicate_scores.append(predicate_preds[i][j][arg_sort[k]])
+
+    # predicates = np.argmax(predicate_preds, 2).ravel()
+    # predicate_scores = predicate_preds.max(axis=2).ravel()
+    # relations = []
+    # keep = []
+    # if use_gt_rel:
+    #     for rel in gt_relations:
+    #         i, j = rel[0], rel[1]
+    #         keep.append(num_boxes * i + j)
+    #         relations.append([i, j])
+    # else:
+    #     for i in xrange(num_boxes):
+    #         for j in xrange(num_boxes):
+    #             if i != j:
+    #                 keep.append(num_boxes*i + j)
+    #                 relations.append([i, j])
+    # # take out self relations
+    # predicates = predicates[keep]
+    # predicate_scores = predicate_scores[keep]
 
     relations = np.array(relations)
-    assert(relations.shape[0] == num_boxes * (num_boxes - 1))
+    predicates = np.array(predicates)
+    # assert(relations.shape[0] == num_boxes * (num_boxes - 1))
     assert(predicates.shape[0] == relations.shape[0])
     num_relations = relations.shape[0]
 
@@ -63,6 +96,7 @@ def eval_relation_recall(sg_entry,
         assert(num_boxes == num_gt_boxes)
         # if scene graph classification task
         # use gt boxes, but predicted classes
+
         classes = np.argmax(class_preds, 1)
         class_scores = class_preds.max(axis=1)
         boxes = gt_boxes
@@ -86,6 +120,7 @@ def eval_relation_recall(sg_entry,
     sorted_inds = np.argsort(relation_scores)[::-1]
     # compue recall
     for k in result_dict[mode + '_recall']:
+        # print(k, num_relations)
         this_k = min(k, num_relations)
         keep_inds = sorted_inds[:this_k]
         recall = _relation_recall(gt_triplets,

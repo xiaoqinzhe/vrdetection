@@ -22,6 +22,8 @@ from utils.blob import im_list_to_blob
 Test a scene graph generation network
 """
 
+word2vec = []
+
 def _get_image_blob(im):
     """Converts an image into a network input.
 
@@ -107,23 +109,46 @@ def _get_blobs(im, rois):
     blobs['rois'] = _get_rois_blob(rois, im_scale_factors)
     return blobs, im_scale_factors
 
-def im_detect(sess, net, inputs, im, boxes, bbox_reg, multi_iter):
+def im_detect(sess, net, inputs, im, boxes, bbox_reg, multi_iter, roidb, pred_ops, metric_ops):
     blobs, im_scales = _get_blobs(im, boxes)
 
+    rel_pos = np.ones([boxes.shape[0], boxes.shape[0]], np.int8)*-1
+    k = 0
     relations = []
     for i in range(boxes.shape[0]):
         for j in range(boxes.shape[0]):
             if i != j:
                 relations.append([i, j])
-    relations = np.array(relations, dtype=np.int32) # all possible combinations
+                rel_pos[i][j] = k
+                k += 1
+
     num_roi = blobs['rois'].shape[0]
+
+    predicates = roidb['gt_relations'][:, 2]
+
+    if cfg.TEST.METRIC_EVAL:
+        if not cfg.TRAIN.USE_SAMPLE_GRAPH:
+            relations = roidb['gt_relations'][:, 0:2]
+        else:
+            predicates = np.zeros(len(relations), np.int32)
+            for rel in roidb['gt_relations']:
+                predicates[rel_pos[rel[0], rel[1]]] = rel[2]
+
+    relations = np.array(relations, dtype=np.int32)  # all possible combinations
+
+
     num_rel  = relations.shape[0]
 
     inputs_feed = data_utils.create_graph_data(num_roi, num_rel, relations)
+    global word2vec
+    inputs_feed['obj_embedding'] = word2vec
 
     feed_dict = {inputs['ims']: blobs['data'],
                  inputs['rois']: blobs['rois'],
                  inputs['relations']: relations,
+                 inputs['rel_spts']: roidb['gt_spatial'],
+                 inputs['labels']: roidb['gt_classes'],
+                 inputs['predicates']: predicates,
                  net.keep_prob: 1}
 
     for k in inputs_feed:
@@ -133,23 +158,28 @@ def im_detect(sess, net, inputs, im, boxes, bbox_reg, multi_iter):
     feed_dict[inputs['rel_rois']] = \
         data_utils.compute_rel_rois(num_rel, blobs['rois'], relations)
 
-    ops = {}
+    ops_value, metrics = sess.run([pred_ops, metric_ops], feed_dict=feed_dict)
 
-    ops['bbox_deltas'] = net.bbox_pred_output(multi_iter)
-    ops['rel_probs'] = net.rel_pred_output(multi_iter)
-    ops['cls_probs'] = net.cls_pred_output(multi_iter)
+    if ops_value is None: return None, metrics
 
-    ops_value = sess.run(ops, feed_dict=feed_dict)
+    # for key in ops_value:
+    #     if key.startswith('acc'):
+    #         print(key, ops_value[key])
 
     out_dict = {}
     for mi in multi_iter:
         rel_probs = None
         rel_probs_flat = ops_value['rel_probs'][mi]
+        # rel_vis_probs_flat = ops_value['rel_probs_vis'][mi]
+        # rel_probs_flat = np.mean([rel_probs_flat, rel_vis_probs_flat], axis=0)
         rel_probs = np.zeros([num_roi, num_roi, rel_probs_flat.shape[1]])
         for i, rel in enumerate(relations):
             rel_probs[rel[0], rel[1], :] = rel_probs_flat[i, :]
-
-        cls_probs = ops_value['cls_probs'][mi]
+        if net.if_pred_cls:
+            cls_probs = ops_value['cls_probs'][mi]
+        else:
+            cls_probs = np.zeros((boxes.shape[0], inputs['num_classes']), dtype=np.int8)
+            for i in range(boxes.shape[0]): cls_probs[i, roidb['gt_classes'][i]] = 1
 
         if bbox_reg:
             # Apply bounding-box regression deltas
@@ -162,7 +192,8 @@ def im_detect(sess, net, inputs, im, boxes, bbox_reg, multi_iter):
         out_dict[mi] = {'scores': cls_probs.copy(),
                         'boxes': pred_boxes.copy(),
                         'relations': rel_probs.copy()}
-    return out_dict
+
+    return out_dict, metrics
 
 def non_gt_rois(roidb):
     overlaps = roidb['max_overlaps']
@@ -189,30 +220,43 @@ def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
     inputs = {'rois': rois,
               'rel_rois': rel_rois,
               'ims': ims,
-              'relations': relations,
+              'labels': tf.placeholder(dtype=tf.int32, shape=[None]),
+              'relations': tf.placeholder(dtype=tf.int32, shape=[None, 2]),
+              'predicates': tf.placeholder(dtype=tf.int32, shape=[None]),
+              'rel_spts': tf.placeholder(dtype=tf.int32, shape=[None]),
               'num_roi': tf.placeholder(dtype=tf.int32, shape=[]),
               'num_rel': tf.placeholder(dtype=tf.int32, shape=[]),
               'num_classes': imdb.num_classes,
               'num_predicates': imdb.num_predicates,
-              'rel_mask_inds': tf.placeholder(dtype=tf.int32, shape=[None]),
-              'rel_segment_inds': tf.placeholder(dtype=tf.int32, shape=[None]),
-              'rel_pair_mask_inds': tf.placeholder(dtype=tf.int32, shape=[None, 2]),
-              'rel_pair_segment_inds': tf.placeholder(dtype=tf.int32, shape=[None]),
-              'n_iter': cfg.TEST.INFERENCE_ITER}
+              'num_spatials': imdb.num_spatials,
+              'obj_context_o': tf.placeholder(dtype=tf.int32, shape=[None]),
+              'obj_context_p': tf.placeholder(dtype=tf.int32, shape=[None]),
+              'obj_context_inds': tf.placeholder(dtype=tf.int32, shape=[None]),
+              'rel_context': tf.placeholder(dtype=tf.int32, shape=[None]),
+              'rel_context_inds': tf.placeholder(dtype=tf.int32, shape=[None]),
+              'obj_embedding': tf.placeholder(dtype=tf.float32, shape=[None, 300]),
+              #'n_iter': cfg.TEST.INFERENCE_ITER
+              }
 
+    # get network setting
+    for key in cfg.MODEL_PARAMS:
+        inputs[key] = cfg.MODEL_PARAMS[key]
 
     net = get_network(net_name)(inputs)
     net.setup()
     print ('Loading model weights from {:s}').format(weight_name)
-    saver = tf.train.Saver()
 
+    saver = tf.train.Saver()
     sess.run(tf.global_variables_initializer())
-    # saver.restore(sess, weight_name)
+    saver.restore(sess, weight_name)
 
     roidb = imdb.roidb
     if cfg.TEST.USE_RPN_DB:
         imdb.add_rpn_rois(roidb, make_copy=False)
     prepare_roidb(roidb)
+
+    global word2vec
+    word2vec = imdb.word2vec
 
     num_images = len(imdb.image_index)
 
@@ -223,18 +267,41 @@ def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
         eval_modes = ['pred_cls', 'sg_cls', 'sg_det']
     else:
         eval_modes = [mode]
-    multi_iter = [net.n_iter - 1] if net.iterable else [0]
+    multi_iter = [0]
     print('Graph Inference Iteration ='),
     print(multi_iter)
     print('EVAL MODES ='),
     print(eval_modes)
+
+    # metrics to show
+    if cfg.TEST.METRIC_EVAL:
+        metric_ops = net.losses()
+        net.metrics(metric_ops)
+    else:
+        metric_ops = tf.no_op(name='no_test_metric')
 
     # initialize evaluator for each task
     evaluators = {}
     for m in eval_modes:
         evaluators[m] = {}
         for it in multi_iter:
-            evaluators[m][it] = SceneGraphEvaluator(imdb, mode=m)
+            if cfg.TEST.METRIC_EVAL:
+                evaluators[m][it] = SceneGraphEvaluator(imdb, mode=m, metrics=metric_ops.keys())
+            else: evaluators[m][it] = SceneGraphEvaluator(imdb, mode=m)
+
+    # rel predictions
+    ops = {}
+    if cfg.TEST.REL_EVAL:
+        if cfg.MODEL_PARAMS['if_pred_bbox']:
+            ops['bbox_deltas'] = net.bbox_pred_output(multi_iter)
+        ops['rel_probs'] = net.rel_pred_output(multi_iter)
+        # ops['rel_probs'] = net.rel_pred_output('_vis')
+        if net.if_pred_cls:
+            ops['cls_probs'] = net.cls_pred_output(multi_iter)
+    else:
+        ops = tf.no_op(name="no_pred_sg")
+
+
 
     for im_i in xrange(num_images):
 
@@ -262,15 +329,21 @@ def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
                 # continue if no graph
                 print("image %d in mode %s has no or one box proposal"%(im_i, mode))
                 continue
+            if len(roidb[im_i]['gt_relations']) == 0:
+                print("image %d in mode %s has no relation" % (im_i, mode))
+                continue
 
             _t['im_detect'].tic()
-            out_dict = im_detect(sess, net, inputs, im, box_proposals,
-                                 bbox_reg, multi_iter)
+            out_dict, metrics_v = im_detect(sess, net, inputs, im, box_proposals,
+                                 bbox_reg, multi_iter, roidb[im_i], ops, metric_ops)
             _t['im_detect'].toc()
             _t['evaluate'].tic()
+
             for iter_n in multi_iter:
-                sg_entry = out_dict[iter_n]
-                evaluators[mode][iter_n].evaluate_scene_graph_entry(sg_entry, im_i, iou_thresh=0.5)
+                if out_dict is not None:
+                    sg_entry = out_dict[iter_n]
+                    evaluators[mode][iter_n].evaluate_scene_graph_entry(sg_entry, im_i, iou_thresh=0.5)
+                if metrics_v is not None: evaluators[mode][iter_n].add_metrics(metrics_v)
             _t['evaluate'].toc()
 
         print 'im_detect: {:d}/{:d} {:.3f}s {:.3f}s' \

@@ -11,6 +11,9 @@ class imdb(object):
         self._classes = []
         self._image_index = []
         self._roidb = None
+        self.ind_to_classes = []
+        self.ind_to_predicates = []
+
 
     @property
     def name(self):
@@ -58,6 +61,28 @@ class imdb(object):
     def _get_widths(self):
         raise NotImplementedError
 
+    def get_spatial_info(self, file):
+        rep = {}
+        rep2 = {0:'ignore'}
+        with open(file) as f:
+            for i in range(7):
+                line = f.readline()
+                preds = line.split(',')
+                for j in range(len(preds)):
+                    preds[j] = preds[j].lstrip(' ').rstrip(' ').rstrip('\n')
+                    rep[preds[j]] = i + 1
+                rep2[i + 1] = preds[0]
+        return rep, rep2
+
+    def get_spatial_class(self, rels, ind_to_predicates, replace_list):
+        sp = []
+        for rel in rels:
+            predicate_name = ind_to_predicates[rel[2]]
+            if predicate_name in replace_list:
+                sp.append(replace_list[predicate_name])
+            else: sp.append(0)
+        return np.array(sp)
+
     def create_roidb_from_box_list(self, box_list, gt_roidb):
         assert len(box_list) == len(gt_roidb), \
                 'Number of boxes must match number of ground-truth roidb'
@@ -101,13 +126,12 @@ class imdb(object):
 
     def append_flipped_images(self):
         num_images = self.num_images
-        widths = self._get_widths()
         for i in xrange(num_images):
             boxes = self.roidb[i]['boxes'].copy()
             oldx1 = boxes[:, 0].copy()
             oldx2 = boxes[:, 2].copy()
-            boxes[:, 0] = widths[i] - oldx2 - 1
-            boxes[:, 2] = widths[i] - oldx1 - 1
+            boxes[:, 0] = self.roidb[i]['width'] - oldx2 - 1
+            boxes[:, 2] = self.roidb[i]['width'] - oldx1 - 1
             assert (boxes[:, 2] >= boxes[:, 0]).all()
             entry = {}
             for key in self.roidb[i]:
@@ -118,5 +142,5 @@ class imdb(object):
             self.roidb.append(entry)
         self._image_index = np.hstack([self._image_index,
                                        self._image_index]).transpose()
-        self.im_sizes = np.vstack([self.im_sizes,
-                                   self.im_sizes])
+        # self.im_sizes = np.vstack([self.im_sizes,
+        #                            self.im_sizes])

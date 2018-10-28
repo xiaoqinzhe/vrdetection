@@ -52,7 +52,7 @@ class Network(object):
                 if not load_fc and key.startswith('fc'):
                     print('ignoring fc layers!')
                     continue
-                print key
+                print(key)
                 for subkey, data in zip(('weights', 'biases'), data_dict[key]):
                     try:
                         var = tf.get_variable(subkey)
@@ -60,7 +60,6 @@ class Network(object):
                     except ValueError:
                         if not ignore_missing:
                             raise
-        exit()
 
     def feed(self, *args):
         assert len(args)!=0
@@ -88,7 +87,7 @@ class Network(object):
         try:
             layer = self.layers[layer]
         except KeyError:
-            print self.layers.keys()
+            # print self.layers.keys()
             raise KeyError('Unknown layer name fed: %s'%layer)
         return layer
 
@@ -180,18 +179,19 @@ class Network(object):
                               padding=padding,
                               name=name)
 
-    @layer
     def roi_pool(self, input, pooled_height, pooled_width, spatial_scale, name):
         # only use the first input
         if isinstance(input[0], tuple):
             input[0] = input[0][0]
-        print input
 
         return roi_pool_op.roi_pool(input[0], input[1],
                               pooled_height,
                               pooled_width,
                               spatial_scale,
                               name=name)
+
+    def bilinear_pool(self):
+        pass
 
     @layer
     def lrn(self, input, radius, alpha, beta, name, bias=1.0):
@@ -202,7 +202,6 @@ class Network(object):
                                                   bias=bias,
                                                   name=name)
 
-    @layer
     def concat(self, inputs, axis, name):
         return tf.concat(axis=axis, values=inputs, name=name)
 
@@ -216,7 +215,6 @@ class Network(object):
                 input = input[0]
 
             input_shape = input.get_shape()
-            print input_shape
             if input_shape.ndims == 4:
                 dim = 1
                 for d in input_shape[1:].as_list():

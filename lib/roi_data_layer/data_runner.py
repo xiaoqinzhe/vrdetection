@@ -38,7 +38,7 @@ class DataRunnerMP:
             if sample is None:
                 continue
             feed = {}
-            for key, pl in self._input_pls.items():
+            for key in sample:
                 feed[key] = sample[key]
             data_queue.put(feed)
 

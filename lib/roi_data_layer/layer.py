@@ -2,16 +2,18 @@ from fast_rcnn.config import cfg
 from roi_data_layer.minibatch import get_minibatch
 from roi_data_layer.roidb import prepare_roidb, add_bbox_regression_targets
 import numpy as np
-
+from data_utils import load_word_vec
 
 class RoIDataLayer:
-    def __init__(self, imdb, bbox_means, bbox_stds):
+    def __init__(self, imdb, roidb, num_classes, bbox_means, bbox_stds, num_batches=cfg.TRAIN.IMS_PER_BATCH):
         self.imdb = imdb
-        self._roidb = imdb.roidb
-        self._num_classes = imdb.num_classes
-        self._shuffle_roidb_inds()
+        self._roidb = roidb
+        self._num_classes = num_classes
+        self._num_batches = num_batches
         self.bbox_means = bbox_means
         self.bbox_stds = bbox_stds
+        self._shuffle_roidb_inds()
+        # self.wordvec = load_word_vec(imdb.ind_to_predicates)
 
     def _shuffle_roidb_inds(self):
         """Randomly permute the training roidb."""
@@ -25,7 +27,10 @@ class RoIDataLayer:
             inds = np.hstack((
                 np.random.permutation(horz_inds),
                 np.random.permutation(vert_inds)))
-            inds = np.reshape(inds, (-1, cfg.TRAIN.IMS_PER_BATCH))     ## 2????????????
+            if inds.shape[0] % self._num_batches != 0:
+                num = self._num_batches - (inds.shape[0] % self._num_batches)
+                inds = np.hstack((inds, np.random.choice(vert_inds, size=num)))
+            inds = np.reshape(inds, (-1, self._num_batches))     ## 2????????????
             row_perm = np.random.permutation(np.arange(inds.shape[0]))
             inds = np.reshape(inds[row_perm, :], (-1,))
             self._perm = inds
@@ -35,11 +40,11 @@ class RoIDataLayer:
 
     def _get_next_minibatch_inds(self):
         """Return the roidb indices for the next minibatch."""
-        if self._cur + cfg.TRAIN.IMS_PER_BATCH >= len(self._roidb):
+        if self._cur + self._num_batches >= len(self._roidb):
             self._shuffle_roidb_inds()
 
-        db_inds = self._perm[self._cur:self._cur + cfg.TRAIN.IMS_PER_BATCH]
-        self._cur += cfg.TRAIN.IMS_PER_BATCH
+        db_inds = self._perm[self._cur:self._cur + self._num_batches]
+        self._cur += self._num_batches
         return db_inds
 
     def _get_next_minibatch(self, db_inds):
@@ -53,8 +58,10 @@ class RoIDataLayer:
                                     self.bbox_stds)
 
         blobs = get_minibatch(minibatch_db, self._num_classes)
-        if blobs is not None:
-            blobs['db_inds'] = db_inds
+        # add word vector
+        blobs['obj_embedding'] = self.imdb.word2vec
+        # if blobs is not None:
+        #     blobs['db_inds'] = db_inds
         return blobs
 
     def next_batch(self):

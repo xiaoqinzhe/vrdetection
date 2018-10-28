@@ -64,7 +64,7 @@ class vg_hdf5(imdb):
         # convert from xc, yc, w, h to x1, y1, x2, y2
         self.all_boxes[:, :2] = self.all_boxes[:, :2] - self.all_boxes[:, 2:]/2
         self.all_boxes[:, 2:] = self.all_boxes[:, :2] + self.all_boxes[:, 2:]
-        self.labels = self.roi_h5['labels'][:,0]
+        self.labels = self.roi_h5['labels'][:,0] - 1
 
         # add background class
         self.info['label_to_idx']['__background__'] = 0
@@ -77,11 +77,11 @@ class vg_hdf5(imdb):
         self.im_to_first_rel = self.roi_h5['img_to_first_rel'][split_mask]
         self.im_to_last_rel = self.roi_h5['img_to_last_rel'][split_mask]
         self._relations = self.roi_h5['relationships'][:]
-        self._relation_predicates = self.roi_h5['predicates'][:,0]
+        self._relation_predicates = self.roi_h5['predicates'][:,0] - 1
         assert(self.im_to_first_rel.shape[0] == self.im_to_last_rel.shape[0])
         assert(self._relations.shape[0] == self._relation_predicates.shape[0]) # sanity check
         self.predicate_to_ind = self.info['predicate_to_idx']
-        self.predicate_to_ind['__background__'] = 0
+        # self.predicate_to_ind['__background__'] = 0
         self.ind_to_predicates = sorted(self.predicate_to_ind, key=lambda k:
                                   self.predicate_to_ind[k])
 

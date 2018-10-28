@@ -2,7 +2,7 @@ import tensorflow as tf
 from tensorflow.python.framework import ops
 import roi_pooling_op
 
-@tf.RegisterShape("RoiPool")
+@ops.RegisterShape("RoiPool")
 def _roi_pool_shape(op):
   """Shape function for the RoiPool op.
 

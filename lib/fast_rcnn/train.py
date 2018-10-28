@@ -18,10 +18,11 @@ from networks import losses
 from roi_data_layer.data_runner import DataRunnerMP
 from roi_data_layer.layer import RoIDataLayer
 from utils.timer import Timer
+from tensorflow.python import pywrap_tensorflow
 
 class Trainer(object):
 
-    def __init__(self, sess, net_name, imdb, roidb, output_dir, tf_log, pretrained_model=None):
+    def __init__(self, sess, net_name, imdb, roidb, output_dir, tf_log, pretrained_model=None, val_roidb=None):
         """Initialize the SolverWrapper."""
         self.net_name = net_name
         self.imdb = imdb
@@ -31,6 +32,15 @@ class Trainer(object):
         self.pretrained_model = pretrained_model
         self.bbox_means = np.zeros((self.imdb.num_classes, 4))
         self.bbox_stds = np.ones((self.imdb.num_classes, 4))
+        self.val_roidb = val_roidb
+        self.if_val = val_roidb is not None
+        self.VAL_FREQ = 1000
+        self.VAL_NUM = 25
+        self.VAL_BATCHES = 4
+        self.init_conv = True
+        self.pretrained_model = 'checkpoints/ctxnet/weights_29999.ckpt'
+        if self.init_conv:
+            self.pretrained_model = 'tf_faster_rcnn/output/vgg16/vrd_train/default/vgg16_faster_rcnn_iter_55000.ckpt'
 
         if cfg.TRAIN.BBOX_NORMALIZE_TARGETS:
             print('Loaded precomputer bbox target distribution from %s' % \
@@ -74,25 +84,48 @@ class Trainer(object):
             sess.run(weights.assign(orig_0))
             sess.run(biases.assign(orig_1))
 
+    def get_variables_in_checkpoint_file(self, file_name):
+        try:
+            reader = pywrap_tensorflow.NewCheckpointReader(file_name)
+            var_to_shape_map = reader.get_variable_to_shape_map()
+            return var_to_shape_map
+        except Exception as e:  # pylint: disable=broad-except
+            print(str(e))
+            if "corrupted compressed block contents" in str(e):
+                print("It's likely that your checkpoint file has been compressed "
+                      "with SNAPPY.")
 
-    def get_data_runner(self, sess, data_layer):
+    def load_pretrained_models(self, sess):
+        if self.pretrained_model is not None:
+            print ('Loading pretrained model '
+                   'weights from {:s}').format(self.pretrained_model)
+            if self.pretrained_model.endswith('.npy'):
+                self.net.load(self.pretrained_model, sess, load_fc=True)
+            elif self.pretrained_model.endswith('.ckpt'):
+                if self.init_conv:
+                    var_keep_dic = self.get_variables_in_checkpoint_file(self.pretrained_model)
+                    var_list = []
+                    for var in tf.global_variables(self.net._scope):
+                        if var.name.split(':')[0] in var_keep_dic:
+                            var_list.append(var)
+                    restorer = tf.train.Saver(var_list)
+                    restorer.restore(sess, self.pretrained_model)
+                else:
+                    var_keep_dic = self.get_variables_in_checkpoint_file(self.pretrained_model)
+                    var_list = []
+                    for var in tf.global_variables():
+                        if var.name.split(':')[0] in var_keep_dic:
+                            if var.name.split(':')[0] == 'learning_rate': continue
+                            if 'Momentum' in var.name.split(':')[0]: continue
+                            var_list.append(var)
+                    print(var_list)
+                    restorer = tf.train.Saver(var_list)
+                    restorer.restore(sess, self.pretrained_model)
+            else:
+                print('Unsupported pretrained weights format')
+                raise
 
-        input_pls = {
-            'ims': tf.placeholder(dtype=tf.float32, shape=[None, None, None, 3]),
-            'rois': tf.placeholder(dtype=tf.float32, shape=[None, 5]),
-            'rel_rois': tf.placeholder(dtype=tf.float32, shape=[None, 5]),
-            'labels': tf.placeholder(dtype=tf.int32, shape=[None]),
-            'relations': tf.placeholder(dtype=tf.int32, shape=[None, 2]),
-            'predicates': tf.placeholder(dtype=tf.int32, shape=[None]),
-            'bbox_targets': tf.placeholder(dtype=tf.float32, shape=[None, 4 * self.imdb.num_classes]),
-            'bbox_inside_weights': tf.placeholder(dtype=tf.float32, shape=[None, 4 * self.imdb.num_classes]),
-            'num_roi': tf.placeholder(dtype=tf.int32, shape=[]),  # number of rois per batch
-            'num_rel': tf.placeholder(dtype=tf.int32, shape=[]),  # number of relationships per batch
-            'rel_mask_inds': tf.placeholder(dtype=tf.int32, shape=[None]),
-            'rel_segment_inds': tf.placeholder(dtype=tf.int32, shape=[None]),
-            'rel_pair_mask_inds': tf.placeholder(dtype=tf.int32, shape=[None,2]),
-            'rel_pair_segment_inds': tf.placeholder(dtype=tf.int32, shape=[None])
-        }
+    def get_data_runner(self, sess, input_pls, data_layer, capacity=30):
 
         def data_generator():
             while True:
@@ -103,71 +136,107 @@ class Trainer(object):
                 yield data_layer._get_next_minibatch_inds()
 
         task_func = data_layer._get_next_minibatch
-        data_runner = DataRunnerMP(task_func, task_generator, input_pls, capacity=24)
+        data_runner = DataRunnerMP(task_func, task_generator, input_pls, capacity=capacity)
 
         return data_runner
 
 
     def train_model(self, sess, max_iters):
+        input_pls = {
+            'ims': tf.placeholder(dtype=tf.float32, shape=[None, None, None, 3]),
+            'rois': tf.placeholder(dtype=tf.float32, shape=[None, 5]),
+            'rel_rois': tf.placeholder(dtype=tf.float32, shape=[None, 5]),
+            'labels': tf.placeholder(dtype=tf.int32, shape=[None]),
+            # 'bboxes': tf.placeholder(dtype=tf.float32, shape=[None, 4]),
+            'relations': tf.placeholder(dtype=tf.int32, shape=[None, 2]),
+            'predicates': tf.placeholder(dtype=tf.int32, shape=[None]),
+            'rel_spts': tf.placeholder(dtype=tf.int32, shape=[None]),
+            'bbox_targets': tf.placeholder(dtype=tf.float32, shape=[None, 4 * self.imdb.num_classes]),
+            'bbox_inside_weights': tf.placeholder(dtype=tf.float32, shape=[None, 4 * self.imdb.num_classes]),
+            'num_roi': tf.placeholder(dtype=tf.int32, shape=[]),  # number of rois per batch
+            'num_rel': tf.placeholder(dtype=tf.int32, shape=[]),  # number of relationships per batch
+            'obj_context_o': tf.placeholder(dtype=tf.int32, shape=[None]),
+            'obj_context_p': tf.placeholder(dtype=tf.int32, shape=[None]),
+            'obj_context_inds': tf.placeholder(dtype=tf.int32, shape=[None]),
+            'rel_context': tf.placeholder(dtype=tf.int32, shape=[None]),
+            'rel_context_inds': tf.placeholder(dtype=tf.int32, shape=[None]),
+            'obj_embedding': tf.placeholder(dtype=tf.float32, shape=[None, 300]),
+        }
         """Network training loop."""
-        data_layer = RoIDataLayer(self.imdb, self.bbox_means, self.bbox_stds)
+        data_layer = RoIDataLayer(self.imdb, self.roidb, self.imdb.num_classes, self.bbox_means, self.bbox_stds)
 
         # a multi-process data runner
-        data_runner = self.get_data_runner(sess, data_layer)
+        data_runner = self.get_data_runner(sess, input_pls, data_layer)
+
+        if self.if_val:
+            val_data_layer = RoIDataLayer(self.imdb, self.val_roidb, self.imdb.num_classes, self.bbox_means, self.bbox_stds,
+                                          num_batches=self.VAL_BATCHES)
+            val_data_runner = self.get_data_runner(sess, input_pls, val_data_layer, capacity=self.VAL_NUM*self.VAL_BATCHES)
 
         inputs= data_runner.get_inputs()
 
         inputs['num_classes'] = self.imdb.num_classes
         inputs['num_predicates'] = self.imdb.num_predicates
+        inputs['num_spatials'] = self.imdb.num_spatials
         inputs['n_iter'] = cfg.TRAIN.INFERENCE_ITER
 
+        # data_runner.start_threads(sess, n_threads=10)
+        data_runner.start_processes(sess, n_processes=3)
+        if self.if_val:
+            val_data_runner.start_processes(sess, n_processes=2)
+
+        print("classes = %i"%self.imdb.num_classes, "predicates = %i"%self.imdb.num_predicates)
+
+        ## net settings
+        for key in cfg.MODEL_PARAMS:
+            inputs[key] = cfg.MODEL_PARAMS[key]
         self.net = get_network(self.net_name)(inputs)
         self.net.setup()
 
-        # get network-defined losses
+
+
+        # get network-defined losses, metrics
         ops = self.net.losses()
+        self.net.metrics(ops)
+
+        ## val ops
+        val_ops = {}
+        for k in ops: val_ops[k] = ops[k]
 
         # multitask loss
         loss_list = [ops[k] for k in ops if k.startswith('loss')]
-        ops['loss_total'] = losses.total_loss_and_summaries(loss_list, 'total_loss')
+        # ops['loss_total'] = tf.add_n([ops['loss_cls'], ops['loss_rel']])
+        # ops['loss_total'] = losses.total_loss_and_summaries(loss_list, 'total_loss')
+
+        # summary losses
+        for k in ops:
+            tf.summary.scalar(k, ops[k])
 
         # optimizer
-        lr = tf.Variable(cfg.TRAIN.LEARNING_RATE, trainable=False)
+        lr = tf.Variable(cfg.TRAIN.LEARNING_RATE, trainable=False, name='learning_rate')
         momentum = cfg.TRAIN.MOMENTUM
+        # ops['train'] = tf.train.MomentumOptimizer(lr, momentum).minimize(ops['loss_total'])
+        # ops['train'] = tf.train.AdamOptimizer(lr).minimize(ops['loss_total'])
+        ops['train'] = tf.train.GradientDescentOptimizer(lr).minimize(ops['loss_total'])
 
-        ops['train'] = tf.train.MomentumOptimizer(lr, momentum).minimize(ops['loss_total'])
-
+        # ops merge summaries
         ops_summary = dict(ops)
-        #merge summaries
         ops_summary['summary'] = tf.summary.merge_all()
         train_writer = tf.summary.FileWriter(self.tf_log, sess.graph)
+        val_writer = tf.summary.FileWriter(self.tf_log+'val/')
 
-        self.saver = tf.train.Saver(tf.trainable_variables(), max_to_keep=5)
-
-        sess.run(tf.initialize_all_variables())
-
-
-        #data_runner.start_threads(sess, n_threads=10)
-        data_runner.start_processes(sess, n_processes=3)
         # intialize variables
+        sess.run(tf.global_variables_initializer())
+        self.saver = tf.train.Saver(max_to_keep=15)
+        self.load_pretrained_models(sess)
+        print("load done")
 
-        if self.pretrained_model is not None:
-            print ('Loading pretrained model '
-                   'weights from {:s}').format(self.pretrained_model)
-            if self.pretrained_model.endswith('.npy'):
-                self.net.load(self.pretrained_model, sess, load_fc=True)
-            elif self.pretrained_model.endswith('.ckpt'):
-                self.saver.restore(sess, self.pretrained_model)
-            else:
-                print('Unsupported pretrained weights format')
-                raise
         last_snapshot_iter = -1
         timer = Timer()
         iter_timer = Timer()
 
         # Training loop
-
-        for iter in range(max_iters):
+        for iter in xrange(max_iters):
             # learning rate
             iter_timer.tic()
             if (iter+1) % cfg.TRAIN.STEPSIZE == 0:
@@ -187,9 +256,27 @@ class Trainer(object):
 
             stats = 'iter: %d / %d, lr: %f' % (iter+1, max_iters, lr.eval())
             for k in ops_value:
-                if k.startswith('loss'):
+                if k.startswith('loss') or k.startswith('acc'):
                     stats += ', %s: %4f' % (k, ops_value[k])
             print(stats)
+
+            if self.if_val and ((iter+1) % self.VAL_FREQ == 0 or (iter+1) == max_iters-1):
+                val_sums = {}
+                for k in val_ops: val_sums[k] = 0
+                # if (iter+1) % 10000 == 0: times = 900//self.VAL_BATCHES
+                # else:
+                times = self.VAL_NUM
+                for i in range(times):
+                    feed_dict = val_data_runner.get_feed_batch()
+                    feed_dict[self.net.keep_prob] = 1
+                    ops_value, val_summary = sess.run([val_ops, ops_summary['summary']], feed_dict=feed_dict)
+                    if i==0: val_writer.add_summary(val_summary, iter//self.VAL_FREQ)
+                    for k in val_ops: val_sums[k] += ops_value[k]
+                for k in val_sums: val_sums[k] /= times
+                stats = '**--validate iter--**: %d / %d, %d, lr: %f' % (iter + 1, max_iters, iter//self.VAL_FREQ, lr.eval())
+                for k in val_sums:
+                        stats += ', %s: %4f' % (k, val_sums[k])
+                print(stats)
 
             iter_timer.toc()
 
@@ -205,11 +292,11 @@ class Trainer(object):
             self.snapshot(sess, iter)
 
 
-def train_net(network_name, imdb, roidb, output_dir, tf_log, pretrained_model=None, max_iters=200000):
+def train_net(network_name, imdb, roidb, output_dir, tf_log, pretrained_model=None, max_iters=200000, val_roidb=None):
     config = tf.ConfigProto()
     config.allow_soft_placement=True
-    # config.gpu_options.allow_growth=True
+    config.gpu_options.allow_growth=True
     with tf.Session(config=config) as sess:
         tf.set_random_seed(cfg.RNG_SEED)
-        trainer = Trainer(sess, network_name, imdb, roidb, output_dir, tf_log, pretrained_model=pretrained_model)
+        trainer = Trainer(sess, network_name, imdb, roidb, output_dir, tf_log, pretrained_model=pretrained_model, val_roidb=val_roidb)
         trainer.train_model(sess, max_iters)

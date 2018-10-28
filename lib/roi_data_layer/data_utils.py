@@ -1,4 +1,14 @@
 import numpy as np
+import gensim
+from fast_rcnn.config import cfg
+
+
+def load_word_vec(words):
+    if cfg.WORD2VEC_FILE.endswith('.txt'):
+        wordvec = gensim.models.KeyedVectors.load_word2vec_format(cfg.WORD2VEC_FILE, binary=False)
+    else:
+        wordvec = gensim.models.KeyedVectors.load_word2vec_format(cfg.WORD2VEC_FILE, binary=True)
+    return [wordvec[w] for w in words]
 
 def create_graph_data(num_roi, num_rel, relations):
     """
@@ -12,45 +22,45 @@ def create_graph_data(num_roi, num_rel, relations):
         rel_mask[rel[1], i] = True
         roi_rel_inds[rel[0], rel[1]] = i
 
-    rel_mask_inds = []
-    rel_segment_inds = []
+    # roi context
+    obj_context_o = []
+    obj_context_p = []
+    obj_context_inds = []
     for i, mask in enumerate(rel_mask):
-        mask_inds = np.where(mask)[0].tolist() + [num_rel]
-        segment_inds = [i for _ in mask_inds]
-        rel_mask_inds += mask_inds
-        rel_segment_inds += segment_inds
+        rels = np.where(mask)[0].tolist()
+        for reli in rels:
+            obj_context_p.append(reli)
+            o = relations[reli][0] if relations[reli][0]!=i else relations[reli][1]
+            obj_context_o.append(o)
+            obj_context_inds.append(i)
+        obj_context_o.append(num_roi)
+        obj_context_p.append(num_rel)
+        obj_context_inds.append(i)
 
+    # rel context
+    rel_context = []
+    rel_context_inds = []
+    for i, rel in enumerate(relations):
+        sub_rels = np.where(rel_mask[rel[0]])[0].tolist()
+        for r in sub_rels:
+            if r!=i:
+                rel_context.append(r)
+                rel_context_inds.append(i)
+        obj_rels = np.where(rel_mask[rel[1]])[0].tolist()
+        for r in obj_rels:
+            if r != i:
+                rel_context.append(r)
+                rel_context_inds.append(i)
+        rel_context.append(num_rel)
+        rel_context_inds.append(i)
 
-
-    # compute relation pair inds
-    rel_pair_mask_inds = []  #
-    rel_pair_segment_inds = []  # for segment gather
-    for i in xrange(num_roi):
-        mask_inds = []
-        for j in xrange(num_roi):
-            out_inds = roi_rel_inds[i,j]
-            in_inds = roi_rel_inds[j,i]
-            if out_inds >= 0 and in_inds >= 0:
-                out_inds = out_inds if out_inds >=0 else num_rel
-                in_inds = in_inds if in_inds >=0 else num_rel
-                mask_inds.append([out_inds, in_inds])
-
-        mask_inds.append([num_rel, num_rel]) # pad with dummy edge ind
-        rel_pair_mask_inds += mask_inds
-        rel_pair_segment_inds += [i for _ in mask_inds]
-
-    # sanity check
-    for i, inds in enumerate(rel_pair_mask_inds):
-        if inds[0] < num_rel:
-            assert(relations[inds[0]][0] == rel_pair_segment_inds[i])
-        if inds[1] < num_rel:
-            assert(relations[inds[1]][1] == rel_pair_segment_inds[i])
 
     output_dict = {
-        'rel_mask_inds': np.array(rel_mask_inds).astype(np.int32),
-        'rel_segment_inds': np.array(rel_segment_inds).astype(np.int32),
-        'rel_pair_segment_inds': np.array(rel_pair_segment_inds).astype(np.int32),
-        'rel_pair_mask_inds': np.array(rel_pair_mask_inds).astype(np.int32),
+        'obj_context_o': np.array(obj_context_o).astype(np.int32),
+        'obj_context_p': np.array(obj_context_p).astype(np.int32),
+        'obj_context_inds': np.array(obj_context_inds).astype(np.int32),
+        'rel_context': np.array(rel_context).astype(np.int32),
+        'rel_context_inds': np.array(rel_context_inds).astype(np.int32),
         'num_roi': num_roi,
         'num_rel': num_rel
     }

@@ -24,10 +24,15 @@ Here we provide an instruction on how to compile the `roi_pooling` op specifical
 
 ```
 TF_INC=$(python -c 'import tensorflow as tf; print(tf.sysconfig.get_include())')
+TF_LIB=$(python -c 'import tensorflow as tf; print(tf.sysconfig.get_lib())')
 nvcc -std=c++11 -c -o roi_pooling_op_gpu.cu.o roi_pooling_op_gpu.cu.cc -I \
     $TF_INC -D GOOGLE_CUDA=1 -x cu -Xcompiler -fPIC
+{ -I /usr/local/ --expt-relaxed-constexpr -DNDEBUG (for solving cuda.h, __host__ not allow ......)}
 g++ -std=c++11 -shared -o roi_pooling_op_gpu.so roi_pooling_op.cc \
     roi_pooling_op_gpu.cu.o -I $TF_INC -fPIC -lcudart
+{ no -lcudart
+  add -L $TF_LIB -ltensorflow_framework (for solving undefined symbol: _ZTIN10tensorflow8OpKernelE)
+  -D_GLIBCXX_USE_CXX11_ABI=0 (for solving undefined symbol: _ZN10tensorflow7strings6StrCatB5cxx) }
 ```
 
 Note that if your CUDA is not installed in the default location, you have to specify the path by adding a `-L YOUR_CUDA_PATH/lib64/` flag in the last command.

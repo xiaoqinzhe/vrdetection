@@ -5,29 +5,26 @@ set -e
 
 export PYTHONUNBUFFERED="True"
 
-NET=$1
-INFERENCE_ITER=$2
-EXP_DIR=$3
-GPU_ID=$1
-
-NET=dual_graph_vrd_final
+NET=$2
 INFERENCE_ITER=2
-EXP_DIR=chk
+EXP_DIR=$4
+GPU_ID=$3
+
+INFERENCE_ITER=2
 
 CFG_FILE=experiments/cfgs/sparse_graph.yml
 PRETRAINED=data/pretrained/coco_vgg16_faster_rcnn_final.npy
 
 # dataset
-ROIDB=VG-SGG
-RPNDB=proposals.h5
-IMDB=imdb_1024.h5
-ITERS=$2
+DATASET=$1
+ITERS=$5
 
 # log
 OUTPUT=checkpoints/$EXP_DIR
 TF_LOG=checkpoints/$EXP_DIR/tf_logs
 rm -rf ${OUTPUT}/logs/
 rm -rf ${TF_LOG}
+rm -rf ${TF_LOG}val
 mkdir -p ${OUTPUT}/logs
 LOG="$OUTPUT/logs/`date +'%Y-%m-%d_%H-%M-%S'`"
 
@@ -38,9 +35,7 @@ echo Logging output to "$LOG"
 
 time ./tools/train_net.py --gpu 0 \
   --weights ${PRETRAINED} \
-  --imdb ${IMDB} \
-  --roidb ${ROIDB} \
-  --rpndb ${RPNDB} \
+  --dataset ${DATASET} \
   --iters ${ITERS} \
   --cfg ${CFG_FILE} \
   --network ${NET} \

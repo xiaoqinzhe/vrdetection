@@ -11,7 +11,7 @@ import _init_paths
 from fast_rcnn.test import test_net
 from fast_rcnn.visualize import viz_net
 from fast_rcnn.config import cfg, cfg_from_file
-from datasets.factory import get_imdb
+from datasets.factory import get_db
 import argparse
 import pprint
 import time, os, sys
@@ -32,15 +32,8 @@ def parse_args():
     parser.add_argument('--wait', dest='wait',
                         help='wait until net file exists',
                         default=True, type=bool)
-    parser.add_argument('--imdb', dest='imdb',
-                        help='dataset to test',
-                        default='im_512.h5', type=str)
-    parser.add_argument('--roidb', dest='roidb',
-                        help='dataset to test',
-                        default='VG', type=str)
-    parser.add_argument('--rpndb', dest='rpndb',
-                        help='dataset to test',
-                        default='proposals.h5', type=str)
+    parser.add_argument('--dataset', dest='dataset',
+                        default=None, type=str)
     parser.add_argument('--network', dest='network_name',
                         help='name of the network',
                         default=None, type=str)
@@ -67,15 +60,17 @@ if __name__ == '__main__':
 
     if args.cfg_file is not None:
         cfg_from_file(args.cfg_file)
-
     cfg.TEST.INFERENCE_ITER = args.inference_iter
+
+    if args.dataset is not None:
+        cfg.DATASET = args.dataset
 
     print('Using config:')
     pprint.pprint(cfg)
 
-    while not os.path.exists(args.model) and args.wait:
-        print('Waiting for {} to exist...'.format(args.model))
-        time.sleep(10)
+    # while not os.path.exists(args.model) and args.wait:
+    #     print('Waiting for {} to exist...'.format(args.model))
+    #     time.sleep(10)
 
 
     device_name = '/gpu:{:d}'.format(args.gpu_id)
@@ -86,7 +81,7 @@ if __name__ == '__main__':
     config = tf.ConfigProto()
     config.allow_soft_placement=True
 
-    imdb = get_imdb(args.roidb, args.imdb, args.rpndb, split=2, num_im=args.test_size)
+    imdb = get_db(split=2, num_im=args.test_size)
     if args.test_mode == 'viz_cls' or args.test_mode == 'viz_det':  # visualize result
         viz_net(args.network_name, args.model, imdb, args.test_mode)
     else:
