@@ -35,12 +35,12 @@ __C.TRAIN = edict()
 __C.TRAIN.LEARNING_RATE = 0.001
 __C.TRAIN.MOMENTUM = 0.9
 __C.TRAIN.GAMMA = 0.1
-__C.TRAIN.STEPSIZE = 50000
+__C.TRAIN.STEPSIZES = [20000]
 
 __C.TRAIN.WEIGHT_REG = False
 
 # Weight decay, for regularization
-__C.TRAIN.WEIGHT_DECAY = 0.0001
+__C.TRAIN.WEIGHT_DECAY = 0.001
 
 # Whether to have weight decay on bias as well
 __C.TRAIN.BIAS_DECAY = False
@@ -53,13 +53,13 @@ __C.TRAIN.SCALES = (600,)
 __C.TRAIN.MAX_SIZE = 1000
 
 # Images to use per minibatch
-__C.TRAIN.IMS_PER_BATCH = 2
+__C.TRAIN.IMS_PER_BATCH = 1
 
 # Minibatch size (number of regions of interest [ROIs])
 __C.TRAIN.BATCH_SIZE = 256
 
 # Number of negative relationship to sample
-__C.TRAIN.NUM_NEG_RELS = 128
+__C.TRAIN.NUM_NEG_RELS = 15
 
 # Fraction of minibatch that is labeled foreground (i.e. class > 0)
 __C.TRAIN.FG_FRACTION = 0.25
@@ -85,7 +85,7 @@ __C.TRAIN.BBOX_THRESH = 0.5
 # Iterations between snapshots
 __C.TRAIN.SNAPSHOT_FREQ = 10000
 __C.TRAIN.DISPLAY_FREQ = 10
-__C.TRAIN.SUMMARY_FREQ = 100
+__C.TRAIN.SUMMARY_FREQ = 50
 
 # solver.prototxt specifies the snapshot path prefix, this adds an optional
 # infix to yield the path: <prefix>[_<infix>]_iters_XYZ.caffemodel
@@ -173,9 +173,13 @@ __C.VG_DIR = osp.abspath(osp.join(__C.ROOT_DIR, 'data/vg/'))
 
 # __C.WORD2VEC_FILE = osp.join(__C.ROOT_DIR, 'data/word2vec/GoogleNews-vectors-negative300.bin')
 __C.WORD2VEC_FILE = osp.join(__C.ROOT_DIR, 'data/word2vec/glove.6B.300d.txt')
+__C.WORD2VEC_FILE = osp.join(__C.ROOT_DIR, 'data/vrd/')
+__C.WORD2VEC_SIZE = 50
 
 # Default GPU device id
 __C.GPU_ID = 0
+
+__C.VIZ_DATA_PATH = osp.join(__C.ROOT_DIR, 'data/viz/')
 
 __C.DATASET = 'vrd'
 
@@ -184,14 +188,37 @@ __C.TRAIN.USE_VALDB = True
 # train mode
 __C.TRAIN.MODE = 'cls'
 
-__C.TRAIN.USE_SAMPLE_GRAPH = False
+__C.TRAIN.USE_AUG_DATA = False
+__C.TRAIN.USE_SAMPLE_GRAPH = True
 
 __C.MODEL_PARAMS = {'if_pred_cls': False, 'if_pred_bbox': False, 'if_pred_rel': True, 'if_pred_spt': False,
                     'use_context': True, 'use_spatial': False, 'use_class': False,
-                    'stop_gradient': True,}
+                    'stop_gradient': True, }
+
+# __C.BASENET='res50'
+# __C.BASENET_WEIGHT_ITER='75000'
+__C.BASENET='vgg16'
+__C.BASENET_WEIGHT_ITER='75000'
 
 __C.TEST.REL_EVAL = True
-__C.TEST.METRIC_EVAL = False
+__C.TEST.METRIC_EVAL = True
+
+
+#
+# ResNet options
+#
+
+__C.RESNET = edict()
+
+# Option to set if max-pooling is appended after crop_and_resize.
+# if true, the region will be resized to a square of 2xPOOLING_SIZE,
+# then 2x2 max-pooling is applied; otherwise the region will be directly
+# resized to a square of POOLING_SIZE
+__C.RESNET.MAX_POOL = False
+
+# Number of fixed blocks during training, by default the first of all 4 blocks is fixed
+# Range: 0 (none) to 3 (all)
+__C.RESNET.FIXED_BLOCKS = 1
 
 
 def get_output_dir(imdb, net=None):

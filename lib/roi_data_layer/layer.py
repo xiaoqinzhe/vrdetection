@@ -2,7 +2,6 @@ from fast_rcnn.config import cfg
 from roi_data_layer.minibatch import get_minibatch
 from roi_data_layer.roidb import prepare_roidb, add_bbox_regression_targets
 import numpy as np
-from data_utils import load_word_vec
 
 class RoIDataLayer:
     def __init__(self, imdb, roidb, num_classes, bbox_means, bbox_stds, num_batches=cfg.TRAIN.IMS_PER_BATCH):
@@ -58,8 +57,6 @@ class RoIDataLayer:
                                     self.bbox_stds)
 
         blobs = get_minibatch(minibatch_db, self._num_classes)
-        # add word vector
-        blobs['obj_embedding'] = self.imdb.word2vec
         # if blobs is not None:
         #     blobs['db_inds'] = db_inds
         return blobs

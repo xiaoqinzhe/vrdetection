@@ -42,8 +42,8 @@ case ${DATASET} in
   vrd)
     TRAIN_IMDB="vrd_train"
     TEST_IMDB="vrd_test"
-    STEPSIZE="[100000]"
-    ITERS=200000
+    STEPSIZE="[60000]"
+    ITERS=90000
     ANCHORS="[4,8,16,32]"
     RATIOS="[0.5,1,2]"
     ;;

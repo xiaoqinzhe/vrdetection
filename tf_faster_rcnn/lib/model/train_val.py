@@ -184,17 +184,28 @@ class SolverWrapper(object):
     # Initialize all variables first
     sess.run(tf.variables_initializer(variables, name='init'))
     var_keep_dic = self.get_variables_in_checkpoint_file(self.pretrained_model)
-    # Get the variables to restore, ignoring the variables to fix
-    variables_to_restore = self.net.get_variables_to_restore(variables, var_keep_dic)
 
-    restorer = tf.train.Saver(variables_to_restore)
-    restorer.restore(sess, self.pretrained_model)
-    print('Loaded.')
-    # Need to fix the variables before loading, so that the RGB weights are changed to BGR
-    # For VGG16 it also changes the convolutional weights fc6 and fc7 to
-    # fully connected weights
-    self.net.fix_variables(sess, self.pretrained_model)
-    print('Fixed.')
+    is_imagenet = "imagenet" in self.pretrained_model
+    if is_imagenet:
+      # Get the variables to restore, ignoring the variables to fix
+      variables_to_restore = self.net.get_variables_to_restore(variables, var_keep_dic)
+      restorer = tf.train.Saver(variables_to_restore)
+      restorer.restore(sess, self.pretrained_model)
+      print('Loaded.')
+      # Need to fix the variables before loading, so that the RGB weights are changed to BGR
+      # For VGG16 it also changes the convolutional weights fc6 and fc7 to
+      # fully connected weights
+      self.net.fix_variables(sess, self.pretrained_model)
+      print('Fixed.')
+    else:
+      restore_vars = []
+      variables_to_restore = tf.global_variables(scope=self.net._scope)
+      for var in variables_to_restore:
+        if "bbox" in var.name or "cls" in var.name: continue
+        restore_vars.append(var)
+      restorer = tf.train.Saver(restore_vars)
+      restorer.restore(sess, self.pretrained_model)
+      print('Loaded.')
     last_snapshot_iter = 0
     rate = cfg.TRAIN.LEARNING_RATE
     stepsizes = list(cfg.TRAIN.STEPSIZE)

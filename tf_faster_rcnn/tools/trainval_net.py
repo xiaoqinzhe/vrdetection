@@ -134,6 +134,9 @@ if __name__ == '__main__':
   else:
     raise NotImplementedError
 
+  # args.weight = "/hdd/pretrained_models/tf/imagenet/{}.ckpt".format(args.net)
+  args.weight = "/hdd/pretrained_models/tf/detection/coco_2014_train+coco_2014_valminusminival/{}_faster_rcnn_iter_1190000.ckpt".format(args.net)
+
   train_net(net, imdb, roidb, valroidb, output_dir, tb_dir,
             pretrained_model=args.weight,
             max_iters=args.max_iters)

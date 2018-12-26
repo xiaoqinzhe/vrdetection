@@ -11,9 +11,13 @@ __sets = {}
 from models import *
 from omodels import *
 from attnets import *
+from graphnet import *
+from cainet import *
+from weightednet import *
+from sptnet import *
 
 __sets['vrdnet'] = vrdnet # VRD baseline
-__sets['vggnet'] = vggnet # VRD baseline
+__sets['vggnet'] = basenet # VRD baseline
 __sets['vtranse'] = vtranse # VtransE
 __sets['sptnet'] = sptnet # sptnet
 __sets['sptnet2'] = sptnet2 # sptnet
@@ -25,6 +29,12 @@ __sets['ctxnet'] = ctxnet
 __sets['ctxnet2'] = ctxnet2
 __sets['visualnet'] = visualnet
 __sets['multinet'] = multinet
+__sets['graphnet'] = graphnet
+__sets['grunet'] = grunet
+__sets['cainet'] = cainet
+__sets['weightednet'] = weightednet
+__sets['weightednet2'] = weightednet2
+__sets['ranknet'] = ranknet
 # __sets['dual_graph_vrd_avgpool'] = dual_graph_vrd_avgpool  # avg pooling baseline
 # __sets['dual_graph_vrd_maxpool'] = dual_graph_vrd_maxpool  # max pooling baseline
 # __sets['dual_graph_vrd_final'] = dual_graph_vrd_final  # final model

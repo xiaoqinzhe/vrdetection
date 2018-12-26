@@ -1,12 +1,14 @@
 import numpy as np
 from fast_rcnn.config import cfg
 
+total = 0
+
 def eval_relation_recall(sg_entry,
                          roidb_entry,
                          result_dict,
                          mode,
-                         iou_thresh, num_k=1, use_gt_rel = cfg.TEST.METRIC_EVAL):
-
+                         iou_thresh, num_k=70, use_gt_rel = False):
+    use_gt_rel = cfg.TEST.METRIC_EVAL
     # gt
     gt_inds = np.where(roidb_entry['max_overlaps'] == 1)[0]
     gt_boxes = roidb_entry['boxes'][gt_inds].copy().astype(float)
@@ -25,6 +27,12 @@ def eval_relation_recall(sg_entry,
                                              gt_boxes,
                                              gt_predicate_scores,
                                              gt_class_scores)
+    num_true_gt_rels = None
+    # cal gt_rel true number
+    # num_true_gt_rels = len(np.unique(gt_relations[:,:2], axis=0))
+    # global total
+    # if num_true_gt_rels<num_gt_relations: total += 1
+    # print(num_gt_relations, num_true_gt_rels, total)
 
     # pred
     box_preds = sg_entry['boxes']
@@ -41,6 +49,7 @@ def eval_relation_recall(sg_entry,
     predicates = []
     predicate_scores = []
     if use_gt_rel and not cfg.TRAIN.USE_SAMPLE_GRAPH:
+    # if use_gt_rel:
         for rel in gt_relations:
             i, j = rel[0], rel[1]
             arg_sort = np.argsort(-predicate_preds[i][j])
@@ -103,12 +112,15 @@ def eval_relation_recall(sg_entry,
     elif mode =='sg_det':
         # if scene graph detection task
         # use preicted boxes and predicted classes
-        classes = np.argmax(class_preds, 1)
-        class_scores = class_preds.max(axis=1)
-        boxes = []
-        for i, c in enumerate(classes):
-            boxes.append(box_preds[i, c*4:(c+1)*4])
-        boxes = np.vstack(boxes)
+        # classes = np.argmax(class_preds, 1)
+        # class_scores = class_preds.max(axis=1)
+        # boxes = []
+        # for i, c in enumerate(classes):
+        #     boxes.append(box_preds[i, c*4:(c+1)*4])
+        # boxes = np.vstack(boxes)
+        classes = sg_entry['cls_preds']
+        class_scores = sg_entry['cls_scores']
+        boxes = sg_entry['boxes']
     else:
         raise NotImplementedError('Incorrect Mode! %s' % mode)
 
@@ -127,7 +139,8 @@ def eval_relation_recall(sg_entry,
                                   pred_triplets[keep_inds,:],
                                   gt_triplet_boxes,
                                   pred_triplet_boxes[keep_inds,:],
-                                  iou_thresh)
+                                  iou_thresh, num_true_gt_rels=num_true_gt_rels)
+        print(recall)
         result_dict[mode + '_recall'][k].append(recall)
 
     # for visualization
@@ -159,12 +172,16 @@ def _triplet(predicates, relations, classes, boxes,
 
 
 def _relation_recall(gt_triplets, pred_triplets,
-                     gt_boxes, pred_boxes, iou_thresh):
+                     gt_boxes, pred_boxes, iou_thresh, num_true_gt_rels):
 
     # compute the R@K metric for a set of predicted triplets
 
     num_gt = gt_triplets.shape[0]
     num_correct_pred_gt = 0
+
+    # ignore duplicated relation
+    if num_true_gt_rels is not None:
+        num_gt = num_true_gt_rels
 
     for gt, gt_box in zip(gt_triplets, gt_boxes):
         keep = np.zeros(pred_triplets.shape[0]).astype(bool)

@@ -19,3 +19,12 @@ def get_val_db(num_im = -1):
         return vg_hdf5('VG-SGG.h5', 'VG-SGG-dicts.json', 'imdb_1024.h5', 'proposals.h5', split=1, num_im=num_im)
     else:
         raise AttributeError("dataset name does not exist")
+
+def get_detections_filename(iter=75000, net="res50"):
+    dataset_name = cfg.DATASET
+    if dataset_name == 'vrd':
+        return "tf_faster_rcnn/output/{}/vrd_test/default/{}_faster_rcnn_iter_{}/detections.pkl".format(net, net, iter)
+    elif dataset_name == 'vg':
+        return ""
+    else:
+        raise AttributeError("dataset name does not exist")

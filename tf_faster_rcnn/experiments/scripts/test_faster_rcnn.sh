@@ -8,10 +8,11 @@ export PYTHONUNBUFFERED="True"
 GPU_ID=$1
 DATASET=$2
 NET=$3
+ITERS=$4
 
 array=( $@ )
 len=${#array[@]}
-EXTRA_ARGS=${array[@]:3:$len}
+EXTRA_ARGS=${array[@]:4:$len}
 EXTRA_ARGS_SLUG=${EXTRA_ARGS// /_}
 
 case ${DATASET} in
@@ -33,6 +34,13 @@ case ${DATASET} in
     TRAIN_IMDB="coco_2014_train+coco_2014_valminusminival"
     TEST_IMDB="coco_2014_minival"
     ITERS=490000
+    ANCHORS="[4,8,16,32]"
+    RATIOS="[0.5,1,2]"
+    ;;
+  vrd)
+    TRAIN_IMDB="vrd_train"
+    TEST_IMDB="vrd_test"
+#   ITERS=110000
     ANCHORS="[4,8,16,32]"
     RATIOS="[0.5,1,2]"
     ;;

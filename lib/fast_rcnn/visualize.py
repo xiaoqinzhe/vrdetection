@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 import json
 
 
-def draw_graph_pred(im, boxes, cls_score, rel_score, gt_to_pred, roidb):
+def draw_graph_pred(im, boxes, cls_score, rel_score, gt_to_pred, roidb, filename, im_name):
     """
     Draw a predicted scene graph. To keep the graph interpretable, only draw
     the node and edge predictions that have correspounding ground truth
@@ -50,6 +50,7 @@ def draw_graph_pred(im, boxes, cls_score, rel_score, gt_to_pred, roidb):
             # ignore nodes that have no edge connections
             for rel in gt_relations:
                 if rel[0] not in gt_to_pred or rel[1] not in gt_to_pred:
+                    # print('are you kidding me?')
                     continue
                 # discard duplicate grounding
                 if [i, j] in all_rels:
@@ -63,11 +64,13 @@ def draw_graph_pred(im, boxes, cls_score, rel_score, gt_to_pred, roidb):
         return
 
     # indices of predicted boxes
-    pred_inds = rel_pred[:, :2].ravel()
+    # pred_inds = rel_pred[:, :2].ravel() # ????
+    pred_inds = np.arange(cls_score.shape[0])
+    # print(pred_inds)
 
     # draw graph predictions
-    graph_dict = draw_scene_graph(cls_pred, pred_inds, rel_pred)
-    viz_scene_graph(im, boxes, cls_pred, pred_inds, rel_pred, preprocess=False)
+    graph_dict = draw_scene_graph(cls_pred, pred_inds, rel_pred, filename=filename)
+    viz_scene_graph(im, boxes, cls_pred, inds=pred_inds, rels=rel_pred, gt_rels=gt_relations, preprocess=False, filename=filename, imagename=im_name)
     """
     out_boxes = []
     for box, cls in zip(boxes[pred_inds], cls_pred[pred_inds]):
@@ -83,8 +86,12 @@ def draw_graph_pred(im, boxes, cls_score, rel_score, gt_to_pred, roidb):
     """
 
 def viz_net(net_name, weight_name, imdb, viz_mode='viz_cls'):
-    sess = tf.Session()
+    cfg.TEST.REL_EVAL = True
+    cfg.TEST.METRIC_EVAL = True
+    cfg.ind_to_class = imdb.ind_to_classes
+    cfg.ind_to_predicate = imdb.ind_to_predicates
 
+    sess = tf.Session()
     # set up testing mode
     rois = tf.placeholder(dtype=tf.float32, shape=[None, 5], name='rois')
     rel_rois = tf.placeholder(dtype=tf.float32, shape=[None, 5], name='rois')
@@ -95,15 +102,25 @@ def viz_net(net_name, weight_name, imdb, viz_mode='viz_cls'):
               'rel_rois': rel_rois,
               'ims': ims,
               'relations': relations,
+              'labels': tf.placeholder(dtype=tf.int32, shape=[None]),
+              'predicates': tf.placeholder(dtype=tf.int32, shape=[None]),
+              'rel_spts': tf.placeholder(dtype=tf.int32, shape=[None]),
               'num_roi': tf.placeholder(dtype=tf.int32, shape=[]),
               'num_rel': tf.placeholder(dtype=tf.int32, shape=[]),
               'num_classes': imdb.num_classes,
               'num_predicates': imdb.num_predicates,
-              'rel_mask_inds': tf.placeholder(dtype=tf.int32, shape=[None]),
-              'rel_segment_inds': tf.placeholder(dtype=tf.int32, shape=[None]),
-              'rel_pair_mask_inds': tf.placeholder(dtype=tf.int32, shape=[None, 2]),
-              'rel_pair_segment_inds': tf.placeholder(dtype=tf.int32, shape=[None]),
-              'n_iter': cfg.TEST.INFERENCE_ITER}
+              'num_spatials': imdb.num_spatials,
+              'obj_context_o': tf.placeholder(dtype=tf.int32, shape=[None]),
+              'obj_context_p': tf.placeholder(dtype=tf.int32, shape=[None]),
+              'obj_context_inds': tf.placeholder(dtype=tf.int32, shape=[None]),
+              'rel_context': tf.placeholder(dtype=tf.int32, shape=[None]),
+              'rel_context_inds': tf.placeholder(dtype=tf.int32, shape=[None]),
+              'obj_embedding': tf.placeholder(dtype=tf.float32, shape=[imdb.num_classes, cfg.WORD2VEC_SIZE]),
+              'obj_matrix': tf.placeholder(dtype=tf.float32, shape=[None, None]),
+              'rel_matrix': tf.placeholder(dtype=tf.float32, shape=[None, None]),
+              'rel_weights': tf.placeholder(dtype=tf.float32, shape=[None]),
+              'rel_weight_rois': tf.placeholder(dtype=tf.float32, shape=[None, 5]),
+              }
 
 
 
@@ -120,17 +137,41 @@ def viz_net(net_name, weight_name, imdb, viz_mode='viz_cls'):
 
     num_images = len(imdb.image_index)
 
-    if net.iterable:
-        inference_iter = net.n_iter - 1
-    else:
-        inference_iter = 0
+    # if net.iterable:
+    #     inference_iter = net.n_iter - 1
+    # else:
+    #
+    inference_iter = 0
     print('=======================VIZ INFERENCE Iteration = '),
     print(inference_iter)
     print('=======================VIZ MODES = '),
     print(viz_mode)
 
+    viz_saved_path = cfg.VIZ_DATA_PATH + imdb.name + '/'
+    # rel predictions
+    ops = {}
+    if cfg.TEST.REL_EVAL:
+        if cfg.MODEL_PARAMS['if_pred_bbox']:
+            ops['bbox_deltas'] = net.bbox_pred_output([0])
+        ops['rel_probs'] = net.rel_pred_output([0])
+        # ops['rel_probs_vis'] = net.rel_pred_output('_vis')
+        if net.if_pred_cls:
+            ops['cls_probs'] = net.cls_pred_output([0])
+    else:
+        ops = tf.no_op(name="no_pred_sg")
+    # metrics to show
+    if cfg.TEST.METRIC_EVAL:
+        metric_ops = net.losses()
+        net.metrics(metric_ops)
+        metric_res = {}
+        for k in metric_ops: metric_res[k] = []
+    else:
+        metric_ops = tf.no_op(name='no_test_metric')
+
     for im_i in xrange(num_images):
         im = imdb.im_getter(im_i)
+        im_name = imdb.info[im_i]['image_filename'].split('/')[-1]
+        print("processing {}: {}".format(im_i, im_name))
 
         bbox_reg = True
         if viz_mode == 'viz_cls':
@@ -153,11 +194,26 @@ def viz_net(net_name, weight_name, imdb, viz_mode='viz_cls'):
         if box_proposals.size == 0 or box_proposals.shape[0] < 2:
             continue
 
-        out_dict = im_detect(sess, net, inputs, im, box_proposals,
-                                bbox_reg, [inference_iter])
+
+        out_dict, metrics_v = im_detect(sess, net, inputs, im, box_proposals,
+                                        bbox_reg, [0], roidb[im_i], ops, metric_ops)
+
         sg_entry = out_dict[inference_iter]
 
         # ground predicted graphs to ground truth annotations
+        filename_prefix = "{}".format(im_i)
+        path = viz_saved_path + filename_prefix
+        if cfg.TEST.METRIC_EVAL:
+            for k in metrics_v:
+                metric_res[k].append(metrics_v[k])
+                if k == 'acc_rel':
+                    print(k, im_i, metrics_v[k])
+                    im_name += "_acc:{}".format(metrics_v[k])
+
         gt_to_pred = ground_predictions(sg_entry, roidb[im_i], 0.5)
         draw_graph_pred(im, sg_entry['boxes'], sg_entry['scores'], sg_entry['relations'],
-                             gt_to_pred, roidb[im_i])
+                             gt_to_pred, roidb[im_i], path, im_name)
+
+    if cfg.TEST.METRIC_EVAL:
+        for k in metric_res:
+            print(k, np.mean(metric_res[k]))

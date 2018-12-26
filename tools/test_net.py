@@ -81,7 +81,7 @@ if __name__ == '__main__':
     config = tf.ConfigProto()
     config.allow_soft_placement=True
 
-    imdb = get_db(split=2, num_im=args.test_size)
+    imdb = get_db(split=1, num_im=args.test_size)
     if args.test_mode == 'viz_cls' or args.test_mode == 'viz_det':  # visualize result
         viz_net(args.network_name, args.model, imdb, args.test_mode)
     else:

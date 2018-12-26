@@ -11,7 +11,7 @@ import losses
 from fast_rcnn.config import cfg
 import net_utils as utils
 import tensorflow.contrib.slim as slim
-
+from basenets import *
 
 """
 A TensorFlow implementation of the scene graph generation models introduced in
@@ -20,7 +20,7 @@ A TensorFlow implementation of the scene graph generation models introduced in
 
 class vrdnet(Network):
     def __init__(self, data):
-        self.inputs = []
+        # self.inputs = self._init_inputs()
         self.data = data
         self.ims = data['ims']
         self.rois = data['rois']
@@ -32,6 +32,7 @@ class vrdnet(Network):
         self.num_predicates = data['num_predicates']
         self.relations = data['relations']
         self.predicates = data['predicates']
+        self.is_training = data['is_training']
         self.iterable = False
         self.keep_prob = tf.placeholder(tf.float32)
         self.layers = {}
@@ -45,11 +46,36 @@ class vrdnet(Network):
         self.use_spatial = data['use_spatial'] if 'use_spatial' in data else False
         self.use_class = data['use_class'] if 'use_class' in data else False
         self.use_embedding = data['use_embedding'] if 'use_embedding' in data else False
-        self.embedded_size = data['embedded_size'] if 'embedded_size' in data else 300
+        self.embedded_size = data['embedded_size'] if 'embedded_size' in data else 64
         self.if_weight_reg = cfg.TRAIN.WEIGHT_REG
         self.roi_scale = 1.0/16
         self.loss_weights = { 'rel': 1, 'cls': 1, 'bbox': 1 }
         self.pooling_size = 7
+
+    def _init_inputs(self):
+        inputs = {
+            'ims': tf.placeholder(dtype=tf.float32, shape=[None, None, None, 3]),
+            'rois': tf.placeholder(dtype=tf.float32, shape=[None, 5]),
+            'rel_rois': tf.placeholder(dtype=tf.float32, shape=[None, 5]),
+            'labels': tf.placeholder(dtype=tf.int32, shape=[None]),
+            # 'bboxes': tf.placeholder(dtype=tf.float32, shape=[None, 4]),
+            'relations': tf.placeholder(dtype=tf.int32, shape=[None, 2]),
+            'predicates': tf.placeholder(dtype=tf.int32, shape=[None]),
+            'rel_spts': tf.placeholder(dtype=tf.int32, shape=[None]),
+            'bbox_targets': tf.placeholder(dtype=tf.float32, shape=[None, 4 * self.imdb.num_classes]),
+            'bbox_inside_weights': tf.placeholder(dtype=tf.float32, shape=[None, 4 * self.imdb.num_classes]),
+            'num_roi': tf.placeholder(dtype=tf.int32, shape=[]),  # number of rois per batch
+            'num_rel': tf.placeholder(dtype=tf.int32, shape=[]),  # number of relationships per batch
+            'obj_context_o': tf.placeholder(dtype=tf.int32, shape=[None]),
+            'obj_context_p': tf.placeholder(dtype=tf.int32, shape=[None]),
+            'obj_context_inds': tf.placeholder(dtype=tf.int32, shape=[None]),
+            'rel_context': tf.placeholder(dtype=tf.int32, shape=[None]),
+            'rel_context_inds': tf.placeholder(dtype=tf.int32, shape=[None]),
+            'obj_embedding': tf.placeholder(dtype=tf.float32, shape=[self.imdb.num_classes, cfg.WORD2VEC_SIZE]),
+            'obj_matrix': tf.placeholder(dtype=tf.float32, shape=[None, None]),
+            'rel_matrix': tf.placeholder(dtype=tf.float32, shape=[None, None])
+        }
+        return inputs
 
     def setup(self):
         # handle most of the regularizers here
@@ -65,15 +91,16 @@ class vrdnet(Network):
                        weights_regularizer=weights_regularizer,
                        biases_regularizer=biases_regularizer,
                        weights_initializer=tf.truncated_normal_initializer(0, 0.01),
-                       biases_initializer=tf.constant_initializer(0.0)):
+                       biases_initializer=tf.constant_initializer(0.0)
+                            ):
+            # cfg.TRAIN.WEIGHT_REG = True
             self._net()
 
     def _net(self):
         conv_net = self._net_conv(self.ims)
         self.layers['conv_out'] = conv_net
         roi_conv_out = self._net_roi_pooling([conv_net, self.rois], 7, 7, name='roi_conv_out')
-        roi_flatten = self._net_conv_reshape(roi_conv_out, name='roi_flatten')
-        roi_fc_out = self._net_roi_fc(roi_flatten)
+        roi_fc_out = self._net_roi_fc(roi_conv_out)
 
         if self.if_pred_cls:
             self._cls_pred(roi_fc_out)
@@ -109,13 +136,30 @@ class vrdnet(Network):
         else:
             raise NotImplementedError()
         if self.use_embedding:
-            cls_emb = tf.nn.embedding_lookup(self.data['obj_embedding'], self.labels, name='cls_emb')
+            obj_emb = tf.Variable(tf.zeros(shape=self.data['obj_embedding'].shape.as_list(), dtype=tf.float32), trainable=False, name='obj_emb')
+            self.embedding_init = obj_emb.assign(self.data['obj_embedding'])
+            self.cls_emb = tf.nn.embedding_lookup(obj_emb, self.labels, name='cls_emb')
         else:
-            cls_emb = slim.fully_connected(class_prob, self.embedded_size, scope='cls_emb')
+            self.cls_emb = slim.fully_connected(class_prob, self.embedded_size, scope='cls_emb')
             # raise NotImplementedError()
-        cls_emb_sub = tf.gather(cls_emb, rel_inx1)
-        cls_emb_obj = tf.gather(cls_emb, rel_inx2)
+        cls_emb_sub = tf.gather(self.cls_emb, rel_inx1)
+        cls_emb_obj = tf.gather(self.cls_emb, rel_inx2)
         return cls_emb_sub, cls_emb_obj
+
+    def _normalize_bbox(self, bbox):
+        wi = tf.cast(tf.shape(self.ims)[2], tf.float32)
+        hi = tf.cast(tf.shape(self.ims)[1], tf.float32)
+
+        areai = wi * hi
+        w = bbox[:, 2:3] - bbox[:, 0:1]
+        h = bbox[:, 3:4] - bbox[:, 1:2]
+        area = w * h
+        nx = bbox[:, 0:1] / wi
+        ny = bbox[:, 1:2] / hi
+        nw = bbox[:, 2:3] / wi
+        nh = bbox[:, 3:4] / hi
+        na = area / areai
+        return tf.concat([nx, ny, nw, nh, na], axis=1, name='norm_bbox')
 
     def _spatial_feature(self, rel_inx1, rel_inx2):
         if not self.if_pred_cls:
@@ -123,12 +167,14 @@ class vrdnet(Network):
             bbox = self.rois[:, 1:5]
         else:
             raise NotImplementedError()
+        norm_bbox = self._normalize_bbox(bbox)
         bbox_sub = tf.gather(bbox, rel_inx1)
         bbox_obj = tf.gather(bbox, rel_inx2)
-        spatial = self._relative_spatial(bbox_sub, bbox_obj)
-        spatial = tf.identity(spatial, name="spatial_feat")
+        norm_bbox_sub = tf.gather(norm_bbox, rel_inx1)
+        norm_bbox_obj = tf.gather(norm_bbox, rel_inx2)
+        rel_spt = self._relative_spatial(bbox_sub, bbox_obj)
+        spatial = tf.concat([norm_bbox_sub, norm_bbox_obj, rel_spt], axis=1, name='spatial_feature')
         # boxes
-
         return spatial
 
     def _relative_spatial(self, sub, obj):
@@ -137,7 +183,7 @@ class vrdnet(Network):
         w_ = obj[:, 2] - obj[:, 0]
         h_ = obj[:, 3] - obj[:, 1]
         tx = tf.expand_dims((sub[:, 0] - obj[:, 0]) / w_, 1)
-        ty = tf.expand_dims((sub[:, 1] - obj[:, 1]) / w_, 1)
+        ty = tf.expand_dims((sub[:, 1] - obj[:, 1]) / h_, 1)
         tw = tf.expand_dims(tf.log(w/w_), 1)
         th = tf.expand_dims(tf.log(h/h_), 1)
         return tf.concat([tx, ty, tw, th], axis=1)
@@ -344,7 +390,7 @@ class vrdnet(Network):
             loss_mask = tf.cast(tf.greater(labels, 0), tf.float32)
             batch_loss = tf.multiply(batch_loss, loss_mask)
         if ignore_bg:
-            loss = tf.reduce_sum(batch_loss)/tf.reduce_sum(loss_mask)
+            loss = tf.reduce_sum(batch_loss)/(tf.reduce_sum(loss_mask)+1)
         else:
             loss = tf.reduce_mean(batch_loss)
         loss = tf.multiply(loss, loss_weight, name=name)
@@ -412,362 +458,74 @@ class vrdnet(Network):
             op = self.get_output('rel_prob')
         return op
 
-class sptnet(vrdnet):
+class basenet(vrdnet):
     def __init__(self, data):
-        super(sptnet, self).__init__(data)
-        self.num_spatials = data['num_spatials']
-        self.if_pred_spt = data['if_pred_spt'] if 'if_pred_spt' in data else True
-        self.if_pred_rel = True
-        self.loss_weights['spt'] = 1.0
+        super(basenet, self).__init__(data)
+        self.model = self.build_base(data['basenet']) if 'basenet' in data else self.build_base('vgg16')
+        self.roi_scale = self.model.roi_scale
+        self._variables_to_fix = {}
+        self._scope = self.model._scope
 
-    def _net(self):
-        conv_net = self._net_conv(self.ims)
-        self.layers['conv_out'] = conv_net
-        roi_conv_out = self._net_roi_pooling([conv_net, self.rois], 7, 7, name='roi_conv_out')
-        roi_flatten = self._net_conv_reshape(roi_conv_out, name='roi_flatten')
-        roi_fc_out = self._net_roi_fc(roi_flatten)
-        rel_roi_conv_roi = self._net_roi_pooling([conv_net, self.rel_rois], 7, 7, name='rel_roi_conv_out')
-        rel_roi_flatten = self._net_conv_reshape(rel_roi_conv_roi, name='rel_roi_flatten')
-        rel_roi_fc_out = self._net_rel_roi_fc(rel_roi_flatten)
-        # spatial info
-        bbox = self.rois[:, 1:5]
-        if self.if_pred_spt:
-            rel_inx1, rel_inx2 = self._relation_indexes()
-            con_sub = tf.gather(roi_fc_out, rel_inx1)
-            con_obj = tf.gather(roi_fc_out, rel_inx2)
-            sub_feat = tf.concat([con_sub, rel_roi_fc_out], axis=1)
-            obj_feat = tf.concat([con_obj, rel_roi_fc_out], axis=1)
-            # sub_feat, obj_feat = con_sub, con_obj
-            # feat = tf.concat([con_sub, con_obj], axis=1)
-            # self._spatial_pred(feat)
-            sub_feat = slim.fully_connected(sub_feat, 512)
-            proj_sub = slim.fully_connected(sub_feat, 3)
-            obj_feat = slim.fully_connected(obj_feat, 512)
-            proj_obj = slim.fully_connected(obj_feat, 3)
-            self._spatial_pred(proj_sub - proj_obj)
-        if self.if_pred_rel:
-            # class me
-            cls_pred = tf.one_hot(self.labels, depth=self.num_classes)
-            cls_fc = slim.fully_connected(cls_pred, 256, scope="cls_emb")
-            cls_sub = tf.gather(cls_fc, rel_inx1)
-            cls_obj = tf.gather(cls_fc, rel_inx2)
-            rel_feat = tf.concat([con_sub, con_obj, rel_roi_fc_out, cls_sub, cls_obj, proj_sub - proj_obj], axis=1)
-            rel_feat = slim.fully_connected(rel_feat, 512)
-            rel_feat = slim.fully_connected(rel_feat, 512)
-            self._rel_pred(rel_feat)
-
-    def _spatial_pred(self, inputs):
-        net = slim.fully_connected(inputs, self.num_spatials, scope='spt_score')
-        self.layers['spt_score'] = net
-        net = slim.softmax(net, scope='spt_prob')
-        self.layers['spt_prob'] = net
-        net = tf.argmax(net, axis=1, name='spt_pred')
-        self.layers['spt_pred'] = net
-        return net
-
-    def _spatial_loss(self, ops={}):
-        spt_score = self.get_output('spt_score')
-        print(spt_score.get_shape(), self.data['rel_spts'].get_shape())
-        ops['loss_spt'] = self.sparse_softmax(spt_score, self.data['rel_spts'],
-                                                name='spt_loss', ignore_bg=True)
-        # ops['loss_rel'+suffix] = losses.sparse_softmax(rel_score, self.data['predicates'],
-        #                                         name='rel_loss'+suffix, ignore_bg=False)
-        return ops
-
-    def losses(self):
-        losses = super(sptnet, self).losses()
-        if self.if_pred_spt:
-            self._spatial_loss(losses)
-            if losses['loss_total'] == None:
-                losses['loss_total'] = self.loss_weights['spt'] * losses['loss_spt']
-            else:
-                losses['loss_total'] = tf.add(losses['loss_total'], self.loss_weights['spt'] * losses['loss_spt'])
-        return losses
-
-    def metrics(self, ops={}):
-        super(sptnet, self).metrics(ops)
-        if self.if_pred_spt:
-            # ops['acc_spt'] = tf.reduce_mean(tf.cast(tf.equal(tf.argmax(self.layers['spt_prob'], axis=1, output_type=tf.int32), self.data['rel_spts']), tf.float32))
-            ops['acc_spt'] = losses.accuracy(self.layers['spt_pred'], self.data['rel_spts'], name='acc_spt', ignore_bg=True)
-
-class vggnet(sptnet):
-    def __init__(self, data):
-        super(vggnet, self).__init__(data)
-        self.roi_scale = 1.0/16
-        self._scope = 'vgg_16'
+    def build_base(self, network_name):
+        if(network_name=='vgg16'):
+            return vgg16net(self.keep_prob, self.stop_gradient)
+        elif(network_name=='res50'):
+            return resnetv1(is_training=not self.stop_gradient, num_layers=50)
+        else:
+            raise NotImplementedError
 
     def _net_conv(self, inputs):
-        with tf.variable_scope(self._scope):
-            # net = slim.conv2d(inputs, 64, [3, 3], scope='conv1_1')
-            # net = slim.conv2d(net, 64, [3, 3], scope='conv1_2')
-            net = slim.repeat(inputs, 2, slim.conv2d, 64, [3, 3], scope='conv1')
-            net = slim.max_pool2d(net, [2, 2], 2, scope='pool1')
-            # net = slim.conv2d(net, 128, [3, 3], scope='conv2_1')
-            # net = slim.conv2d(net, 128, [3, 3], scope='conv2_2')
-            net = slim.repeat(net, 2, slim.conv2d, 128, [3, 3], scope='conv2')
-            net = slim.max_pool2d(net, [2, 2], 2, scope='pool2')
-            # net = slim.conv2d(net, 256, [3, 3], scope='conv3_1')
-            # net = slim.conv2d(net, 256, [3, 3], scope='conv3_2')
-            # net = slim.conv2d(net, 256, [3, 3], scope='conv3_3')
-            net = slim.repeat(net, 3, slim.conv2d, 256, [3, 3], scope='conv3')
-            net = slim.max_pool2d(net, [2, 2], 2, scope='pool3')
-            # net = slim.conv2d(net, 512, [3, 3], scope='conv4_1')
-            # net = slim.conv2d(net, 512, [3, 3], scope='conv4_2')
-            # net = slim.conv2d(net, 512, [3, 3], scope='conv4_3')
-            net = slim.repeat(net, 3, slim.conv2d, 512, [3, 3], scope='conv4')
-            net = slim.max_pool2d(net, [2, 2], 2, scope='pool4')
-            # net = slim.conv2d(net, 512, [3, 3], scope='conv5_1')
-            # net = slim.conv2d(net, 512, [3, 3], scope='conv5_2')
-            # net = slim.conv2d(net, 512, [3, 3], scope='conv5_3')
-            net = slim.repeat(net, 3, slim.conv2d, 512, [3, 3], scope='conv5')
-            if self.stop_gradient: net = tf.stop_gradient(net, name='stop_gradient')
-        return net
+        return self.model._net_conv(inputs)
 
     def _net_roi_fc(self, inputs):
-        with tf.variable_scope(self._scope):
-            net = slim.fully_connected(inputs, 4096, scope='fc6')
-            net = slim.dropout(net, self.keep_prob, scope='drop6')
-            net = slim.fully_connected(net, 4096, scope='fc7')
-            net = slim.dropout(net, self.keep_prob, scope='roi_fc_out')
-            if self.stop_gradient: net = tf.stop_gradient(net, name='stop_gradient')
-        return net
-
-    def _net_rel_roi_fc(self, inputs):
-        net = slim.fully_connected(inputs, 4096, scope='rel_fc6')
-        net = slim.dropout(net, self.keep_prob, scope='rel_drop6')
-        net = slim.fully_connected(net, 4096, scope='rel_fc7')
-        net = slim.dropout(net, self.keep_prob, scope='rel_roi_fc_out')
-        return net
+        return self.model._net_roi_fc(inputs)
 
     def get_variables_to_restore(self):
         variables = tf.global_variables(scope=self._scope)
         return variables
 
-#
-# class dual_graph_vrd(basenet):
-#     def __init__(self, data):
-#         basenet.__init__(self, data)
-#
-#         self.num_roi = data['num_roi']
-#         self.num_rel = data['num_rel']
-#         self.rel_rois = data['rel_rois']
-#         self.iterable = True
-#
-#         self.edge_mask_inds = data['rel_mask_inds']
-#         self.edge_segment_inds = data['rel_segment_inds']
-#
-#         self.edge_pair_mask_inds = data['rel_pair_mask_inds']
-#         self.edge_pair_segment_inds = data['rel_pair_segment_inds']
-#
-#         # number of refine iterations
-#         self.n_iter = data['n_iter']
-#         self.relations = data['relations']
-#
-#         self.vert_state_dim = 512
-#         self.edge_state_dim = 512
-#
-#     def setup(self):
-#         self.layers = dict({'ims': self.ims, 'rois': self.rois, 'rel_rois': self.rel_rois})
-#         self._vgg_conv()
-#         self._vgg_fc()
-#         self._union_rel_vgg_fc()
-#         self._cells()
-#         self._iterate()
-#
-#     def _cells(self):
-#         """
-#         construct RNN cells and states
-#         """
-#         # intiialize lstms
-#         self.vert_rnn = tf.nn.rnn_cell.GRUCell(self.vert_state_dim, activation=tf.tanh)
-#         self.edge_rnn = tf.nn.rnn_cell.GRUCell(self.edge_state_dim, activation=tf.tanh)
-#
-#         # lstm states
-#         self.vert_state = self.vert_rnn.zero_state(self.num_roi, tf.float32)
-#         self.edge_state = self.edge_rnn.zero_state(self.num_rel, tf.float32)
-#
-#     def _iterate(self):
-#         (self.feed('vgg_out')
-#              .fc(self.vert_state_dim, relu=False, name='vert_unary'))
-#
-#         (self.feed('rel_vgg_out')
-#              .fc(self.edge_state_dim, relu=True, name='edge_unary'))
-#
-#         vert_unary = self.get_output('vert_unary')
-#         edge_unary = self.get_output('edge_unary')
-#         vert_factor = self._vert_rnn_forward(vert_unary, reuse=False)
-#         edge_factor = self._edge_rnn_forward(edge_unary, reuse=False)
-#
-#         for i in xrange(self.n_iter):
-#             reuse = i > 0
-#             # compute edge states
-#             edge_ctx = self._compute_edge_context(vert_factor, edge_factor, reuse=reuse)
-#             edge_factor = self._edge_rnn_forward(edge_ctx, reuse=True)
-#
-#             # compute vert states
-#             vert_ctx = self._compute_vert_context(edge_factor, vert_factor, reuse=reuse)
-#             vert_factor = self._vert_rnn_forward(vert_ctx, reuse=True)
-#             vert_in = vert_factor
-#             edge_in = edge_factor
-#
-#             self._update_inference(vert_in, edge_in, i)
-#
-#     def _compute_edge_context_hard(self, vert_factor, reduction_mode='max'):
-#         """
-#         max or average message pooling
-#         """
-#         if reduction_mode=='max':
-#             return tf.reduce_max(tf.gather(vert_factor, self.relations), [1])
-#         elif reduction_mode=='mean':
-#             return tf.reduce_mean(tf.gather(vert_factor, self.relations), [1])
-#
-#     def _compute_vert_context_hard(self, edge_factor, vert_factor, reduction_mode='max'):
-#         """
-#         max or average message pooling
-#         """
-#         edge_factor_gathered = utils.pad_and_gather(edge_factor, self.edge_mask_inds, None)
-#
-#         vert_ctx = utils.padded_segment_reduce(edge_factor_gathered, self.edge_segment_inds,
-#                                                vert_factor.get_shape()[0], reduction_mode)
-#
-#         return vert_ctx
-#
-#     def _compute_edge_context_soft(self, vert_factor, edge_factor, reuse=False):
-#         """
-#         attention-based edge message pooling
-#         """
-#         vert_pairs = utils.gather_vec_pairs(vert_factor, self.relations)
-#
-#         sub_vert, obj_vert = tf.split(axis=1, num_or_size_splits=2, value=vert_pairs)
-#         sub_vert_w_input = tf.concat(axis=1, values=[sub_vert, edge_factor])
-#         obj_vert_w_input = tf.concat(axis=1, values=[obj_vert, edge_factor])
-#
-#
-#         # compute compatibility scores
-#         (self.feed(sub_vert_w_input)
-#              .fc(1, relu=False, reuse=reuse, name='sub_vert_w_fc')
-#              .sigmoid(name='sub_vert_score'))
-#         (self.feed(obj_vert_w_input)
-#              .fc(1, relu=False, reuse=reuse, name='obj_vert_w_fc')
-#              .sigmoid(name='obj_vert_score'))
-#
-#         sub_vert_w = self.get_output('sub_vert_score')
-#         obj_vert_w = self.get_output('obj_vert_score')
-#
-#         weighted_sub = tf.multiply(sub_vert, sub_vert_w)
-#         weighted_obj = tf.multiply(obj_vert, obj_vert_w)
-#         return weighted_sub + weighted_obj
-#
-#     def _compute_vert_context_soft(self, edge_factor, vert_factor, reuse=False):
-#         """
-#         attention-based vertex(node) message pooling
-#         """
-#
-#         out_edge = utils.pad_and_gather(edge_factor, self.edge_pair_mask_inds[:,0])
-#         in_edge = utils.pad_and_gather(edge_factor, self.edge_pair_mask_inds[:,1])
-#         # gather correspounding vert factors
-#         vert_factor_gathered = tf.gather(vert_factor, self.edge_pair_segment_inds)
-#
-#         # concat outgoing edges and ingoing edges with gathered vert_factors
-#         out_edge_w_input = tf.concat(axis=1, values=[out_edge, vert_factor_gathered])
-#         in_edge_w_input = tf.concat(axis=1, values=[in_edge, vert_factor_gathered])
-#
-#         # compute compatibility scores
-#         (self.feed(out_edge_w_input)
-#              .fc(1, relu=False, reuse=reuse, name='out_edge_w_fc')
-#              .sigmoid(name='out_edge_score'))
-#         (self.feed(in_edge_w_input)
-#              .fc(1, relu=False, reuse=reuse, name='in_edge_w_fc')
-#              .sigmoid(name='in_edge_score'))
-#
-#         out_edge_w = self.get_output('out_edge_score')
-#         in_edge_w = self.get_output('in_edge_score')
-#
-#         # weight the edge factors with computed weigths
-#         out_edge_weighted = tf.multiply(out_edge, out_edge_w)
-#         in_edge_weighted = tf.multiply(in_edge, in_edge_w)
-#
-#
-#         edge_sum = out_edge_weighted + in_edge_weighted
-#         vert_ctx = tf.segment_sum(edge_sum, self.edge_pair_segment_inds)
-#         return vert_ctx
-#
-#     def _vert_rnn_forward(self, vert_in, reuse=False):
-#         with tf.variable_scope('vert_rnn'):
-#             if reuse: tf.get_variable_scope().reuse_variables()
-#             (vert_out, self.vert_state) = self.vert_rnn(vert_in, self.vert_state)
-#         return vert_out
-#
-#     def _edge_rnn_forward(self, edge_in, reuse=False):
-#         with tf.variable_scope('edge_rnn'):
-#             if reuse: tf.get_variable_scope().reuse_variables()
-#             (edge_out, self.edge_state) = self.edge_rnn(edge_in, self.edge_state)
-#         return edge_out
-#
-#     def _update_inference(self, vert_factor, edge_factor, iter_i):
-#         # make predictions
-#         reuse = iter_i > 0  # reuse variables
-#
-#         iter_suffix = '_iter%i' % iter_i if iter_i < self.n_iter - 1 else ''
-#         self._cls_pred(vert_factor, layer_suffix=iter_suffix, reuse=reuse)
-#         self._bbox_pred(vert_factor, layer_suffix=iter_suffix, reuse=reuse)
-#         self._rel_pred(edge_factor, layer_suffix=iter_suffix, reuse=reuse)
-#
-#     def losses(self):
-#         return self._sg_losses()
-#
-#
-# class vrd(basenet):
-#     """
-#     Baseline: the visual relation detection module proposed by
-#     Lu et al.
-#     """
-#
-#     def __init__(self, data):
-#         basenet.__init__(self, data)
-#         self.rel_rois = data['rel_rois']
-#
-#     def setup(self):
-#         self.layers = dict({'ims': self.ims, 'rois': self.rois, 'rel_rois': self.rel_rois})
-#         self._vgg_conv()
-#         self._vgg_fc()
-#         self._union_rel_vgg_fc()
-#         self._cls_pred('vgg_out')
-#         self._bbox_pred('vgg_out')
-#         self._rel_pred('rel_vgg_out')
-#
-#     def losses(self):
-#         return self._sg_losses()
-#
-#
-# class dual_graph_vrd_maxpool(dual_graph_vrd):
-#     """
-#     Baseline: context-pooling by max pooling
-#     """
-#     def _compute_edge_context(self, vert_factor, edge_factor, reuse):
-#         return self._compute_edge_context_hard(vert_factor, reduction_mode='max')
-#
-#     def _compute_vert_context(self, edge_factor, vert_factor, reuse):
-#         return self._compute_vert_context_hard(edge_factor, vert_factor, reduction_mode='max')
-#
-#
-# class dual_graph_vrd_avgpool(dual_graph_vrd):
-#     """
-#     Baseline: context-pooling by avg. pooling
-#     """
-#     def _compute_edge_context(self, vert_factor, edge_factor, reuse):
-#         return self._compute_edge_context_hard(vert_factor, reduction_mode='mean')
-#
-#     def _compute_vert_context(self, edge_factor, vert_factor, reuse):
-#         return self._compute_vert_context_hard(edge_factor, vert_factor, reduction_mode='mean')
-#
-#
-# class dual_graph_vrd_final(dual_graph_vrd):
-#     """
-#     Our final model: context-pooling by attention
-#     """
-#     def _compute_edge_context(self, vert_factor, edge_factor, reuse):
-#         return self._compute_edge_context_soft(vert_factor, edge_factor, reuse)
-#
-#     def _compute_vert_context(self, edge_factor, vert_factor, reuse):
-#         return self._compute_vert_context_soft(edge_factor, vert_factor, reuse)
+    def get_variables_to_restore_imagenet(self, variables, var_keep_dic):
+        variables_to_restore = []
+
+        for v in variables:
+            # exclude the conv weights that are fc weights in vgg16
+            if v.name == (self._scope + '/fc6/weights:0') or \
+                            v.name == (self._scope + '/fc7/weights:0'):
+                self._variables_to_fix[v.name] = v
+                continue
+            # exclude the first conv layer to swap RGB to BGR
+            if v.name == (self._scope + '/conv1/conv1_1/weights:0'):
+                self._variables_to_fix[v.name] = v
+                continue
+            if v.name.split(':')[0] in var_keep_dic:
+                print('Variables restored: %s' % v.name)
+                variables_to_restore.append(v)
+
+        return variables_to_restore
+
+    def fix_variables_imagenet(self, sess, pretrained_model):
+        print('Fix VGG16 layers..')
+        with tf.variable_scope('Fix_VGG16') as scope:
+            with tf.device("/cpu:0"):
+                # fix the vgg16 issue from conv weights to fc weights
+                # fix RGB to BGR
+                fc6_conv = tf.get_variable("fc6_conv", [7, 7, 512, 4096], trainable=False)
+                fc7_conv = tf.get_variable("fc7_conv", [1, 1, 4096, 4096], trainable=False)
+                conv1_rgb = tf.get_variable("conv1_rgb", [3, 3, 3, 64], trainable=False)
+                restorer_fc = tf.train.Saver({self._scope + "/fc6/weights": fc6_conv,
+                                              self._scope + "/fc7/weights": fc7_conv,
+                                              self._scope + "/conv1/conv1_1/weights": conv1_rgb})
+                restorer_fc.restore(sess, pretrained_model)
+
+                sess.run(tf.assign(self._variables_to_fix[self._scope + '/fc6/weights:0'], tf.reshape(fc6_conv,
+                                                                                                      self._variables_to_fix[
+                                                                                                          self._scope + '/fc6/weights:0'].get_shape())))
+                # print(self.image)
+                # print(self._variables_to_fix[self._scope + '/fc6/weights:0'].get_shape())
+                sess.run(tf.assign(self._variables_to_fix[self._scope + '/fc7/weights:0'], tf.reshape(fc7_conv,
+                                                                                                      self._variables_to_fix[
+                                                                                                          self._scope + '/fc7/weights:0'].get_shape())))
+                # print(self._variables_to_fix[self._scope + '/fc7/weights:0'].get_shape())
+                sess.run(tf.assign(self._variables_to_fix[self._scope + '/conv1/conv1_1/weights:0'],
+                                   tf.reverse(conv1_rgb, [2])))
+

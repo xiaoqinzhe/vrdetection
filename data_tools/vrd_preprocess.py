@@ -110,6 +110,70 @@ def preprocess(json_file, ims_path, save_file, class_to_ind, ind_to_class, predi
     print("saved relationships = %d" % pred_count*1.0/len(save_info))         # 30355    7632      8
     print("done.")
 
+def check(json_file, name, ind_to_class, ind_to_predicate):
+    info = json.load(open(json_file))
+    save_info = []
+    print("images amount = %d"%len(info))
+    box_count, pred_count = 0, 0
+    for i, filename in enumerate(info):
+        d = info[filename]
+        if i % 1000 == 0:
+            print("processing %d"%i)
+        if (filename.find(name) == -1):
+            continue
+        print(filename)
+        boxes, labels, rels = get_objs_rels(d)
+        print(boxes)
+        for rel in rels:
+            print(rel)
+            print(ind_to_class[labels[rel[0]]], ind_to_predicate[rel[2]], ind_to_class[labels[rel[1]]])
+        break
+
+def check2(json_file, ims_path):
+    info = json.load(open(json_file))
+    print("images amount = %d"%len(info))
+    icount = 0
+    up_acc = 0.0
+    im_count = 0
+    for i, filename in enumerate(info):
+        d = info[filename]
+        if i % 1000 == 0:
+            print("processing %d"%i)
+        im_file = os.path.join(ims_path, filename)
+        im = cv2.imread(im_file)
+        if im is None:
+            if os.path.exists(im_file):
+                print("destroyed image: %s id: %d" % (im_file, i))
+            else:
+                print(
+                "missing image: %s id: %d. (you can change the img file from .gif to .jpg to fix this.)" % (im_file, i))
+            continue
+        boxes, labels, rels = get_objs_rels(d)
+        if len(boxes) == 0:
+            continue
+        rel_objs = [[rel[0],rel[1]] for rel in rels]
+        dup_count = 0
+        c = 0.0
+        for i in range(len(boxes)):
+            for j in range(len(boxes)):
+                cc = rel_objs.count([i, j])
+                if cc > 0:
+                    c += 1
+                    if cc > 1:
+                        dup_count += 1
+        if dup_count >= 1:
+            print("warning", filename, dup_count)
+            icount += 1
+        c /= len(rels)
+        up_acc += c
+        im_count += 1
+        # print(boxes)
+        # for rel in rels:
+        #     print(rel)
+        #     print(ind_to_class[labels[rel[0]]], ind_to_predicate[rel[2]], ind_to_class[labels[rel[1]]])
+    print("total {}/{} are duplicated".format(icount, len(info)))
+    print("max accuracy is {}/{}".format(up_acc/im_count, im_count))
+
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--data_path', default="./data/vrd/", type=str)
@@ -124,9 +188,14 @@ if __name__ == "__main__":
         os.makedirs(save_path)
     class_to_ind, ind_to_class = get_inds(os.path.join(data_path, 'objects.json'))
     predicate_to_ind, ind_to_predicate = get_inds(os.path.join(data_path, 'predicates.json'))
-    preprocess(os.path.join(data_path, 'annotations_train.json'), os.path.join(data_path, 'sg_train_images/'),
-               os.path.join(save_path, "train.json"),
-               class_to_ind, ind_to_class, predicate_to_ind, ind_to_predicate)
-    preprocess(os.path.join(data_path, 'annotations_test.json'), os.path.join(data_path, 'sg_test_images/'),
-               os.path.join(save_path, "test.json"),
-               class_to_ind, ind_to_class, predicate_to_ind, ind_to_predicate)
+
+    # preprocess(os.path.join(data_path, 'annotations_train.json'), os.path.join(data_path, 'sg_train_images/'),
+    #            os.path.join(save_path, "train.json"),
+    #            class_to_ind, ind_to_class, predicate_to_ind, ind_to_predicate)
+    # preprocess(os.path.join(data_path, 'annotations_test.json'), os.path.join(data_path, 'sg_test_images/'),
+    #            os.path.join(save_path, "test.json"),
+    #            class_to_ind, ind_to_class, predicate_to_ind, ind_to_predicate)
+
+    # check(os.path.join(data_path, 'annotations_test.json'), "8646018805_d914413321_b.jpg", ind_to_class, ind_to_predicate)
+    #
+    check2(os.path.join(data_path, 'annotations_test.json'), os.path.join(data_path, 'sg_test_images/'))

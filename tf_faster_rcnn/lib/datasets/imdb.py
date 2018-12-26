@@ -258,3 +258,37 @@ class imdb(object):
   def competition_mode(self, on):
     """Turn competition mode on or off."""
     pass
+
+  def mAP(self, all_boxes, iou_threshhold=0.5, cls_score_threshold=0.):
+    gt_roidb = self.roidb
+    num_classes = len(all_boxes)
+    gt_count = [[] for _ in range(num_classes)]
+    for im_i in range(len(gt_roidb)):
+      gt_boxes = gt_roidb[im_i]['boxes']
+      gt_cls = gt_roidb[im_i]['gt_classes']
+      count = [[] for _ in range(num_classes)]
+      for i in range(len(gt_boxes)):
+        # print(im_i, i)
+        cls = gt_cls[i]
+        count[cls].append(0.)
+        b = np.array(all_boxes[cls][im_i])
+        if len(b) == 0: continue
+        score_inds = np.where(b[:, 4] > cls_score_threshold)[0]
+        if len(score_inds) == 0: continue
+        b = b[score_inds]
+        pred_boxes = b[:, :4]
+        overlaps = bbox_overlaps(gt_boxes[i:i + 1].astype(np.float), pred_boxes.astype(np.float))[0]
+        # print(overlaps)
+        inds = np.where(overlaps > iou_threshhold)[0]
+        if len(inds) > 0:
+          count[cls][-1] = 1.0
+      for i in range(num_classes):
+        if len(count[i])==0: continue
+        gt_count[i].append(sum(count[i])/len(count[i]))
+    precision = []
+    for i in range(1, num_classes):
+      if len(gt_count[i])==0:
+        print("class {} == 0!!!!".format(i))
+        continue
+      precision.append(sum(gt_count[i]) / len(gt_count[i]))
+    return sum(precision)/(len(precision))

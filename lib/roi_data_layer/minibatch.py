@@ -38,6 +38,7 @@ def get_minibatch(roidb, num_classes):
     labels_blob = np.zeros((0), dtype=np.float32)
     rels_blob = np.zeros((0, 3), dtype=np.int32)
     rel_spt_blob = np.zeros((0), dtype=np.int8)
+
     bbox_targets_blob = np.zeros((0, 4 * num_classes), dtype=np.float32)
     bbox_inside_blob = np.zeros(bbox_targets_blob.shape, dtype=np.float32)
     all_overlaps = []
@@ -47,6 +48,7 @@ def get_minibatch(roidb, num_classes):
     d_timer = Timer()
     d_timer.tic()
     for im_i in xrange(num_images):
+        spts = np.zeros((0), dtype=np.int8)
         # sample graph
         if not cfg.TRAIN.USE_SAMPLE_GRAPH:
             roi_inds, rels, spts = _sample_all_gt(roidb[im_i])
@@ -54,16 +56,14 @@ def get_minibatch(roidb, num_classes):
             roi_inds, rels = _sample_graph(roidb[im_i],
                                         fg_rois_per_image,
                                         rois_per_image,
-                                        num_neg_rels=cfg.TRAIN.NUM_NEG_RELS)
-
+                                        num_neg_rels=32)
         # print("sample roi = %i"%len(roi_inds), "sample rel = %i"%len(rels))
 
         # print(roi_inds)
         # print(rels)
 
         if roi_inds.size == 0:
-            print('batch skipped')
-            return None
+            continue
 
         # gather all samples based on the sampled graph
         rels, labels, overlaps, im_rois, bbox_targets, bbox_inside_weights =\
@@ -81,19 +81,23 @@ def get_minibatch(roidb, num_classes):
         bbox_inside_blob = np.vstack((bbox_inside_blob, bbox_inside_weights))
         all_overlaps = np.hstack((all_overlaps, overlaps))
 
+
         # offset the relationship reference idx the number of previously
         # added box
         if rels.size > 0:
             rels_offset = rels.copy()
             rels_offset[:, :2] += box_idx_offset
             rels_blob = np.vstack([rels_blob, rels_offset])
-            # rel_spt_blob = np.hstack((rel_spt_blob, spts))
+            rel_spt_blob = np.hstack((rel_spt_blob, spts))
         box_idx_offset += rois.shape[0]
 
         #viz_inds = np.where(overlaps == 1)[0] # ground truth
         #viz_inds = npr.choice(np.arange(rois.shape[0]), size=50, replace=False) # random sample
         #viz_inds = np.where(overlaps > cfg.TRAIN.FG_THRESH)[0]  # foreground
         #viz_scene_graph(im_blob[im_i], rois, labels, viz_inds, rels)
+
+    if len(rois_blob) == 0 or len(rels_blob) == 0:
+        return None
 
     blobs['rois'] = rois_blob.copy()
     blobs['labels'] = labels_blob.copy().astype(np.int32)
@@ -112,13 +116,41 @@ def get_minibatch(roidb, num_classes):
                                                     rels_blob)
 
     # spatial data
-    # blobs['rel_spts'] = rel_spt_blob
+    blobs['rel_spts'] = rel_spt_blob
 
     d_timer.toc()
     graph_dict = data_utils.create_graph_data(num_roi, num_rel, rels_blob[:, :2])
 
     for k in graph_dict:
         blobs[k] = graph_dict[k]
+
+    # graph arch weights
+    if True:
+        obj_m, rel_m = data_utils.cal_graph_matrix(num_roi, num_rel, rels_blob)
+        blobs['obj_matrix'] = obj_m
+        blobs['rel_matrix'] = rel_m
+
+    # relationship weighted
+    blobs['rel_weight_labels'], blobs['rel_weight_rois'] = data_utils.cal_rel_weights(im_blob, rels_blob)
+
+    # relationship triple ranking
+    blobs['rel_triple_inds'], blobs['rel_triple_labels'] = data_utils.cal_rel_triples(rels_blob, 64)
+
+    # show data
+    # print("num_roi: ", num_roi)
+    # print("num_rel", num_rel)
+    # print("rois", blobs['rois'])
+    # print("labels", blobs['labels'])
+    # print("relations", blobs['relations'])
+    # print("predicates", blobs['predicates'])
+    # print("rel_rois", blobs['rel_rois'])
+    # print("obj_context_o", blobs['obj_context_o'])
+    # print("obj_context_p", blobs['obj_context_p'])
+    # print("obj_context_inds", blobs['obj_context_inds'])
+    # print("rel_context", blobs['rel_context'])
+    # print("rel_context_inds", blobs['rel_context_inds'])
+    # print("obj_matrix", blobs['obj_matrix'])
+    # print("rel_matrix", blobs['rel_matrix'])
 
     return blobs
 
@@ -217,9 +249,9 @@ def _sample_graph(roidb, num_fg_rois, num_rois, num_neg_rels=128):
             rels.append(rel)
             rels_inds.append(rel[:2].tolist())
 
-            if len(roi_inds) >= num_fg_rois:
-
-                break
+            # if len(roi_inds) >= num_fg_rois:
+            #
+            #     break
 
     # print('sampled pos rels = %i' % len(rels))
     # print('sampled fg rois = %i' % len(roi_inds))
@@ -249,6 +281,7 @@ def _sample_graph(roidb, num_fg_rois, num_rois, num_neg_rels=128):
         rels_inds += [sample_rels_inds[i] for i in inds]
         # print('sampled neg relationships = %i/%i' % (num_neg_rels, len(sample_rels)))
 
+    # print(gt_rels, rels)
 
     # if still not enough rois, sample bg rois
     num_rois_to_sample = num_rois - len(roi_inds)
