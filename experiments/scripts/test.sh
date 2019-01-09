@@ -14,14 +14,14 @@ GPU_ID=$3
 DATASET=$1
 NUM_IM=$6
 INFERENCE_ITER=2
-WEIGHT_FN=checkpoints/${WEIGHT_FN}
+WEIGHT_FN=checkpoints/$DATASET/${WEIGHT_FN}
 
 CFG_FILE=experiments/cfgs/sparse_graph.yml
 
 
 
 
-LOG="$OUTPUT/logs/`date +'%Y-%m-%d_%H-%M-%S'`"
+# LOG="$OUTPUT/logs/`date +'%Y-%m-%d_%H-%M-%S'`"
 
 export CUDA_VISIBLE_DEVICES=$GPU_ID
 

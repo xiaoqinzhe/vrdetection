@@ -1,0 +1,150 @@
+author435 13
+2016 Debugging OpenStack Problems Using a State Graph Approach
+2014 Themis: A participatory navigation system for balanced traffic routing
+2013 How to Make Friends in Social Network Service? A Comparison between Chinese and German
+2013 GeoSVR: A map-based stateless VANET routing
+2009 Pattern-Oriented Workflow Generation and Optimization
+2008 Knowledge modeling and optimization in pattern-oriented workflow generation
+2008 EBEM: An Event-driven Bandwidth Estimation Method for Mobile Ad Hoc Network
+2008 A multi-rate MAC protocol for mobile ad hoc networks and its cooperative extension
+2006 A novel channel assignment algorithm based on topology simplification in multi-radio wirelesss mesh networks
+2006 Virtual Delay Vector Based Core-Stateless Packet Scheduling Algorithm
+2005 On the problem of channel assignment for Multi-NIC multihop wireless networks
+2003 A multi-channel medium access control protocol for multicast in mobile ad-hoc network
+2003 Ad hoc networking based on TD-SCDMA
+author192 18
+2016 Cryptanalysis of a certificateless aggregate signature scheme
+2016 Fuzzy certificateless signature
+2015 A Modified Efficient Certificateless Signature Scheme without Bilinear Pairings
+2014 On the Security of a Lattice-Based Multi-party Concurrent Signature Scheme
+2014 Attribute-based key insulated signature and its applications
+2012 Identity-Based Key-Insulated Signcryption
+2012 Accountable authority key policy attribute-based encryption
+2011 Key updating technique in identity-based encryption
+2011 Restrictive partially blind signature for resource-constrained information systems
+2010 Efficient chosen-ciphertext secure certificateless threshold key encapsulation mechanism ☆
+2009 Provably Secure Identity-based Threshold Key Escrow from Pairing
+2008 Practical Certificateless Aggregate Signatures From Bilinear Maps
+2007 Certificateless threshold cryptosystem secure against chosen-ciphertext attack
+2007 ID-based threshold decryption secure against adaptive chosen-ciphertext attack
+2007 Efficient Partially Blind Signature from LFSR
+2006 Construction of Dynamic Threshold Decryption Scheme from Pairing
+2006 Adaptive Chosen Ciphertext Secure Threshold Key Escrow Scheme from Pairing
+2005 A dynamic threshold commercial key escrow scheme based on conic
+author835 17
+2016 An EL-LDA based general color harmony model for photo aesthetics assessment
+2016 Image color harmony modeling through neighbored co-occurrence colors
+2014 Object Ranking on Deformable Part Models with Bagged LambdaMART
+2014 Directional communication with movement prediction in mobile wireless sensor networks
+2014 Sentiment analysis of microblog combining dictionary and rules
+2014 Discovering Harmony: A Hierarchical Colour Harmony Model for Aesthetics Assessment
+2010 A framework of ontological semantic knowledge tree for vertical search engine
+2007 Differential shape statistical analysis
+2006 A fast individual face modeling and facial animation system
+2005 Multi-dimensional game interface with stereo vision
+2005 A vision based game control method
+2005 Fist tracking using bayesian network
+2005 Local moment invariant analysis
+2005 3D head models retrieval based on geometrical measurement for modeling
+2005 Head gesture recognition based on bayesian network
+2005 Head nod and shake recognition based on multi-view model and hidden Markov model
+2004 Navigation in 3D game by Markov model based head pose estimating
+author375 48
+2016 Accelerating the 3D euler atmospheric solver through heterogeneous CPU-GPU platforms
+2016 The Sunway TaihuLight supercomputer：system and applications
+2016 A Fast Tridiagonal Solver for Intel MIC Architecture
+2016 Generalized GPU Acceleration for Applications Employing Finite-Volume Methods
+2016 Unleashing the performance potential of CPU-GPU platforms for the 3D atmospheric Euler solver
+2016 10M-core scalable fully-implicit solver for nonhydrostatic atmospheric dynamics
+2016 Refactoring and optimizing the community atmosphere model (CAM) on the sunway taihulight supercomputer
+2015 Ultra-Scalable CPU-MIC Acceleration of Mesoscale Atmospheric Modeling on Tianhe-2
+2015 Solving the Global Atmospheric Equations through Heterogeneous Reconfigurable Platforms
+2014 A case study of large-scale parallel I/O analysis and optimization for numerical weather prediction system
+2014 Shield: A stackable secure storage system for file sharing in public storage
+2014 Keyword search with access control over encrypted data in cloud computing
+2014 Parallelisation of a watershed distributed ecohydrological model with dynamic task scheduling
+2014 ParSA: High-throughput scientific data analysis framework with distributed file system
+2014 A highly-efficient and green data flow engine for solving euler atmospheric equations
+2014 Scaling and analyzing the stencil performance on multi-core and many-core architectures
+2014 Enabling and Scaling a Global Shallow-Water Atmospheric Model on Tianhe-2
+2014 A hierarchical tridiagonal system solver for heterogenous supercomputers
+2013 A scalable barotropic mode solver for the parallel ocean program
+2013 Global Atmospheric Simulation on a Reconfigurable Platform
+2013 Preferred keyword search over encrypted data in cloud computing
+2013 Performance modeling and optimization of sparse matrix-vector multiplication on NVIDIA CUDA platform
+2013 Secure storage system and key technologies
+2013 A peta-scalable CPU-GPU algorithm for global atmospheric simulations
+2013 HW/SW approaches to accelerate GRAPES in an FU array
+2013 Accelerating solvers for global atmospheric equations through mixed-precision data flow engine
+2013 A scalable Helmholtz solver in GRAPES over large‐scale multicore cluster
+2012 Fast time domain simulation of power systems using multilevel preconditioners with adaptive reconstruction strategies
+2011 Corslet: A shared storage system keeping your data private
+2011 Kangaroo: Reliable Execution of Scientific Applications with DAG Programming Model
+2010 SOPA: Selecting the optimal caching policy adaptively
+2010 Parallelization of Thermal Recovery Simulation Based on PETSc
+2009 Improving Dense Linear Equation Solver on Hybrid CPU-GPU System
+2007 Multilevel Task Partition Algorithm for Parallel Simulation of Power System Dynamics
+2007 SLAS: An efficient approach to scaling round-robin striped volumes
+2007 An Efficient SAN-Level Caching Method Based on Chunk-Aging
+2007 Design and Implementation of an Out-of-Band Virtualization System for Large SANs
+2006 Design and implementation of a random data-placement system with high scalability, reliability and performance
+2006 Design and implementation of an out-of-band virtualization system on solaris 10
+2006 Computation of si nanowire bandstructures on parallel machines through domain decomposition
+2005 TH-VSS: an asymmetric storage virtualization system for the SAN environment
+2005 VTarget: an improved software target emulator for SANs
+2005 Design and implementation of a SAN agent for windows NT architecture
+2005 Design and implementation of an efficient multipath for a SAN environment
+2005 Access control policy negotiation for remote hot-deployed grid services
+2005 Parallel algorithm and implementation for realtime dynamic simulation of power system
+2005 MagicStore: a new out-of-band virtualization system in SAN environments
+2004 Parallel transient stability simulation for national power grid of china
+author5328 8
+2014 The subdivision wavelet transform with local shape control
+2011 1-ring interpolatory wavelet using function vectors for mobile computing
+2011 Efficient wavelet-based geometry compression
+2010 Computing Efficient Matrix-valued Wavelets for Meshes
+2009 An Aliasing Theory of Shadow Mapping
+2009 Compound Biorthogonal Wavelets on Quadrilaterals and Polar Structures
+2008 Generalized minimum-norm perspective shadow maps
+2007 Theory to practice: generalized minimum-norm perspective shadow maps for anti-aliased shadow rendering in 3D computer games
+author3180 17
+2017 App genome: callback sequencing in Android.
+2016 Toward Exploiting Access Control Vulnerabilities within MongoDB Backend Web Applications
+2016 An Effective Penetration Test Approach Based on Feature Matrix for Exposing SQL Injection Vulnerability
+2016 Automatic Construction of Callback Model for Android Application
+2015 An Improvement to Fault Localization Technique Based on Branch-Coverage Spectra
+2014 An automated testing approach for inter-application security in Android
+2014 QScheduler: A Tool for Parallel Query Processing in Database Systems
+2014 An evaluation model for dependability of Internet-scale software on basis of Bayesian Networks and trustworthiness
+2013 Enhancing query performance by avoiding negative interactions
+2012 A fast adaptive binarization method for complex scene images
+2012 Interprocedural path-sensitive resource leaks detection for C programs
+2012 An Evaluation Model for Dependability of Internet-Scale Software on Basis of Bayesian Networks
+2012 Attack Model Based Penetration Test for SQL Injection Vulnerability
+2012 An improved binarization method using inter- and intra-block features for natural images
+2011 The Implementation of Cluster-Based Traffic Simulation System
+2010 An Evaluation Framework for XML Engine on RDBMS
+2008 A Web-App Auto-Testing System Based on Test-Flow and Control Constraints
+author208 22
+2016 Energy-Efficient eDRAM-Based On-Chip Storage Architecture for GPGPUs
+2016 A Novel Test Method for Metallic CNTs in CNFET-Based SRAMs
+2015 Bank stealing for conflict mitigation in GPGPU Register File
+2015 Fault-Tolerant 3D-NoC Architecture and Design: Recent Advances and Challenges
+2015 A Low-Cost TSV Test and Diagnosis Scheme Based on Binary Search Method
+2015 On test syndrome merging for reasoning-based board-level functional fault diagnosis
+2015 Building Fuel Powered Supercomputing Data Center at Low Cost
+2015 Jump test for metallic CNTs in CNFET-based SRAM
+2015 On diagnosable and tunable 3D clock network design for lifetime reliability enhancement
+2015 Yield and reliability enhancement for 3D ICs: Dissertation summary: IEEE TTTC E.J. McCluskey doctoral thesis award competition finalist
+2015 A novel TSV probing technique with adhesive test interposer
+2015 On microarchitectural modeling for CNFET-based circuits
+2015 Timing-driven placement for carbon nanotube circuits
+2013 On effective and efficient in-field TSV repair for stacked 3D ICs
+2013 AgentDiag: An agent-assisted diagnostic framework for board-level functional failures
+2013 On Effective Through-Silicon Via Repair for 3-D-Stacked ICs
+2012 On effective TSV repair for 3D-stacked ICs
+2012 Integrated Test-Architecture Optimization and Thermal-Aware Test Scheduling for 3-D SoCs Under Pre-Bond Test-Pin-Count Constraint
+2012 Yield enhancement for 3D-stacked ICs: Recent advances and challenges
+2010 Yield enhancement for 3D-stacked memory by redundancy sharing across dies
+2010 Modeling TSV open defects in 3D-stacked DRAM
+2009 Test architecture design and optimization for three-dimensional SoCs

@@ -1,0 +1,1716 @@
+author175 138
+
+2017 Leaf image based cucumber disease recognition using sparse representation classification
+
+2016 Bayesian Robust Tensor Factorization for Incomplete Multiway Data
+2016 Tensor Ring Decomposition
+2016 Encoding Multi-resolution Two-Stream CNNs for Action Recognition
+2016 Interactive Image Search for Clothing Recommendation
+2016 Demand-adaptive Clothing Image Retrieval Using Hybrid Topic Model
+2016 Credit Card Fraud Detection Using Convolutional Neural Networks
+2016 Cloudware: an emerging software paradigm for cloud computing
+2016 Decoding EEG in Cognitive Tasks With Time-Frequency and Connectivity Masks
+2016 UPS-indel: A better approach for finding indel redundancy
+2016 Towards an emerging cloudware paradigm for transparent computing
+2016 Poster: Diagnosing and treating code-duplication problems in bioinformatics libraries
+2016 Higher-Order Correlation Coefficient Analysis for EEG-Based Brain-Computer Interface.
+2016 Wireless Access Virtualization Strategies for Future User-Centric 5G Networks
+
+2015 Bayesian Sparse Tucker Models for Dimension Reduction and Tensor Completion
+2015 Object proposal by multi-branch hierarchical segmentation
+2015 Uncorrelated Multiway Discriminant Analysis for Motor Imagery EEG Classification
+2015 PPTLens: Create Digital Objects with Sketch Images
+2015 Sketch-based Image Retrieval via Shape Words
+2015 Feature learning from incomplete EEG with denoising autoencoder
+2015 Separation and Recognition of Electroencephalogram Patterns Using Temporal Independent Component Analysis
+2015 IdeaPanel: A Large Scale Interactive Sketch-based Image Search System
+2015 Statistically Adaptive Image Denoising Based on Overcomplete Topographic Sparse Coding
+2015 HMMvar-func: a new method for predicting the functional outcome of genetic variants
+2015 PseKNC-General: a cross-platform package for generating various modes of pseudo nucleotide compositions
+2015 Bayesian CP Factorization of Incomplete Tensors with Automatic Rank Determination
+2015 Offline sketch parsing via shapeness estimation
+
+2014 Sonification for EEG Frequency Spectrum and EEG-Based Emotion Features
+2014 Robust Bayesian Tensor Factorization for Incomplete Multiway Data
+2014 Real Time Crowd Counting with Human Detection and Human Tracking
+2014 Classification of Stroke Patients’ Motor Imagery EEG with Autoencoders in BCI-FES Rehabilitation Training System
+2014 Common spatial-spectral boosting pattern for brain-computer interface
+2014 Multilinear and nonlinear generalizations of partial least squares: an overview of recent advances
+2014 Image Denoising with Rectified Linear Units
+2014 Multifactor sparse feature extraction using Convolutive Nonnegative Tucker Decomposition
+2014 Reconstructable generalized maximum scatter difference discriminant analysis
+2014 Tensor-variate Gaussian processes regression and its application to video surveillance
+2014 Vindel: a simple pipeline for checking indel redundancy
+2014 Improving bisulfite short-read mapping efficiency with hairpin-bisulfite data
+2014 Editorial: Selected papers from the 2011 International Conference on Neural Information Processing (ICONIP 2011)
+2014 Quantitative prediction of the effect of genetic variation using hidden Markov models
+2014 Semisupervised Sparse Multilinear Discriminant Analysis
+2014 Uplink contention based SCMA for 5G radio access
+2014 Cardiology knowledge free ECG feature extraction using generalized tensor rank one discriminant analysis
+2014 Objective and Comprehensive Evaluation of Bisulfite Short Read Mapping Tools
+2014 Classification of Mutations by Functional Impact Type: Gain of Function, Loss of Function, and Switch of Function
+2014 Celebrity Face Image Retrieval Using Multiple Features
+2014 Uncorrelated multilinear nearest feature line analysis
+
+2013 Motion Deblurring Using Super-Sparsity
+2013 UMPCA based feature extraction for ECG
+2013 A tensor-variate Gaussian process for classification of multidimensional structured data
+2013 Causal Neurofeedback Based BCI-FES Rehabilitation for Post-stroke Patients
+2013 Optimal calculation of tensor learning approaches
+2013 Spectral Power Estimation for Unevenly Spaced Motor Imagery Data
+2013 A frequency boosting method for motor imagery EEG classification in BCI-FES rehabilitation training system
+2013 Higher Order Partial Least Squares (HOPLS): A Generalized Multilinear Regression Method
+2013 A 12-lead clinical ECG classification method based on Semi-supervised Discriminant Analysis
+2013 Gestalt saliency: Salient region detection based on Gestalt principles
+2013 Kernel-based tensor partial least squares for reconstruction of limb movements
+2013 Kernelization of Tensor-Based Models for Multiway Data Analysis: Processing of Multidimensional Structured Data
+2013 Design of assistive wheelchair system directly steered by human thoughts.
+
+2012 ECG classification based on non-cardiology feature
+2012 Higher-order PLS for classification of ERPs with application to BCIs
+2012 Guess what you draw: interactive contour-based image retrieval on a million-scale database
+2012 Sketch2Tag: automatic hand-drawn sketch recognition
+2012 Sketch-based image retrieval on a large scale database
+2012 Free hand-drawn sketch segmentation
+2012 A hierarchical latent topic model based on sparse coding
+2012 Editorial: A brief introduction to the special issue for ISNN2010
+
+2011 ECG classification using ICA features and support vector machines
+2011 Contour-Based Large Scale Image Retrieval
+2011 Sparse coding image denoising based on saliency map weight
+2011 Moving object detecting system with phase discrepancy
+2011 Edgel index for large-scale sketch-based image search
+2011 A new functional association-based protein complex prediction
+2011 A Network of SCOP Hidden Markov Models and Its Analysis
+2011 Feature selection based on Mutual Information in supervised learning
+2011 Multilinear Subspace Regression: An Orthogonal Tensor Decomposition Approach
+2011 A two stage algorithm for K -mode convolutive nonnegative tucker decomposition
+
+2010 Multi-modal EEG online visualization and neuro-feedback
+2010 Affine invariant topic model for generic object recognition
+2010 The expected fitness cost of a mutation fixation under the one-dimensional fisher model
+2010 MindFinder: interactive sketch-based image search on millions of images
+2010 Robust feature extraction for speaker recognition based on constrained nonnegative tensor factorization
+2010 MSOAR 2.0: Incorporating tandem duplications into ortholog assignment based on genome rearrangement
+2010 Regularized tensor discriminant analysis for single trial EEG classification in BCI
+
+2009 Age Classification System with ICA Based Local Facial Features
+2009 Slice Oriented Tensor Decomposition of EEG Data for Feature Extraction in Space, Frequency and Time Domains
+2009 Scene gist: a holistic generative model of natural image
+2009 Temporal competitive learning induced in neural networks by spike timing-dependent plasticity
+2009 PHASE INTERVAL VALUE ANALYSIS FOR THE MOTOR IMAGERY TASK IN BCI
+2009 Dynamic visual attention: searching for coding length increments
+2009 Multilinear generalization of Common Spatial Pattern
+2009 Robust speech feature extraction based on Gabor filtering and tensor factorization
+2009 Identifying disease associations via genome-wide association studies
+
+2008 Using Cost-Sensitive Learning to Determine Gene Conversions
+2008 A Holistic View of Evolutionary Rates in Paralogous and Orthologous Genes
+2008 Robust Speaker Modeling Based on Constrained Nonnegative Tensor Factorization
+2008 Auditory Sparse Representation for Robust Speaker Recognition Based on Tensor Structure
+2008 A note on lewicki-sejnowski gradient for learning overcomplete representations
+2008 Incremental Common Spatial Pattern algorithm for BCI
+2008 Subject-Adaptive Real-Time BCI System
+2008 Object Recognition with Task Relevant Combined Local Features
+2008 Spatiotemporal feature extraction based on invariance representation
+2008 Overcomplete topographic independent component analysis
+
+2007 Head Pose Estimation Based on Tensor Factorization
+2007 Bayesian estimation of overcomplete independent feature subspaces for natural images
+2007 Blind deconvolution in nonminimum phase systems using cascade structure
+2007 Temporal and spatial features of single-trial EEG for brain-computer interface
+2007 Note on the computation of critical effective population sizes.
+2007 A Hierarchical Generative Model for Overcomplete Topographic Representations in Natural Images
+2007 Flexible Component Analysis for Sparse, Smooth, Nonnegative Coding or Representation
+2007 Perception of transformation-invariance in the visual pathway
+2007 Linear prediction based blind source extraction algorithms in practical applications
+2007 An Auditory Neural Feature Extraction Method for Robust Speech Recognition
+2007 Saliency Detection: A Spectral Residual Approach
+2007 The identification of antisense gene pairs through available software
+2007 Color conceptualization
+
+2006 Local independent factorization of natural scenes
+2006 Multichannel blind deconvolution using a novel filter decomposition method
+2006 A two-stage based approach for extracting periodic signals
+2006 Two-Stage Temporally Correlated Source Extraction Algorithm with Its Application in Extraction of Event-Related Potentials
+
+2005 Similarity analysis of DNA sequences based on the relative entropy
+2005 Blind clustering of DNA fragments based on kullback-leibler divergence
+
+2004 Recent Developments on Convergence of Online Gradient Methods for Neural Network Training
+2004 EEG Source Localization Using Independent Residual Analysis
+2004 Blind source estimation of FIR channels for binary sources: a grouping decision approach
+2004 Multichannel blind deconvolution of nonminimum-phase systems using filter decomposition
+2004 Self-adaptive blind source separation based on activation functions adaptation
+
+2003 Blind deconvolution of FIR channels with binary sources: a grouping decision approach
+
+2001 Equi-convergence Algorithm for Blind Separation of Sources with Arbitrary Distributions
+2001 Semiparametric model and superefficiency in blind deconvolution
+
+2000 Semiparametric Approach to Multichannel Blind Deconvolution of Nonminimum Phase Systems
+
+1999 Blind separation and filtering using state space models
+1999 Blind Separation of Filtered Sources Using State-Space Approach
+1999 Natural gradient algorithm for blind separation of overdetermined mixture with additive noise
+
+1998 Two-stage Blind Deconvolution Using State-space Models.
+
+1997 Performance of uplink cooperative code division multiple access over an AWGN channel
+author863 26
+
+2017 A new method of content based medical image retrieval and its applications to CT imaging sign retrieval
+2017 CD-Tree: A clustering-based dynamic indexing and retrieval approach
+
+2016 Combining population and patient-specific characteristics for prostate segmentation on 3D CT images
+2016 Simplifying Gaussian mixture model via model similarity
+
+2015 Multi-view object co-segmentation based on the mixture of links model.
+2015 Cross-domain structural model for video event annotation via web images
+2015 The LISS—A Public Database of Common Imaging Signs of Lung Diseases for Computer-Aided Detection and Diagnosis Research and Medical Education
+2015 A new classifier fusion method based on historical and on-line classification reliability for recognizing common CT imaging signs of lung diseases
+2015 Recognizing Common CT Imaging Signs of Lung Diseases Through a New Feature Selection Method Based on Fisher Criterion and Genetic Optimization
+
+2014 Integrating Bayesian Classifier into Random Walk optimizer for interactive image segmentation on mobile phones
+
+2013 Text-Independent Phoneme Segmentation via Learning Critical Acoustic Change Points
+
+2012 GMM-ClusterForest: a novel indexing approach for multi-features based similarity search in high-dimensional spaces
+2012 Using HOG-LBP features and MMP learning to recognize imaging signs of lung lesions
+
+2011 Discriminative structure selection method of Gaussian Mixture Models with its application to handwritten digit recognition
+
+2010 Automatic image annotation with cooperation of concept-specific and universal visual vocabularies
+
+2009 Soft Measure of Visual Token Occurrences for Object Categorization
+2009 Statistical Modeling and Learning for Recognition-Based Handwritten Numeral String Segmentation
+2009 Combining evolution strategy and gradient descent method for discriminative learning of bayesian classifiers
+2009 Unsupervised Selection and Discriminative Estimation of Orthogonal Gaussian Mixture Models for Handwritten Digit Recognition
+
+2008 RELEVANCE FEEDBACK WITH MAX-MIN POSTERIOR PSEUDO-PROBABILITY FOR IMAGE RETRIEVAL
+2008 Gaussian mixture modeling and learning of neighboring characters for multilingual text extraction in images
+
+2007 Learning Semantic Concepts for Image Retrieval using the Max-Min Posterior Pseudo-Probabilities
+
+2006 Maximum-minimum similarity training for text extraction
+2006 Gaussian Mixture Modeling of Neighbor Characters for Multilingual Text Extraction in Images
+2006 Hand-Gesture Based Text Input for Wearable Computers
+
+2005 A bottom-up algorithm for finding principal curves with applications to image skeletonization
+author1221 43
+
+2017 Fuzzy multi-objective and groups decision method in optimal selection of landslide treatment scheme
+2017 Robust tracking-by-detection using a selection and completion mechanism
+
+2016 A spiral process of formalization and verification: A case study on verification of the scheduling mechanism of OSEK/VDX ☆
+2016 PSTeC: A Location-Time Driven Modelling Formalism for Probabilistic Real-Time Systems
+2016 Improving Defect Detection Ability of Derived Test Cases Based on Mutated UML Activity Diagrams
+2016 Bayesian Statistical Model-Checking for Complex Stochastic Systems
+2016 A Novel Fine-Grained User Trust Relation Prediction for Improving Recommendation Accuracy
+
+2015 Centralized Dynamic Point Blanking in LTE-Advanced Network for Inter-Cell Interference Mitigation
+2015 Probabilistic Model Checking of Pipe protocol
+2015 Improved Research to K-means Initial Cluster Centers
+2015 Examining micro-level knowledge sharing discussions in online communities
+2015 Dynamic ICIC in LTE-Advanced Networks for Inter-Cell Interference Mitigation
+2015 Towards a Formal Approach to Modeling and Verifying the Design of Dynamic Software Updates
+2015 Formal Modeling and Analysis of Time-and Resource-Sensitive Simple Business Processes
+2015 Case Studies on Extracting the Characteristics of the Reachable States of State Machines Formalizing Communication Protocols with Inductive Logic Programing.
+
+2014 A Formal Semantics of the OSEK/VDX Standard in {\mathbb {K}} Framework and Its Applications
+2014 Quantitative Analysis of Lattice-valued Kripke Structures
+2014 Evaluation of Maude as a Test Generation Engine for Automotive Operating Systems
+2014 Simulation for lattice-valued doubly labeled transition systems
+2014 Verifying the Design of Dynamic Software Updating in the OTS/CafeOBJ Method
+
+2013 Efficient Querying of Correlated Uncertain Data with Cached Results
+2013 Stability of Software Trustworthiness Measurements Models
+2013 Formalization and Verification of Behavioral Correctness of Dynamic Software Updates
+2013 A Divide and Conquer Approach to Model Checking of Liveness Properties
+2013 A Proof System in PADS
+
+2012 An Algebraic Approach to Formal Analysis of Dynamic Software Updating Mechanisms
+2012 A Novel Approach to Segment and Classify Regional Lymph Nodes on Computed Tomography Images
+2012 Bisimulation for Lattice-valued Transition Systems
+2012 Invariant-preserved Transformation of State Machines from Equations into Rewrite Rules
+
+2011 Translation of State Machines from Equational Theories into Rewrite Theories with Tool Support
+2011 Two-thirds simulation indexes and modal logic characterization
+2011 Approximate Bisimulation for Metric Doubly Labeled Transition System
+2011 Approximate Simulation for Metric Hybrid Input/Output Automata
+
+2010 Topological Construction of Parameterized Bisimulation Limit
+2010 Penalty policies in professional software development practice: a multi-method field study
+2010 Specification Translation of State Machines from Equational Theories into Rewrite Theories
+
+2009 Matched Rotation Precoding: A New Paradigm in Space-Frequency Coding
+2009 Average Transitive Trustworthy Degrees for Trustworthy Networks
+2009 Modular Implementation of a Translator from Behavioral Specifications to Rewrite Theory Specifications
+2009 Parameterized Bisimulation Infinite Evolution Mechanism
+2009 Infinite Evolution Mechanism of Probabilistic Processes.
+
+2008 Computational self-assembly
+2008 Multirate Space-Time-Frequency Linear block coding
+author2627 13
+
+2016 An efficient approach of map-learning on service robot in complex office environment using laser radar
+
+2015 Inferring the Travel Purposes of Passenger Groups for Better Understanding of Passengers
+2015 Self-adaptive perturbation and multi-neighborhood search for iterated local search on the permutation flow shop problem
+
+2014 An efficient approach to mobile robot motion planning in dynamically unknown environments
+2014 A self-adaptive iterated local search algorithm on the permutation flow shop scheduling problem
+
+2013 Inferring High Quality Co-Travel Networks
+
+2011 A community-based pseudolikelihood approach for relationship labeling in social networks
+2011 Community-based relational Markov networks in complex networks
+
+2008 Discover hierarchical lexical hyponymy relation from large-scale concept set
+2008 Visualization of large-scale weighted clustered graph: a genetic approach
+
+2003 A new incremental maintenance algorithm of data cube
+2003 A distributed multidimensional data model of data warehouse
+2003 DSD: maintain data cubes more efficiently
+author4699 78
+
+2017 Computational intelligent hybrid model for detecting disruptive trading activity
+2017 Coarse and fine identification of collusive clique in financial market
+2017 Web Content Extraction Using Clustering with Web Structure
+
+2016 Detecting Wash Trade in Financial Market Using Digraphs and Dynamic Programming
+2016 Role mining using answer set programming
+2016 Fault-Tolerant Networks-on-Chip Routing With Coarse and Fine-Grained Look-Ahead
+2016 Adaptive learning with covariate shift-detection for motor imagery-based brain---computer interface
+2016 Forecasting Price Movements using Technical Indicators: Investigating the Impact of Varying Input Window Length
+
+2015 Low cost fault-tolerant routing algorithm for Networks-on-Chip
+2015 Multi-DL-ReSuMe: Multiple neurons Delay Learning Remote Supervised Method
+2015 Bio-inspired hierarchical framework for multi-view face detection and pose estimation
+2015 Role mining based on cardinality constraints
+2015 Learning with covariate shift-detection and adaptation in non-stationary environments: Application to brain-computer interface
+2015 Competitive and cooperative particle swarm optimization with information sharing mechanism for global optimization problems
+2015 Adaptive Hidden Markov Model With Anomaly States for Price Manipulation Detection
+2015 Novelty Detection Using Level Set Methods
+2015 EWMA model based shift-detection methods for detecting covariate shifts in non-stationary environments
+2015 DL-ReSuMe: A Delay Learning-Based Remote Supervised Method for Spiking Neurons
+2015 Bio-Inspired Hybrid Framework for Multi-view Face Detection
+2015 EDL: An Extended Delay Learning Based Remote Supervised Method for Spiking Neurons
+2015 Fine-grained fault-tolerant adaptive routing for networks-on-chip
+2015 Sentiment Classification in the Financial Domain Using? SVM and Multi-Objective Optimisation
+2015 Semantic SPARQL Query in a Relational Database Based on Ontology Construction
+2015 Real-time biochemical sensor based on Raman scattering with CMOS contact imaging.
+2015 Subtopic-Level Sentiment Analysis of Emergencies
+
+2014 Hardware-based agent modelling: event-driven reactive architecture (EDRA)
+2014 A new biologically plausible supervised learning method for spiking neurons
+2014 A new algorithm for product image search based on salient edge characterization
+2014 Low Overhead Monitor Mechanism for Fault-Tolerant Analysis of NoC
+2014 Multi-agent pre-trade analysis acceleration in FPGA
+2014 Pre-processing online financial text for sentiment classification: A natural language processing approach
+2014 Detecting price manipulation in the financial market
+2014 Detecting network communities using regularized spectral clustering algorithm
+2014 LIMTopic: A Framework of Incorporating Link Based Importance into Topic Modeling
+2014 3D modeling with three-view drawings
+2014 Forecasting stock price directional movements using technical indicators: Investigating window size effects on one-step-ahead forecasting
+2014 Online traffic-aware fault detection for networks-on-chip
+2014 Adaptive learning with covariate shift-detection for non-stationary environments
+2014 A locally adaptive boundary evolution algorithm for novelty detection using level set methods
+2014 An experimental evaluation of novelty detection methods
+2014 Covariate shift-adaptation using a transductive learning model for handling non-stationarity in EEG based brain-computer interfaces
+2014 Online fault detection for Networks-on-Chip interconnect
+2014 Detecting wash trade in the financial market
+2014 A comparison of forecasting approaches for capital markets
+2014 Name disambiguation in scientific cooperation network by exploiting user feedback
+
+2013 Keyword-Matched Data Skyline in Peer-to-Peer Systems
+2013 EWMA based two-stage dataset shift-detection in non-stationary environments
+2013 Evaluation of sampling methods for learning from imbalanced data
+2013 A hybrid forecasting approach using ARIMA models and self-organising fuzzy neural networks for capital markets
+2013 A Hidden Markov Model with Abnormal States for Detecting Stock Price Manipulation
+2013 Novelty Detection Using Level Set Methods with Adaptive Boundaries
+2013 Dataset Shift Detection in Non-stationary Environments Using EWMA Charts
+2013 MEI: Mutual Enhanced Infinite Community–Topic Model for Analyzing Text-Augmented Social Networks
+
+2012 Incremental K-clique clustering in dynamic social networks
+2012 RankTopic: Ranking Based Topic Modeling
+2012 Constructing minimum volume surfaces using level set methods for novelty detection
+
+2011 MEI: mutual enhanced infinite generative model for simultaneous community and topic detection
+2011 Incorporating user feedback into name disambiguation of scientific cooperation network
+2011 AtPID: the overall hierarchical functional protein interaction network interface and analytic platform for Arabidopsis
+2011 Type-2 fuzzy description logic
+2011 Selecting Critical Patterns Based on Local Geometrical and Statistical Information
+2011 A transcriptional dynamic network during Arabidopsis thaliana pollen development
+
+2010 TGP: mining top-K frequent closed graph pattern without minimum support
+2010 Semantic grounding of hybridization for tag recommendation
+2010 Causality Challenge: Benchmarking relevant signal components for effective monitoring and process control.
+
+2009 Community mining on dynamic weighted directed graphs
+2009 A Directed Labeled Graph Frequent Pattern Mining Algorithm Based on Minimum Code
+2009 Discovering Hidden Group in Financial Transaction Network Using Hidden Markov Model and Genetic Algorithm
+
+2007 Towards a type-2 fuzzy description logic for semantic search engine
+
+2006 Impacts of Filtration on Contrast-Detail Detectability of an X-ray Imaging System
+2006 Sentence similarity based on semantic nets and corpus statistics
+2006 The use of intelligent information access technologies in digital libraries
+
+2005 Comparison of a CMOS-based and a CCD-based digital x-ray imaging system: Observer studies
+
+2004 Contrast-detail Analysis of a CMOS-based Digital X-ray Imaging System.
+2004 Ontology-based universal knowledge grid: enabling knowledge discovery and integration on the grid
+
+2003 An approach for measuring semantic similarity between words using multiple information sources
+
+2002 Measuring Semantic Similarity Between Words Using Lexical Knowledge and Neural Networks
+2002 Improving the performance of radial basis function classifiers in condition monitoring and fault diagnosis applications where ‘unknown’ faults may occur
+author2494 14
+
+2015 Mining Event Associations Using Structured Data and Classifiers
+
+2014 A Workload-Based Dynamic Adaptive Data Replica Placement Method
+2014 Prediction in signed heterogeneous networks
+2014 Web Data Extraction Based on Visual Information and Partial Tree Alignment
+
+2013 Constructing Domain Ontology of E-Commerce for Market Intelligence
+2013 Div-clustering: Exploring active users for social collaborative recommendation
+2013 A Data Placement Strategy Based on Genetic Algorithm in Cloud Computing Platform
+
+2012 Robust web data extraction: a novel approach based on minimum cost script edit model
+2012 PointBurst: towards a trust-relationship framework for improved social recommendations
+2012 Actively building collaborative filtering recommendation in clustered social data
+
+2011 Extracting dimensions for OLAP on multidimensional text databases
+
+2009 Indexing Temporal XML Using FIX
+2009 Temporal XML Indexing Based on Suffix Tree
+
+2007 Multi-group Cooperation Support for Software Design Process
+author3073 9
+
+2017 Research on Coverage Probability in Ultra-Dense 5G Heterogeneous Cellular Networks Based on Poisson Clustered Process
+2017 Weighted Graph Based Clustering and Local Mobility Management for Dense Small Cell Network with X2 Interface
+
+2015 Optimal Relay Selection and Cooperative Power Allocation in Cognitive Radio Networks
+
+2014 Dynamic Spectrum Access Based on Stochastic Differential Games
+
+2012 Dynamic Spectrum Allocation with Maximum Efficiency and Fairness in Interactive Cognitive Radio Networks
+
+2011 Research on three-layered metadata model for oil-gas data integration
+
+2009 Architecture and Key Technologies of Interactive Intelligent Communication
+
+2005 Study and Application of Softman Communication Model
+2005 The study on model and architecture of SoftMan group based on intelligent autonomous decentralized systems
+author4312 47
+
+2017 A linear time algorithm for maximal clique enumeration in large sparse graphs
+
+2015 Design Issues of JPQ: a Pattern-based Query Language for Document Databases
+2015 A Schema-Less Data Model for the Web
+2015 A Semantic Graph Model
+2015 Towards a Pattern-Based Query Language for Document Databases
+
+2014 A New Approach for N-ary Relationships in Object Databases
+2014 Representing Hierarchical Relationships in INM
+2014 XTQ: A Declarative Functional XML Query Language
+2014 A semantic model for academic social network analysis
+
+2013 Presenting XML schema mapping with conjunctive-disjunctive views
+2013 MVP Index: Towards Efficient Known-Item Search on Large Graphs
+2013 3SEPIAS: A Semi-Structured Search Engine for Personal Information in dAtaspace System
+
+2012 A fast algorithm for frequent itemset mining using Patricia* structures
+2012 A distributed index for efficient parallel top-k keyword search on massive graphs
+2012 A High-Performance Algorithm for Frequent Itemset Mining
+2012 Mining high utility itemsets without candidate generation
+
+2011 What have we learnt from deductive object-oriented database research?
+
+2010 A pattern-based temporal XML query language
+2010 Towards a More declarative XML query language
+2010 Query processing in INM database system
+
+2009 Modeling Complex Relationships
+2009 Efficient keyword proximity search using a frontier-reduce strategy based on d -distance graph index
+2009 Modeling context-dependent information
+2009 3se: a semi-structured search engine for heterogeneous data in graph model
+2009 A Flexible Data Warehousing Approach for One-Stop Querying on Heterogeneous Personal Information
+2009 Information Networking Model
+
+2008 Modeling heterogeneous data in dataspace
+2008 Design issues of XTQ language
+
+2005 Making DTD a truly powerful schema language
+
+2004 A gateway from HTML to XML
+2004 Wrapping HTML tables into XML
+2004 XTree for declarative XML querying
+
+2003 XML-RL Update Language.
+2003 Towards an Intelligent Information System.
+2003 Logical foundation for updating XML
+2003 A Declarative XML-RL Update Language
+2003 DrawCAD: using deductive object-relational databases in CAD
+2003 Extending XML-RL with update
+
+2002 A logical foundation for deductive object-oriented databases
+
+2001 A rule-based query language for HTML
+
+2000 Design and Implementation of the OLOG Deductive Object-Oriented Database Management System
+2000 Unification of Knowledge Discovery and Data Mining Using Rough Sets Approach in a Real-World Application
+
+1998 Introduction to the Relationlog System.
+1998 ROL2: A Real Deductive Object-Oriented Database Language
+1998 ROL: A Prototype for Deductive and Object-Oriented Databases (Demo)
+1998 Design and implementation of the Relationlog deductive database system
+
+1997 Query processing in the ROL system
+author4985 12
+
+2017 Social User Profiling: A Social-Aware Topic Modeling Perspective.
+
+2016 Modeling User Mobility via User Psychological and Geographical Behaviors Towards Point of-Interest Recommendation
+
+2015 UPCA: An efficient URL-Pattern based algorithm for accurate web page classification
+
+2013 Semi-supervised image classification based on sparse coding spatial pyramid matching
+
+2012 Harnessing the wisdom of the crowds for accurate web page clipping
+2012 Storage Device Performance Prediction with Hybrid Regression Models
+2012 Multi-view learning with batch mode active selection for image retrieval
+
+2010 Storage device performance prediction with selective bagging classification and regression tree
+2010 Improve throughput of storage cluster interconnected with a TCP/IP network using intelligent server grouping
+
+2009 HS-Model: a hierarchical statistical subtree-generating model for genetic programming
+
+2008 XML twig pattern matching using version tree
+
+1999 A Logic of Intention
+author2684 17
+
+2014 Multiple Kernel Learning Based on Cooperative Clustering
+
+2013 A Fast Multiclass Classification Algorithm Based on Cooperative Clustering
+2013 Kernel Polarization Based on Cooperative Clustering
+
+2012 Local Support Vector Machine based on Cooperative Clustering for very large-scale dataset
+
+2010 A clustering based adaptive DAG for multiclass Support Vector Machine
+
+2008 Efficient computations of gapped string kernels based on suffix kernel
+2008 Increasing classification efficiency with multiple mirror classifiers
+2008 High-order Markov kernels for intrusion detection
+
+2007 Length-weighted string kernels for sequence data classification
+2007 Sequence-similarity kernels for SVMs to detect anomalies in system calls
+2007 The Training of Radial Basis Function Network Classifier with Cooperative Clustering
+
+2006 High-order markov kernels for network intrusion detection
+2006 A fast bit-parallel algorithm for gapped string kernels
+2006 Cooperative Clustering for Training SVMs
+
+2005 Applying Genetic Programming to Evolve Learned Rules for Network Anomaly Detection
+2005 Using gap-insensitive string kernel to detect masquerading
+
+2004 Anomaly Detection Using Support Vector Machines
+author3737 10
+
+2017 Energy-efficient data-gathering rendezvous algorithms with mobile sinks for wireless sensor networks
+
+2016 Energy-Efficient Data Collection Algorithms Based on Clustering for Mobility-Enabled Wireless Sensor Networks
+
+2014 A Two-Step Adaptive Descreening Method for Scanned Halftone Image
+
+2013 Predicting the intelligibility of reverberant speech for cochlear implant listeners with a non-intrusive intelligibility measure
+
+2012 Impact of SNR and gain-function over- and under-estimation on speech intelligibility
+
+2010 Speech enhancement using a frequency-specific composite Wiener function
+
+2005 Off-line handwritten Chinese character recognition based on fusion features and Bayesian classifier
+
+2000 Optimizing overall loop schedules using prefetching and partitioning
+
+1999 Loop scheduling and partitions for hiding memory latencies
+
+1998 Loop scheduling algorithms for power reduction
+author5002 19
+
+2016 WBSP: A Novel Synchronization Mechanism for Architecture Parallel Simulation
+2016 Leveraging Time Prediction and Error Compensation to Enhance the Scalability of Parallel Multi-Core Simulations
+2016 Fissionable Deep Neural Network.
+2016 Ncfm: Accurate handwritten digits recognition using Convolutional Neural Networks.
+
+2015 GPGPU-MiniBench: Accelerating GPGPU Micro-Architecture Simulation
+2015 Leveraging Error Compensation to Minimize Time Deviation in Parallel Multi-core Simulations
+
+2014 Accelerate K-means Algorithm by Using GPU in the Hadoop Framework
+
+2013 TCNet: cross-node virtual machine communication acceleration
+2013 Wall-clock based synchronization: A parallel simulation technology for cluster systems
+2013 Priority-Based Live Migration of Virtual Machine
+
+2010 Cache Management with Partitioning-Aware Eviction and Thread-Aware Insertion/Promotion Policy
+2010 Augmenting cache partitioning with thread-aware insertion/promotion policies to manage shared caches
+
+2008 Delay-constraint topology control in wireless sensor networks format
+2008 NBLS: Neighbor-information-based localization system for wireless sensor networks
+
+2007 Wireless fire monitoring system for ancient buildings
+2007 An efficient synchronisation protocol for wireless sensor network
+
+2006 Coverage and Exposure Paths in Wireless Sensor Networks
+2006 Self-organization data gathering for wireless sensor networks
+
+2005 Incentives for Participating in a Hybrid Peer-to-Peer System
+author367 105
+
+2017 Short Code: An Efficient RAID-6 MDS Code for Optimizing Degraded Reads and Partial Stripe Writes
+2017 Improving the Performance and Endurance of Persistent Memory with Loose-Ordering Consistency
+2017 Efficient storage management for aged file systems on persistent memory
+2017 Log-Structured Non-Volatile Main Memory
+2017 Protect non-volatile memory from wear-out attack based on timing difference of row buffer hit/miss
+
+2016 CaCo: An Efficient Cauchy Coding Approach for Cloud Storage Systems
+2016 Supporting System Consistency with Differential Transactions in Flash-Based SSDs
+2016 Blurred Persistence: Efficient Transactions in Persistent Memory
+2016 Pin Tumbler Lock: A shift based encryption mechanism for racetrack memory
+2016 Reconsidering Single Disk Failure Recovery for Erasure Coded Storage Systems: Optimizing Load Balancing in Stack-Level
+2016 A high performance file system for non-volatile main memory
+2016 Parity-Switched Data Placement: Optimizing Partial Stripe Writes in XOR-Coded Storage Systems
+2016 Exploring Main Memory Design Based on Racetrack Memory Technology
+2016 HV Code: An All-Around MDS Code for RAID-6 Storage Systems
+2016 HW/SW co-design of nonvolatile IO system in energy harvesting sensor nodes for optimal data acquisition
+2016 ParaFS: A Log-Structured File System to Exploit the Internal Parallelism of Flash Devices
+2016 FastBFS: Fast Breadth-First Graph Search on a Single Server
+2016 Empirical study of redo and undo logging in persistent memory
+2016 Making Cold Data Identification Efficient in Non-volatile Memory Systems
+2016 Run-Time Performance Estimation and Fairness-Oriented Scheduling Policy for Concurrent GPGPU Applications
+2016 Reconsidering Single Failure Recovery in Clustered File Systems
+2016 Efficient routing for cooperative data regeneration in heterogeneous storage networks
+2016 An OS-level Data Distribution Method in DRAM-PCM Hybrid Memory
+2016 Encoding-Aware Data Placement for Efficient Degraded Reads in XOR-Coded Storage Systems
+2016 Fast and failure-consistent updates of application data in non-volatile main memory file system
+
+2015 Sky: Opinion Dynamics Based Consensus for P2P Network with Trust Relationships
+2015 Blurred persistence in transactional persistent memory
+2015 D-Code: An Efficient RAID-6 Code to Optimize I/O Loads and Read Performance
+2015 High-Performance and Lightweight Transaction Support in Flash-Based SSDs
+2015 Redistribute Data to Regain Load Balance during RAID-4 Scaling
+2015 Seek-Efficient I/O Optimization in Single Failure Recovery for XOR-coded Storage Systems
+2015 EC-FRM: An Erasure Coding Framework to Speed Up Reads for Erasure Coded Cloud Storage Systems
+
+2014 ReconFS: a reconstructable file system on flash storage
+2014 Loose-Ordering Consistency for persistent memory
+2014 p-OFTL: An object-based semantic-aware parallel flash translation layer
+2014 WL-Reviver: A Framework for Reviving any Wear-Leveling Techniques in the Face of Failures on Phase Change Memory
+2014 TxCache: Transactional cache using byte-addressable non-volatile memories in SSDs
+2014 Shield: A stackable secure storage system for file sharing in public storage
+2014 Keyword search with access control over encrypted data in cloud computing
+2014 EDM: An Endurance-Aware Data Migration Scheme for Load Balancing in SSD Storage Clusters
+2014 ParSA: High-throughput scientific data analysis framework with distributed file system
+2014 A Stack-Based Single Disk Failure Recovery Scheme for Erasure Coded Storage Systems
+2014 Design and Implementation of an Asymmetric Block-Based Parallel File System
+2014 HV Code: An All-Around MDS Code to Improve Efficiency and Reliability of RAID-6 Systems
+
+2013 Extending the lifetime of flash-based storage through reducing write amplification from file systems
+2013 Preferred keyword search over encrypted data in cloud computing
+2013 Load-Balanced Recovery Schemes for Single-Disk Failure in Storage Systems with Any Erasure Code
+2013 CG-Resync: Conversion-guided resynchronization for a SSD-based RAID array
+2013 Secure storage system and key technologies
+2013 LightTx: A lightweight transactional design in flash-based SSDs to support flexible transactions
+2013 AIP: a tool for flexible and transparent data management
+2013 Aegis: partitioning data block for efficient recovery of stuck-at-faults in phase change memory
+
+2012 Cx: Concurrent Execution for the Cross-Server Operations in a Distributed File System
+2012 Shifted Element Arrangement in Mirror Disk Arrays for High Data Availability during Reconstruction
+2012 Accelerating Distributed Updates with Asynchronous Ordered Writes in a Parallel File System
+2012 Generalized X-code: An efficient RAID-6 code for arbitrary size of disk array
+
+2011 C-Codes: Cyclic Lowest-Density MDS Array Codes Constructed Using Starters for RAID 6
+2011 Corslet: A shared storage system keeping your data private
+2011 ThinStore: Out-of-Band Virtualization with Thin Provisioning
+2011 MiF: Mitigating the Intra-file Fragmentation in Parallel File System
+
+2010 SOPA: Selecting the optimal caching policy adaptively
+2010 On the equivalence between the B-Code constructions and perfect one-factorizations
+2010 Preventing Silent Data Corruptions from Propagating During Data Reconstruction
+2010 ALV: A New Data Redistribution Approach to RAID-5 Scaling
+2010 Parallelization of Thermal Recovery Simulation Based on PETSc
+2010 DACO: A High-Performance Disk Architecture Designed Specially for Large-Scale Erasure-Coded Storage Systems
+2010 On cyclic lowest density MDS array codes constructed using starters
+
+2009 GRID codes: Strip-based erasure codes with high fault tolerance for storage systems
+
+2007 Distributed storage cluster design for remote mirroring based on storage area network
+2007 SLAS: An efficient approach to scaling round-robin striped volumes
+2007 An Efficient SAN-Level Caching Method Based on Chunk-Aging
+2007 Design and Implementation of an Out-of-Band Virtualization System for Large SANs
+
+2006 Design and implementation of a random data-placement system with high scalability, reliability and performance
+2006 Multi-dimensional storage qos guarantees for an object-based storage system
+2006 Design and implementation of an out-of-band virtualization system on solaris 10
+2006 SAN-MDS: A High Performance Disk Based on Memory Device for SAN
+2006 A Cache System Hosted on the iSCSI Target in an IP SAN
+
+2005 Study Queuing Networks Using CART.
+2005 TH-VSS: an asymmetric storage virtualization system for the SAN environment
+2005 VTarget: an improved software target emulator for SANs
+2005 Design and implementation of a SAN agent for windows NT architecture
+2005 A cluster LVM for SAN environments
+2005 Improving the data placement algorithm of randomization in SAN
+2005 Parallel seismic propagation simulation in anisotropic media by irregular grids finite difference method on PC cluster
+2005 Design and implementation of an efficient multipath for a SAN environment
+2005 Design and implementation of an SAN system based on the fiber channel protocol
+2005 Parallel algorithm and implementation for realtime dynamic simulation of power system
+2005 MagicStore: a new out-of-band virtualization system in SAN environments
+2005 Deterministic global optimization with a neighbourhood determination algorithm based on neural networks
+
+2004 Dynamic File Allocation in Storage Area Networks with Neural Network Prediction
+2004 An Implementation of Semi-synchronous Remote Mirroring System for SANs
+2004 Storage Virtualization System with Load Balancing for SAN
+2004 Data I/O Optimization in Storage Systems
+2004 Design and Implementation of a Non-volatile RAM Disk in the SAN Environment
+2004 Parallel transient stability simulation for national power grid of china
+2004 Design and Optimization of an iSCSI System
+2004 A Virtual Tape System Based on Storage Area Networks
+2004 An Implementation of Storage-Based Synchronous Remote Mirroring for SANs
+2004 Policy of file migration at server in cluster file system
+2004 Cluster-Based parallel simulation for large scale molecular dynamics in microscale thermophysics
+2004 Implementation of a new cache and schedule scheme for distributed VOD servers
+
+2003 Parallel computing method of valuing for multi-asset European option
+2003 A Highly Efficient FC-SAN Based on Load Stream
+
+2002 Cluster-based Molecular Dynamics Parallel Simulation in Thermophysics.
+2002 A NOVEL NUMERICAL APPROACH OF COMPUTING AMERICAN OPTION
+author435 13
+
+2016 Debugging OpenStack Problems Using a State Graph Approach
+
+2014 Themis: A participatory navigation system for balanced traffic routing
+
+2013 How to Make Friends in Social Network Service? A Comparison between Chinese and German
+2013 GeoSVR: A map-based stateless VANET routing
+
+2009 Pattern-Oriented Workflow Generation and Optimization
+
+2008 Knowledge modeling and optimization in pattern-oriented workflow generation
+2008 EBEM: An Event-driven Bandwidth Estimation Method for Mobile Ad Hoc Network
+2008 A multi-rate MAC protocol for mobile ad hoc networks and its cooperative extension
+
+2006 A novel channel assignment algorithm based on topology simplification in multi-radio wirelesss mesh networks
+2006 Virtual Delay Vector Based Core-Stateless Packet Scheduling Algorithm
+
+2005 On the problem of channel assignment for Multi-NIC multihop wireless networks
+
+2003 A multi-channel medium access control protocol for multicast in mobile ad-hoc network
+2003 Ad hoc networking based on TD-SCDMA
+author2426 39
+
+2017 Sampled-data consensus of general linear multi-agent systems under switching topologies: averaging method
+
+2016 Energy-efficient and self-adaptive routing algorithm based on event-driven in wireless sensor network
+2016 Car-Based Laser Scanning System of Ancient Architecture Visual Modeling
+
+2015 Visualization Analysis for 3D Big Data Modeling
+2015 Pressing the Play Button: What Drives the Intention to Play Social Mobile Games?
+2015 What Drives Consumers to Click on Social Media Ads? The Roles of Content, Media, and Individual Factors
+2015 Survey on modeling
+2015 Self-adaptive sleep scheduling for wireless sensor networks
+2015 DNA sequences compression algorithms based on the two bits codation method
+2015 Load balancing and data aggregation tree routing algorithm in wireless sensor networks
+
+2014 Depth map super-resolution via local and nonlocal priors
+
+2013 Clustering Model Based on Node Local Density Load Balancing of Wireless Sensor Network
+2013 Event Driven Self-Adaptive Routing Algorithm in Wireless Sensor Network
+2013 Multi-label image annotation based on multi-model
+
+2012 Analysis of time structure in the industrial hybrid network
+2012 An Adaptive Gaussian Mixture Model for Non-rigid Image Registration
+2012 What's Around Me?: Applying the Theory of Consumption Values to Understanding the Use of Location-Based Services LBS on Smart Phones
+2012 Effective multi-modal multi-label learning for automatic image annotation
+
+2011 A new method of tunnel modeling
+
+2010 The computation of two-dimensional manifold of Hyperbolic equilibria for vector fields
+
+2009 Optimizing the Selection of Partners in Collaborative Operation Networks
+2009 Do You Know Where Your Data's Been? --- Tamper-Evident Database Provenance
+2009 High Dependability Design Framework in Real-Time Embedded Control Software
+2009 Framework for Performance Evaluation of Face, Text, and Vehicle Detection and Tracking in Video: Data, Metrics, and Protocol
+2009 A Pixel-level Statistical Structural Descriptor for Shape Measure and Recognition
+2009 Creditability Modeling of Distributed Embedded System Based on Real-Time Interaction Specification
+2009 Evaluation of JP3D for lossy and lossless compression of hyperspectral imagery
+
+2008 Extraction of Text Objects in Video Documents: Recent Progress
+2008 Lossy-to-Lossless Compression of Hyperspectral Imagery Using Three-Dimensional TCE and an Integer KLT
+
+2007 Federate job mapping strategy in grid-based virtual wargame collaborative environment
+2007 Hyperspectral images lossless compression by a novel three-dimensional wavelet coding
+2007 A Novel Lossless Compression for Hyperspectral Images by Context-Based Adaptive Classified Arithmetic Coding in Wavelet Domain
+2007 An Efficient Reordering Prediction-Based Lossless Compression Algorithm for Hyperspectral Images
+2007 Component-based Hierarchy Modeling for Hybrid Complex Control System
+2007 Semantic Information Extraction of Video Based on Ontology and Inference
+
+2006 Research on mass terrain data storage and scheduling based on grid GIS
+2006 Efficient Sports Video Retrieval Based on Index Structure
+2006 A Novel Lossless Compression for Hyperspectral Images by Adaptive Classified Arithmetic Coding in Wavelet Domain
+
+2005 Efficient Video Clip Retrieval Using Index Structure
+author192 18
+
+2016 Cryptanalysis of a certificateless aggregate signature scheme
+2016 Fuzzy certificateless signature
+
+2015 A Modified Efficient Certificateless Signature Scheme without Bilinear Pairings
+
+2014 On the Security of a Lattice-Based Multi-party Concurrent Signature Scheme
+2014 Attribute-based key insulated signature and its applications
+
+2012 Identity-Based Key-Insulated Signcryption
+2012 Accountable authority key policy attribute-based encryption
+
+2011 Key updating technique in identity-based encryption
+2011 Restrictive partially blind signature for resource-constrained information systems
+
+2010 Efficient chosen-ciphertext secure certificateless threshold key encapsulation mechanism ☆
+
+2009 Provably Secure Identity-based Threshold Key Escrow from Pairing
+
+2008 Practical Certificateless Aggregate Signatures From Bilinear Maps
+
+2007 Certificateless threshold cryptosystem secure against chosen-ciphertext attack
+2007 ID-based threshold decryption secure against adaptive chosen-ciphertext attack
+2007 Efficient Partially Blind Signature from LFSR
+
+2006 Construction of Dynamic Threshold Decryption Scheme from Pairing
+2006 Adaptive Chosen Ciphertext Secure Threshold Key Escrow Scheme from Pairing
+
+2005 A dynamic threshold commercial key escrow scheme based on conic
+author619 89
+
+2017 Cryptanalysis of Dual RSA
+2017 External Prior Guided Internal Prior Learning for Real Noisy Image Denoising
+2017 Multi-channel Weighted Nuclear Norm Minimization for Real Color Image Denoising
+2017 Improving Backpressure-based Adaptive Routing via Incremental Expansion of Routing Choices
+
+2016 Fusing Heterogeneous Features From Stacked Sparse Autoencoder for Histopathological Image Analysis
+2016 Stacked Sparse Autoencoder (SSAE) for Nuclei Detection on Breast Cancer Histopathology Images
+2016 LSB page refresh based retention error recovery scheme for MLC NAND Flash
+2016 A Deep Convolutional Neural Network for segmenting and classifying epithelial and stromal regions in histopathological images
+2016 Irredundant lattice representations of continuous piecewise affine functions
+2016 Generally Hybrid Proxy Re-Encryption: A Secure Data Sharing among Cryptographic Clouds
+2016 MSR-VTT: A Large Video Description Dataset for Bridging Video and Language
+2016 Physical Layer Packet Coding: Inter-Block Cooperative Coding for 5G
+2016 The distribution of electromagnetic waves and forces in a dispersive chiral cylinder
+2016 A Unified Architecture for Semantic Role Labeling and Relation Classification.
+2016 Balanced Parity Update Algorithm with Queueing Length Awareness for RAID Arrays
+2016 Patch Group Based Bayesian Learning for Blind Image Denoising
+
+2015 Video saliency detection incorporating temporal information in compressed domain
+2015 Sparse Non-negative Matrix Factorization (SNMF) based color unmixing for breast histopathological image analysis.
+2015 A novel video saliency map detection model in compressed domain
+2015 Implicit Factorization of RSA Moduli Revisited Short Paper
+2015 Video saliency map detection based on global motion estimation
+2015 Cryptanalysis of Variants of RSA with Multiple Small Secret Exponents
+2015 Quantitative study of osteoporosis model based on synchrotron radiation
+2015 A multiscale compressed video saliency detection model based on ant colony optimization
+2015 Ant colony optimization inspired saliency detection using compressed video information
+2015 Visual saliency detection based on mutual information in compressed domain
+2015 Research of Improved Particle Swarm Optimization Based on Genetic Algorithm for Hadoop Task Scheduling Problem
+
+2014 User Message Model: A New Approach to Scalable User Modeling on Microblog
+2014 Modular Inversion Hidden Number Problem Revisited
+2014 A Novel Queue Management Algorithm INRIO-C Based on Differentiated Services
+2014 A Frame-Level HEVC Rate Control Algorithm for Videos with Complex Scene over Wireless Network
+
+2013 Fabrication of anisotropic nanomaterial by precise and large-area nanowire operation with focused-ion-beam
+2013 High-precision low-power quartz tuning fork temperature sensor with optimized resonance excitation
+
+2012 Continuous piecewise linear programming via concave optimization and genetic algorithm
+2012 Examining a model of knowledge management systems adoption and diffusion: A Partial Least Square approach
+2012 Two-Step-Ranking Secure Multi-Keyword Search over Encrypted Cloud Data
+2012 Multiregression based on upper and lower nonlinear integrals
+2012 The hill detouring method for minimizing hinging hyperplanes functions
+2012 Exact Penalty and Optimality Condition for Nonseparable Continuous Piecewise Linear Programming
+2012 Group matrix factorization for scalable topic modeling
+2012 Configurable data exchange tool design based on tagged data structure
+2012 A Fast Privacy-Preserving Multi-keyword Search Scheme on Cloud Data
+
+2011 A Configurable IPSec Processor for High Performance In-Line Security Network Processor
+2011 A high-throughput active contour scheme for segmentation of histopathological imagery
+
+2010 A weighted mean shift, normalized cuts initialized color gradient based geodesic active contour model: applications to histopathology image segmentation
+2010 Ripplet: A new transform for image processing
+2010 MIMO video broadcast via transmit-precoding and SNR-scalable video coding
+2010 Expectation–Maximization-Driven Geodesic Active Contour With Overlap Resolution (EMaGACOR): Application to Lymphocyte Segmentation on Breast Cancer Histopathology
+2010 Animating cartoon faces by multi-view drawings
+2010 MapDupReducer: detecting near duplicates over massive datasets
+
+2009 Conflict analysis of multi-source SST distribution
+2009 A high sensitivity quartz tuning fork temperature sensor
+2009 Computer-Aided Detection and Diagnosis of Breast Cancer With Mammography: Recent Advances
+2009 Scalable Video Multicast on Broadcast Channels
+
+2008 Using Role Determination and Expert Mining in the Enterprise Environment
+2008 An estimation of the domain of attraction for recurrent neural networks with time-varying delays
+2008 Absolute Exponential Stability of Recurrent Neural Networks With Generalized Activation Function
+2008 Steepest-Descent Channel Estimation Algorithm for MIMO-OFDMA Systems
+2008 Evaluation of Partitioning Methods for Stream Applications on a Heterogeneous Multi-core Processor Simulator
+
+2007 Mobile location estimation for DS-CDMA systems using self-organizing maps
+2007 Capacity Analysis for Convergent Video and Data Traffics in OVSF-CDMA Systems
+2007 Role Centralized Modeling for Expert Search in Enterprise Corporation
+2007 Quasi-Optimal Real-time Video Transmission in OFDM Systems
+2007 Bit Allocation for Fine-Granular SNR Scalability Coding with Hierarchical B Pictures
+2007 Novel Efficient Check Node Update Implementations for Row Weight Matched Min-Sum Algorithm
+
+2006 Using Profile Matching and Text Categorization for Answer Extraction in TREC Genomics.
+2006 Hybrid Control Based on Improved Radial Basis Function Network for Electro-hydraulic Servo System
+2006 Asynchronous Packet-Switching for Networks-on-Chip
+2006 Effective Generation of Interface Robustness Properties for Static Analysis
+2006 Integrating IDS alert correlation and OS-Level dependency tracking
+
+2005 Towards a Grid-Based Collaborative Platform for E-Learning.
+2005 On the performance of feature weighting K -means for text subspace clustering
+2005 Subspace clustering of text documents with feature weighting k -means algorithm
+2005 Ontology based semantic conflicts resolution in collaborative editing of design documents
+2005 Research on grid-based cooperative platform
+2005 Construction of low-density parity-check codes by superposition
+2005 Defeating memory corruption attacks via pointer taintedness detection
+
+2004 An effective method to detect software memory leakage leveraged from neuroscience principles governing human memory behavior
+2004 On algebraic construction of Gallager and circulant low-density parity-check codes
+2004 Construction of low-density parity-check codes based on balanced incomplete block designs
+2004 Self-organizing map for mobile location estimation in DS-CDMA systems
+2004 WORM vs. WORM: preliminary study of an active counter-attack mechanism
+
+2003 Extracting biochemical interactions from MEDLINE using a link grammar parser
+
+2002 Evaluating the Security Threat of Firewall Data Corruption Caused by Transient Errors
+2002 Improving turbo code error performance by multifold coding
+
+2001 An experimental study of security vulnerabilities caused by errors
+
+2000 Towards dependable home networking: an experience report
+
+1999 Caching and predicting branch sequences for improved fetch effectiveness
+
+1998 A firewalling scheme for securing MPOA-based enterprise networks
+author3005 17
+
+2016 A fast region segmentation algorithm on compressed gray images using Non-symmetry and Anti-packing Model and Extended Shading representation
+
+2015 An improved gray image representation using overlapping rectangular non-symmetry and anti-packing and extended shading approach
+2015 A square non-symmetry and anti-packing model representation algorithm of gray images using binary bit-plane decomposition
+
+2014 A novel binary image representation algorithm by using NAM and coordinate encoding procedure and its application to area calculation
+
+2012 A novel gray image representation using overlapping rectangular NAM and extended shading approach
+2012 A New Image Representation Method Using Nonoverlapping Non-symmetry and Anti-packing Model for Medical Images
+
+2011 A fast algorithm for computing moments of gray images based on NAM and extended shading approach
+2011 A new IITNAM representation method of gray images
+2011 An improved BPD-based triangle NAM for image representation
+
+2009 A new lossy and lossless image representation by using non-symmetry and anti-packing model with rectangles for gray images
+2009 A Novel Gray Image Representation Method by Using Direct Non-symmetry and Anti-packing Model with K-lines
+2009 An Improved Color Image Representation Method by Using Direct Non-symmetry and Anti-packing Model with Triangles and Rectangles
+
+2008 An improved algorithm for gray image representation using non-symmetry and anti-packing model with triangles and rectangles
+
+2007 A New Non-symmetry And Anti-packing Model With K-lines And Its Application To Color Image Representation.
+2007 A mesh-based automatic in-betweening algorithm in computer-assisted animation
+2007 A novel algorithm for triangle non-symmetry and anti-packing pattern representation model of gray images
+
+2006 A computer aided inbetweening algorithm for color fractal graphics
+author4317 17
+
+2017 A probabilistic method for emerging topic tracking in Microblog stream
+
+2016 High quality information extraction and query-oriented summarization for automatic query-reply in social network
+2016 KPCA-WT: An Efficient Framework for High Quality Microblog Extraction in Time-Frequency Domain
+2016 Sparse Topical Coding with Sparse Groups
+2016 Improving Distant Supervision of Relation Extraction with Unsupervised Methods.
+
+2015 Central Topic Model for Event-oriented Topics Mining in Microblog Stream
+2015 Topic Detection from Large Scale of Microblog Stream with High Utility Pattern Clustering
+2015 Coherent Topic Hierarchy: A Strategy for Topic Evolutionary Analysis on Microblog Feeds
+
+2013 High Quality Microblog Extraction Based on Multiple Features Fusion and Time-Frequency Transformation
+
+2012 The weighted shortest path search based on multi-agents in mobile GIS management services
+
+2011 The Web Information Extraction for Update Summarization Based on Shallow Parsing
+
+2008 The weighted shortest path search in mobile GIS services
+2008 Authorization approaches for advanced permission-role assignments
+2008 Wireless Service Attributes Classification and Matching Mechanism Based on Decision Tree
+
+2005 An Application of FIPA-ACL Based Agent Communication in Mobile-GPS System.
+
+2004 The application of multi-agent and CORBA in mobile-GPS system
+2004 NewsBR: a content-based news video browsing and retrieval system
+author5006 11
+
+2013 A robust multi-criteria recommendation approach with preference-based similarity and support vector machine
+2013 Community detection by popularity based models for authored networked data
+2013 A Scalable Approach for General Correlation Clustering
+2013 Utilizing social and behavioral neighbors for personalized recommendation
+
+2012 An efficient algorithm for maximal margin clustering
+
+2010 Relaxed Clipping: A Global Training Method for Robust Regression and Classification
+
+2009 Optimal reverse prediction: a unified perspective on supervised, unsupervised and semi-supervised learning
+2009 Fast normalized cut with linear constraints
+
+2006 Robust support vector machine training via convex outlier ablation
+2006 Discriminative unsupervised learning of structured predictors
+
+2005 Unsupervised and semi-supervised multi-class support vector machines
+author5253 19
+
+2016 Towards load shedding and scheduling schemes for data streams that maintain quality and timing requirements of query results
+
+2015 Searching for Spatio-temporal Similar Trajectories on Road Networks Using Network Voronoi Diagram
+2015 Efficient Location-Dependent Skyline Queries in Wireless Broadcast Environments
+2015 ENRS: An Effective Recommender System Using Bayesian Model
+2015 A Personalized News Recommendation System Based on Tag Dependency Graph
+2015 Incorporating Contextual Information into a Mobile Advertisement Recommender System
+
+2014 Energy-aware multipath routing for data aggregation in wireless sensor networks
+2014 Hyperbolic Utilization Bounds for Rate Monotonic Scheduling on Homogeneous Multiprocessors
+
+2013 Locality sensitive hashing revisited: filling the gap between theory and algorithm analysis
+2013 Efficient Location-Dependent Skyline Retrieval with Peer-to-Peer Sharing
+
+2012 Scheduling Periodic Continuous Queries in Real-Time Data Broadcast Environments
+
+2011 On a novel property of the earliest deadline first algorithm
+
+2008 Exploiting Application Semantics in Monitoring Real-Time Data Streams
+
+2007 Location Prediction for Tracking Moving Objects Based on Grey Theory
+
+2006 Mobile Real-Time Read-Only Transaction Processing in Broadcast Disks
+
+2005 An updates dissemination protocol for read-only transaction processing in mobile real-time computing environments
+2005 Mobile real-time read-only transaction processing in data broadcast environments
+2005 A novel min-process checkpointing scheme for mobile computing systems
+
+2004 A Low-Cost Checkpointing Scheme for Mobile Computing Systems
+author219 4
+
+2005 A KNN-Based learning method for biology species categorization
+
+2004 An XML-Based Bootstrapping Method for Pattern Acquisition.
+2004 Vague event-based related news detection
+
+2002 Event pattern discovery from the stock market bulletin
+author4820 10
+
+2017 Attention region detection based on closure prior in layered bit Planes
+
+2016 Investigation of mobile surroundings for visual attention based on image perception model
+
+2014 An improved hybrid fast mode decision method for H.264/AVC intra coding with local information
+
+2013 A new hybrid fast mode decision method for H.264/AVC intra coding
+2013 Accelerated implementation of adaptive directional lifting-based discrete wavelet transform on GPU
+2013 A hybrid fast mode decision method for H.264/AVC intra prediction
+
+2012 A Lifting Scheme of Symmetric-antisymmetric Multiwavelet Transform for Image Coding
+
+2006 The application of symmetric orthogonal multiwavelets and prefilter technique for image compression
+
+2005 A Very Low Bit Rate Video Coding Combined with Fast Adaptive Block Size Motion Estimation and Nonuniform Scalar Quantization Multiwavelet Transform
+
+2003 A framework of scalar quantization multiwavelet transform for very low bit rate video coding.
+author1125 1
+
+2009 A Software Test Cases Automated Generation Algorithm Based on Immune Principles
+author835 17
+
+2016 An EL-LDA based general color harmony model for photo aesthetics assessment
+2016 Image color harmony modeling through neighbored co-occurrence colors
+
+2014 Object Ranking on Deformable Part Models with Bagged LambdaMART
+2014 Directional communication with movement prediction in mobile wireless sensor networks
+2014 Sentiment analysis of microblog combining dictionary and rules
+2014 Discovering Harmony: A Hierarchical Colour Harmony Model for Aesthetics Assessment
+
+2010 A framework of ontological semantic knowledge tree for vertical search engine
+
+2007 Differential shape statistical analysis
+
+2006 A fast individual face modeling and facial animation system
+
+2005 Multi-dimensional game interface with stereo vision
+2005 A vision based game control method
+2005 Fist tracking using bayesian network
+2005 Local moment invariant analysis
+2005 3D head models retrieval based on geometrical measurement for modeling
+2005 Head gesture recognition based on bayesian network
+2005 Head nod and shake recognition based on multi-view model and hidden Markov model
+
+2004 Navigation in 3D game by Markov model based head pose estimating
+author3409 8
+
+2016 The mean shift method of chaotic sequences in the study of compressive sensing
+
+2015 Novel Word Features for Keyword Extraction
+2015 Skewly replicating hot data to construct a power-efficient storage cluster
+
+2012 On optimal feature selection using harmony search for image steganalysis
+
+2011 Intrinsic dimension estimation based on maximum likelihood estimator and reverse k nearest neighbors
+
+2010 Privacy Preservation in E-government
+2010 Outlier Detection for Learning-Based Optimizing Compiler
+
+2006 Granularity adaptive density estimation and on demand clustering of concept-drifting data streams
+author2491 10
+
+2017 High resolution non-rigid dense matching based on optimized sampling
+
+2016 Solving the initial value problem of discrete geodesics
+2016 Synthesizing Training Images for Boosting Human 3D Pose Estimation
+2016 3D panorama reconstruction based on sitemap joining
+
+2014 Dynamic 3D facial expression modeling using Laplacian smooth and multi-scale mesh matching
+
+2013 Foreword to the special issue of CAD/Graphics 2011
+2013 Topological classification of non-degenerate intersections of two ring tori
+
+2008 Automatically Approximating 3D Points with Co-Axisal Objects
+
+2007 A GPU-based algorithm for building stochastic clustered-dot screens
+
+2002 Classifying the nonsingular intersection curve of two quadric surfaces
+author5353 11
+
+2016 Diverse and proportional size-l object summaries using pairwise relevance
+
+2015 Correlation-based pruning of dependent binary relevance models for Multi-label classification
+2015 Diverse and Proportional Size-l Object Summaries for Keyword Search
+
+2014 Fast Orthogonal Haar Transform PatternMatching via Image Square Sum
+2014 Versatile Size- $l$ Object Summariesfor Relational Keyword Search
+
+2013 Human eyebrow recognition in the matching-recognizing framework
+
+2011 Automated Generation of Personal Data Reports from Relational Databases
+2011 Size- l object summaries for relational keyword search
+2011 4-axis micro ED-milling of micro 3D structures on cylindrical workpiece based on CAD/CAM commercial software
+
+2009 Ranking of Object Summaries
+2009 Predict Ranking of Object Summaries with Hidden Markov Model
+author5040 20
+
+2017 An overlapping community detection algorithm based on density peaks
+2017 RNA-TVcurve: a Web server for RNA secondary structure comparison based on a multi-scale similarity of its triple vector curve representation
+
+2014 A resampling ensemble algorithm for classification of imbalance problems
+
+2013 Multi-BP expert system for fault diagnosis of powersystem
+
+2011 Text Clustering with Seeds Affinity Propagation
+2011 The Application of Fuzzy System Group in Intelligent Diagnosis for Power Tranformer
+
+2010 A hybrid swarm intelligent method based on genetic algorithm and artificial bee colony
+2010 An integrated algorithm based on artificial bee colony and particle swarm optimization
+2010 Dynamic Scheduling for Semiconductor Wafer Fabrication Based on ETAEMS and MAS
+2010 PMirP: A pre-microRNA prediction method based on structure-sequence hybrid features
+
+2009 An incremental affinity propagation algorithm and its applications for text clustering
+
+2008 An artificial neural network method for combining gene prediction based on equitable weights
+2008 A Fuzzy-Statistics-Based Principal Component Analysis (FS-PCA) Method for Multispectral Image Enhancement and Display
+
+2007 Particle swarm optimization-based algorithms for TSP and generalized TSP
+2007 Text Categorization Method Based on Improved Mutual Information and Characteristic Weights Evaluation Algorithms
+
+2006 An improved OIF elman neural network and its applications to stock market
+2006 An improved elman neural network with profit factors and its applications
+
+2005 An improved GA and a novel PSO-GA-based hybrid algorithm
+
+2004 A Hybrid Algorithm Based on PSO and SA and Its Application for Two-Dimensional Non-guillotine Cutting Stock Problem
+2004 IMPROVED ELMAN NETWORKS AND APPLICATIONS FOR CONTROLLING ULTRASONIC MOTORS
+author3051 4
+
+2010 A Semantic Middleware of Grain Storage Internet
+2010 AgOnt: Ontology for Agriculture Internet of Things
+
+2008 Early overhearing avoidance in wireless sensor networks
+2008 DiMo: distributed node monitoring in wireless sensor networks
+author3118 5
+
+2017 Vascular segmentation of head phase-contrast magnetic resonance angiograms using grayscale and shape features
+
+2016 Shape context and projection geometry constrained vasculature matching for 3D reconstruction of coronary artery
+
+2015 Adaptive Ridge Point Refinement for Seeds Detection in X-Ray Coronary Angiogram.
+
+2013 Automatic Vasculature Identification in Coronary Angiograms by Adaptive Geometrical Tracking
+
+2012 Ridge-Based automatic vascular centerline tracking in x-ray angiographic images
+author5284 10
+
+2016 Face recognition by decision fusion of two-dimensional linear discriminant analysis and local binary pattern
+2016 Parallelizing Convolutional Neural Networks for Action Event Recognition in Surveillance Videos
+2016 Visual attributes based sparse multitask action recognition
+2016 Preserving discriminant manifold subspace learning for plant leaf recognition
+
+2015 Supervised sparse manifold regression for head pose estimation in 3D space
+
+2014 Image compressed sensing based on multi-level adaptive learning dictionaries
+2014 Supervised locality discriminant manifold learning for head pose estimation
+
+2013 A new camera self-calibration method based on CSA
+
+2010 Chinese question classification in community question answering
+
+2004 Indoor and outdoor people detection and shadow suppression by exploiting HSV color information
+author3169 8
+
+2014 Optimizational Method of HBase Multi-dimensional Data Query Based on Hilbert Space-Filling Curve
+
+2013 Research on Polymorphism in Digital Text Watermarking
+
+2011 Automatic Model Building and Verification of Embedded Software with UPPAAL
+2011 Web Page Layout Adaptation Based on WebKit for E-paper Device
+
+2009 A Novel Application for Text Watermarking in Digital Reading
+
+2008 Extracting Content from Web Pages Based on RSS
+2008 A Chinese Text Watermarking Based on Statistic of Phrase Frequency
+2008 A Novel License Distribution Mechanism in DRM System
+author4992 25
+
+2017 3D Object Recognition in Cluttered Scenes With Robust Shape Description and Correspondence Selection
+
+2016 CofiFab: coarse-to-fine fabrication of large 3D objects
+2016 Cross-corpus speech emotion recognition based on transfer non-negative matrix factorization
+2016 Transfer Semi-Supervised Non-Negative Matrix Factorization for Speech Emotion Recognition
+2016 Hand-posture-augmented multitouch interactions for exploratory visualization
+2016 Signature of Geometric Centroids for 3D Local Shape Description and Partial Shape Matching
+
+2015 Printing 3D objects with interlocking parts
+2015 Computational interlocking furniture assembly
+
+2014 Speech Emotion Recognition Using Transfer Learning
+
+2013 Reciprocal frame structures made easy
+2013 Double-Sided 2.5D Graphics
+
+2012 Brush-and-drag: a multi-touch interface for photo triaging
+2012 A handle bar metaphor for virtual object manipulation with mid-air interaction
+2012 Recursive interlocking puzzles
+
+2011 Distinguishing multiple smart-phone interactions on a multi-touch wall display using tilt correlation
+2011 WYSIWYF: exploring and annotating volume data with a tangible handheld device
+
+2010 Expansion-based depth map estimation for multi-view stereo
+2010 Volumetric stereo and silhouette fusion for image-based modeling
+2010 Visual hull computation based on level set method
+
+2008 Vision-based 3D finger interactions for mixed reality games with physics simulation
+
+2007 Vision-based projected tabletop interface for finger interactions
+2007 A tangible game interface using projector-camera systems
+
+2005 Fault tolerant asynchronous adder through dynamic self-reconfiguration
+
+2002 A potential field based approach to multi-robot manipulation
+
+2000 Dynamic simulation for grasping and whole arm manipulation
+author694 2
+
+2004 RPE query processing and optimization techniques for XML databases
+
+2003 Efficient Evaluation of XML Path Queries with Automata
+author3736 10
+
+2017 Characterization of Digraphic Sequences with Strongly Connected Realizations
+
+2016 Ore-type degree condition of supereulerian digraphs
+2016 Fractional spanning tree packing, forest covering and eigenvalues
+
+2015 Nonseparating Cycles Avoiding Specific Vertices
+
+2013 Non-separating subgraphs
+
+2012 Edge fault tolerance of graphs with respect to super edge connectivity
+2012 Backup 2-center on interval graphs
+
+2009 Edges of degree k in minimally restricted k-edge connected graphs
+2009 Minimally 3-restricted edge connected graphs
+
+2008 Minimally restricted edge connected graphs
+author375 28
+
+2016 Accelerating the 3D euler atmospheric solver through heterogeneous CPU-GPU platforms
+2016 The Sunway TaihuLight supercomputer：system and applications
+2016 A Fast Tridiagonal Solver for Intel MIC Architecture
+2016 Generalized GPU Acceleration for Applications Employing Finite-Volume Methods
+2016 Unleashing the performance potential of CPU-GPU platforms for the 3D atmospheric Euler solver
+2016 10M-core scalable fully-implicit solver for nonhydrostatic atmospheric dynamics
+2016 Refactoring and optimizing the community atmosphere model (CAM) on the sunway taihulight supercomputer
+
+2015 Ultra-Scalable CPU-MIC Acceleration of Mesoscale Atmospheric Modeling on Tianhe-2
+2015 Solving the Global Atmospheric Equations through Heterogeneous Reconfigurable Platforms
+
+2014 A case study of large-scale parallel I/O analysis and optimization for numerical weather prediction system
+2014 Parallelisation of a watershed distributed ecohydrological model with dynamic task scheduling
+2014 A highly-efficient and green data flow engine for solving euler atmospheric equations
+2014 Scaling and analyzing the stencil performance on multi-core and many-core architectures
+2014 Enabling and Scaling a Global Shallow-Water Atmospheric Model on Tianhe-2
+2014 A hierarchical tridiagonal system solver for heterogenous supercomputers
+
+2013 A scalable barotropic mode solver for the parallel ocean program
+2013 Global Atmospheric Simulation on a Reconfigurable Platform
+2013 Performance modeling and optimization of sparse matrix-vector multiplication on NVIDIA CUDA platform
+2013 A peta-scalable CPU-GPU algorithm for global atmospheric simulations
+2013 HW/SW approaches to accelerate GRAPES in an FU array
+2013 Accelerating solvers for global atmospheric equations through mixed-precision data flow engine
+2013 A scalable Helmholtz solver in GRAPES over large‐scale multicore cluster
+
+2012 Fast time domain simulation of power systems using multilevel preconditioners with adaptive reconstruction strategies
+
+2011 Kangaroo: Reliable Execution of Scientific Applications with DAG Programming Model
+
+2009 Improving Dense Linear Equation Solver on Hybrid CPU-GPU System
+
+2007 Multilevel Task Partition Algorithm for Parallel Simulation of Power System Dynamics
+
+2006 Computation of si nanowire bandstructures on parallel machines through domain decomposition
+
+2005 Access control policy negotiation for remote hot-deployed grid services
+author4839 24
+
+2016 Modeling the In-home Lifestyle of Chronic Anorectal Patients via a Sensing Home
+
+2015 Scalable clock synchronization in wireless networks with low-duty-cycle radio operations
+2015 Sensing Home: A Cost-Effective Design for Smart Home via Heterogeneous Wireless Networks
+2015 An ARM-Based Hadoop Performance Evaluation Platform: Design and Implementation
+
+2014 Private Smart Space: Cost-Effective ADLs (Activities of Daily Livings) Recognition Based on Superset Transformation
+2014 A Low-Complexity Digital Predistortion Algorithm for Power Amplifier Linearization
+2014 CBSNTS: A Chaotic Based Security Network Transmission System
+2014 Clustering Files with Extended File Attributes in Metadata
+2014 Real-time hand gesture feature extraction using depth data
+2014 A Novel Adaptive Web Service Selection Algorithm Based on Ant Colony Optimization for Dynamic Web Service Composition
+2014 Multi-path Data Prefetching in Mobile Cloud Storage
+
+2013 PSR: Practical synchronous rendezvous in low-duty-cycle wireless networks
+2013 A Pre-buffer Mechanism in Multi-channel P2P Live Streaming
+2013 Design and implementation of digital predistorter with orthonormal polynomials
+2013 A General Adaptive Digital Predistortion Architecture for Stand-Alone RF Power Amplifiers
+2013 An Efficient ML Decoder for Tail-Biting Codes Based on Circular Trap Detection
+2013 Performance Analysis of NAND Flash Based Cache for Network Storage System
+2013 User-Oriented and Content-Oriented Strategy in P2P IPTV System
+
+2012 Fractional delay compensation in digital predistortion system
+
+2011 Modeling and simulation of flow field of main spool in servo valve
+
+2006 A two-way selective encryption algorithm for MPEG video
+
+2005 Mining frequent patterns with the pattern tree
+
+2002 Association analysis with one scan of databases
+
+2001 Efficient runtime generation of association rules
+author5328 8
+
+2014 The subdivision wavelet transform with local shape control
+
+2011 1-ring interpolatory wavelet using function vectors for mobile computing
+2011 Efficient wavelet-based geometry compression
+
+2010 Computing Efficient Matrix-valued Wavelets for Meshes
+
+2009 An Aliasing Theory of Shadow Mapping
+2009 Compound Biorthogonal Wavelets on Quadrilaterals and Polar Structures
+
+2008 Generalized minimum-norm perspective shadow maps
+
+2007 Theory to practice: generalized minimum-norm perspective shadow maps for anti-aliased shadow rendering in 3D computer games
+author3180 17
+
+2017 App genome: callback sequencing in Android.
+
+2016 Toward Exploiting Access Control Vulnerabilities within MongoDB Backend Web Applications
+2016 An Effective Penetration Test Approach Based on Feature Matrix for Exposing SQL Injection Vulnerability
+2016 Automatic Construction of Callback Model for Android Application
+
+2015 An Improvement to Fault Localization Technique Based on Branch-Coverage Spectra
+
+2014 An automated testing approach for inter-application security in Android
+2014 QScheduler: A Tool for Parallel Query Processing in Database Systems
+2014 An evaluation model for dependability of Internet-scale software on basis of Bayesian Networks and trustworthiness
+
+2013 Enhancing query performance by avoiding negative interactions
+
+2012 A fast adaptive binarization method for complex scene images
+2012 Interprocedural path-sensitive resource leaks detection for C programs
+2012 An Evaluation Model for Dependability of Internet-Scale Software on Basis of Bayesian Networks
+2012 Attack Model Based Penetration Test for SQL Injection Vulnerability
+2012 An improved binarization method using inter- and intra-block features for natural images
+
+2011 The Implementation of Cluster-Based Traffic Simulation System
+
+2010 An Evaluation Framework for XML Engine on RDBMS
+
+2008 A Web-App Auto-Testing System Based on Test-Flow and Control Constraints
+author4744 3
+
+2017 BFSI-B: An improved K-hop graph reachability queries for cyber-physical systems ☆
+2017 TPS: An Efficient VM Scheduling Algorithm for HPC Applications in Cloud
+
+2015 Multi-version Execution for the Dynamic Updating of Cloud Applications
+author208 22
+
+2016 Energy-Efficient eDRAM-Based On-Chip Storage Architecture for GPGPUs
+2016 A Novel Test Method for Metallic CNTs in CNFET-Based SRAMs
+
+2015 Bank stealing for conflict mitigation in GPGPU Register File
+2015 Fault-Tolerant 3D-NoC Architecture and Design: Recent Advances and Challenges
+2015 A Low-Cost TSV Test and Diagnosis Scheme Based on Binary Search Method
+2015 On test syndrome merging for reasoning-based board-level functional fault diagnosis
+2015 Building Fuel Powered Supercomputing Data Center at Low Cost
+2015 Jump test for metallic CNTs in CNFET-based SRAM
+2015 On diagnosable and tunable 3D clock network design for lifetime reliability enhancement
+2015 Yield and reliability enhancement for 3D ICs: Dissertation summary: IEEE TTTC E.J. McCluskey doctoral thesis award competition finalist
+2015 A novel TSV probing technique with adhesive test interposer
+2015 On microarchitectural modeling for CNFET-based circuits
+2015 Timing-driven placement for carbon nanotube circuits
+
+2013 On effective and efficient in-field TSV repair for stacked 3D ICs
+2013 AgentDiag: An agent-assisted diagnostic framework for board-level functional failures
+2013 On Effective Through-Silicon Via Repair for 3-D-Stacked ICs
+
+2012 On effective TSV repair for 3D-stacked ICs
+2012 Integrated Test-Architecture Optimization and Thermal-Aware Test Scheduling for 3-D SoCs Under Pre-Bond Test-Pin-Count Constraint
+2012 Yield enhancement for 3D-stacked ICs: Recent advances and challenges
+
+2010 Yield enhancement for 3D-stacked memory by redundancy sharing across dies
+2010 Modeling TSV open defects in 3D-stacked DRAM
+
+2009 Test architecture design and optimization for three-dimensional SoCs
+author1029 35
+
+2017 Cost-Aware Streaming Workflow Allocation on Geo-Distributed Data Centers
+
+2016 Discovering internal social relationship for influence-aware service recommendation
+2016 Tology-Aware Optimal Data Placement Algorithm for Network Traffic Optimization
+2016 Fast Social Service Network Construction Using Map-Reduce for Efficient Service Discovery
+2016 Workflow Transformation for Real-Time Big Data Processing
+2016 Analysis of data distribution to classify data based on taxonomy hierarchy
+
+2015 Privacy Issues in SOAP Message Exchange Pattern for Social Services
+2015 Constructing a Global Social Service Network for Better Quality of Web Service Discovery
+2015 Toward Better Quality of Service Composition Based on a Global Social Service Network
+2015 An efficient algorithm for dictionary learning with a mixed-norm regularizer for sparsity based on proximal operator
+2015 Topology-aware Heuristic Data Allocation Algorithm for Big Data Infrastructure
+
+2014 Ontology learning with complex data type for Web service clustering
+2014 A Scalable Architecture for Automatic Service Composition
+2014 Recommendation for Web services with domain specific context awareness
+2014 Improving dictionary learning using the Itakura-Saito divergence
+2014 Context Aware Post-filtering for Web Service Clustering
+2014 Web Service Clustering using a Hybrid Term-Similarity Measure with Ontology Learning
+2014 Context-Aware Filtering and Visualization of Web Service Clusters
+
+2013 Awareness of social influence on linked social service
+2013 Clustering and Spherical Visualization of Web Services
+2013 Semantic pattern templates for automating business choreography on web services
+2013 Service Discovery Based on Objective and Subjective Measures
+2013 Web-Service Clustering with a Hybrid of Ontology Learning and Information-Retrieval-Based Term Similarity
+2013 Awareness of Social Influence for Service Recommendation
+2013 Improving efficiency of service discovery using Linked data-based service publication
+2013 Big Data Infrastructure for Active Situation Awareness on Social Network Services
+2013 Interlinking Distributed Services for Workflow-as-a-Service Based on Linked Data
+
+2012 Global Service Space Construction and Its Application to Workflow as a Service
+2012 Linked Social Service: Evolving from an Isolated Service into a Global Social Service Network
+2012 Linked Social Service: Connecting Isolated Services into a Global Social Service Network
+
+2011 A Functional -- Scalable Architecture for Automatic Service Composition
+2011 Identification of Semistructured Abstract Nonfunctional Properties for Automatic Service Composition
+
+2010 Scalable Orchestration Strategy for Automatic Service Composition
+2010 Semantic words similarity in triple relation using intermediate concept by PLSI
+2010 Design of user interface for Automatic Service Composition
+author2485 70
+
+2017 Perceptually Guided Photo Retargeting
+2017 I Know What You Want to Express: Sentence Element Inference by Incorporating External Knowledge Base
+2017 Version-sensitive mobile App recommendation
+2017 Predicting Image Memorability Through Adaptive Transfer Learning From External Sources
+2017 Targeted Advertising in Public Transportation Systems with Quantitative Evaluation
+2017 Data-Driven Answer Selection in Community QA Systems
+2017 Simple to Complex Cross-modal Learning to Rank
+2017 S2JSD-LSH: A Locality-Sensitive Hashing Schema for Probability Distributions.
+2017 What Happens Next? Future Subevent Prediction Using Contextual Hierarchical LSTM
+2017 Neural Collaborative Filtering
+2017 Learning User Attributes via Mobile Social Multimedia Analytics
+2017 Special issue on Cross-Media Big Data Analytics
+2017 Supervised Deep Hashing for Hierarchical Labeled Data
+2017 Compact Indexing and Judicious Searching for Billion-Scale Microblog Retrieval
+
+2016 Genetic algorithm and mathematical morphology based binarization method for strip steel defect image with non-uniform illumination
+2016 An aerial image recognition framework using discrimination and redundancy quality measure
+2016 Exploring heterogeneous features for query-focused summarization of categorized community answers
+2016 Event graph based contradiction recognition from big data collection
+2016 Surface defect classification in large-scale strip steel image collection via hybrid chromosome genetic algorithm
+2016 Weakly Supervised Human Fixations Prediction
+2016 Detecting Densely Distributed Graph Patterns for Fine-Grained Image Categorization
+2016 Utilizing Sensor-Social Cues to Localize Objects-of-Interest in Outdoor UGVs
+2016 A Biologically Inspired Automatic System for Media Quality Assessment
+2016 Weakly Supervised Multilabel Clustering and its Applications in Computer Vision
+2016 Modeling Disease Progression via Multisource Multitask Learners: A Case Study With Alzheimer's Disease
+2016 Volunteerism Tendency Prediction via Harvesting Multiple Social Networks
+2016 Perceptual Attributes Optimization for Multivideo Summarization
+2016 Smart Ambient Sound Analysis via Structured Statistical Modeling
+2016 Semantic Photo Retargeting Under Noisy Image Labels
+2016 A classification model for semantic entailment recognition with feature combination
+2016 Fortune teller: predicting your career path
+2016 Fusing social networks with deep learning for volunteerism tendency prediction
+2016 Weakly supervised image parsing via label propagation over discriminatively semantic graph
+2016 Quality biased multimedia data retrieval in microblogs
+2016 Micro Tells Macro: Predicting the Popularity of Micro-Videos via a Transductive Model
+2016 Shorter-is-Better: Venue Category Estimation from Micro-Video
+2016 SCA-CNN: Spatial and Channel-wise Attention in Convolutional Networks for Image Captioning
+2016 Towards organizing health knowledge on community-based health services
+2016 Weakly-Supervised Multimodal Kernel for Categorizing Aerial Photographs
+2016 From tweets to wellness: wellness event detection from Twitter streams
+2016 What Does Social Media Say about Your Stress
+2016 Learning compact visual representation with canonical views for robust mobile landmark search
+2016 Sparse Code Filtering for Action Pattern Mining
+
+2015 aMM: Towards adaptive ranking of multi-modal documents
+2015 Beyond Doctors: Future Health Prediction from Multimedia and Multimodal Observations
+2015 On robust image spam filtering via comprehensive visual modeling
+2015 Harvesting Multiple Sources for User Profile Learning: a Big Data Study
+2015 Multiple Social Network Learning and Its Application in Volunteerism Tendency Prediction
+2015 Disease Inference from Health-Related Questions via Sparse Deep Learning
+2015 Online Multimodal Co-indexing and Retrieval of Weakly Labeled Web Image Collections
+2015 Semantic-Based Location Recommendation With Multimodal Venue Semantics
+2015 Biologically Inspired Media Quality Modeling
+2015 Bridging the Vocabulary Gap between Health Seekers and Healthcare Knowledge
+2015 Retargeting Semantically-Rich Photos
+2015 Action2Activity: recognizing complex activities from sensor data
+2015 Interest inference via structure-constrained multi-source multi-task learning
+2015 Recognizing entailment in Chinese texts with feature combination
+2015 Weibo-Oriented Chinese News Summarization via Multi-feature Combination
+
+2014 Personalized Recommendations of Locally Interesting Venues to Tourists via Cross-Region Community Matching
+2014 WenZher: comprehensive vertical search for healthcare domain
+2014 Learning to Recommend Descriptive Tags for Questions in Social Forums
+2014 A Joint Local-Global Approach for Medical Terminology Assignment
+
+2013 Beyond Text QA: Multimedia Answer Generation by Harvesting Web Information
+
+2012 Harvesting visual concepts for image search with complex queries
+2012 Oracle in Image Search: A Content-Based Approach to Performance Prediction
+2012 Multimedia Question Answering
+2012 A Semi-Supervised Bayesian Network Model for Microblog Topic Classification
+2012 The Use of Dependency Relation Graph to Enhance the Term Weighting in Question Retrieval
+
+2011 Multimedia answering: enriching text QA with media information
+
+2010 TRECVID 2010 Known-item Search by NUS
+author196 11
+
+2015 Multispectral Joint Image Restoration via Optimizing a Scale Map
+
+2014 Saliency preserving decolorization
+
+2013 An intelligent diagnosis method for Chronis hepatitis B in TCM
+
+2012 Syndrome discrimination model of traditional Chinese medicine for chronic hepatitis B
+
+2011 Ensemble learning for synthesis of the four diagnostics of TCM
+
+2010 Rough set based feature selection for improved differentiation of traditional Chinese medical data
+2010 A camera on-line recalibration framework using SIFT
+
+2009 A new framework for feature descriptor based on SIFT
+2009 An improved rotation-based self-calibration
+2009 Feature selection and syndrome prediction for liver cirrhosis in traditional Chinese medicine
+
+2008 Correlation between Child-Pugh Degree and the Four Examinations of Traditional Chinese Medicine (TCM) with Liver Cirrhosis
+author4830 9
+
+2015 PPM: A Partitioned and Parallel Matrix Algorithm to Accelerate Encoding/Decoding Process of Asymmetric Parity Erasure Codes
+
+2014 SDVC: A Scalable Deduplication Cluster for Virtual Machine Images in Cloud
+2014 Balanced P-Code: A RAID-6 Code to Support Highly Balanced I/Os for Disk Arrays
+2014 Hint-K: An Efficient Multilevel Cache Using K-Step Hints
+
+2012 Strip-oriented asynchronous prefetching for parallel disk systems
+
+2011 H-Code: A Hybrid MDS Array Code to Optimize Partial Stripe Writes in RAID-6
+
+2010 A tradeoff analysis of delayed reconstruction for storage clusters
+2010 Predictive control for vehicular sensor networks based on round-trip time-delay prediction
+
+2007 A Reliable Scheme for Cluster Storage System
+author4706 7
+
+2016 Lossless ROI Privacy Protection of H.264/AVC Compressed Surveillance Videos
+
+2015 A robust reversible data hiding scheme for H.264 without distortion drift
+2015 A new robust data hiding method for H.264/AVC without intra-frame distortion drift
+
+2014 A robust without intra-frame distortion drift data hiding algorithm based on H.264/AVC
+
+2013 A robust data hiding algorithm for H.264/AVC video streams
+
+2012 Reversible Data Hiding Scheme Based On H.264/AVC without Distortion Drift
+
+2010 A Data Hiding Algorithm for H.264/AVC Video Streams Without Intra-Frame Distortion Drift
+author4139 28
+
+2015 Honeycomb-patterned PDMS membrane based on nanosphere lithography
+2015 A novel discharge system based on jagged electrodes with controllable spacing
+
+2014 Design and Development of an Innovation Product Engineering Process Curriculum at Peking University
+
+2013 Silicon carbide capacitive pressure sensors with arrayed sensing membranes
+2013 Contactless RF MEMS switch using PZT actuation
+2013 Fabrication of tunable wetting PDMS membrane by nanostructuring and plasma treatment
+2013 Growth of arrayed ZnO nanowires using a solution method
+2013 Low frequency PVDF piezoelectric energy harvester with combined d31 and d33 operating modes
+2013 Effects of crystal defects on the electrokinetics of nanofluidic crystal
+2013 High aspect ratio etching of nanopores in PECVD SiC through AAO mask
+2013 Effect of RF sputtering parameters on PZT crystal growth
+2013 High-Q polyimide-based spiral inductors with magnetic core for RF telemetry applications
+2013 Flexible MEMS inductors based on Parylene-FeNi Compound Substrate for wireless power transmission system
+
+2012 Surface analysis and process optimization of black silicon
+2012 Formation and interaction of micro/nano multi-scale structures
+2012 Design and fabrication of flexible parylene-based inductors with electroplated NiFe magnetic core for wireless power transmission system
+
+2011 Fabrication and characteristics of tunable band pass filter using MetalMumps technology
+2011 Fabrication and characterization of SiC thin films
+2011 Fabrication of superhydrophobic wide-band “Black Silicon” by deep reactive ion etching
+2011 Development of TSV simulator: FASTsv
+
+2010 Wireless energy and signal transmission system for micro implantable medical system
+2010 RF MEMS filter based on one step of copper electroplating
+2010 High efficiency coupling with stacked MEMS coils
+2010 A continuous-time voltage readout for SiC micromechanical capacitive pressure sensor
+2010 Electro-thermally actuated RF MEMS switch for wireless communication
+
+2009 A novel method of anodic bonding
+2009 Transcutaneous power link design for implanted systems
+2009 Spiral capacitor based on copper electroplating
+author486 17
+
+2017 A novel image encryption algorithm based on chaotic shuffling method
+2017 Nonlinear norm-observability and simulation of control systems ☆
+
+2016 A novel and effective image encryption algorithm based on chaos and DNA encoding
+2016 A new key agreement protocol based on Chebyshev chaotic maps
+
+2014 Backstepping generalized synchronization for neural network with delays based on tracing control method
+2014 Chaos Synchronization in Complex Oscillators Networks with Time Delay via Adaptive Complex Feedback Control
+2014 Cryptanalysis of an image encryption algorithm using Chebyshev generator
+
+2013 Triple-image encryption scheme based on one-time key stream generated by chaos and plain images
+
+2012 Image encryption using DNA complementary rule and chaotic maps
+2012 A novel colour image encryption algorithm based on chaos
+
+2010 Dynamic fuzzy neural networks modeling and adaptive backstepping tracking control of uncertain chaotic systems
+2010 Color image encryption based on one-time keys and robust chaotic maps
+2010 Observer-based decentralized fuzzy neural sliding mode control for interconnected unknown chaotic systems via network structure adaptation
+2010 Module-phase synchronization in complex dynamic system
+
+2009 Cryptanalysis and improvement on a cryptosystem based on a chaotic map
+
+2008 Dynamics of the generalized M set on escape-line diagram
+2008 A 2-D ECG compression algorithm based on wavelet transform and vector quantization
+author4399 4
+
+2015 A strongly secure pairing-free certificateless authenticated key agreement protocol suitable for smart media and mobile environments
+
+2014 An efficient password-based three-party authenticated multiple key exchange protocol for wireless mobile networks
+2014 Detection and analysis of secure intelligent universal designated verifier signature scheme for electronic voting system
+2014 An improved authentication protocol for session initiation protocol using smart card
+author631 4
+
+2014 A 0.8V, 560fJ/bit, 14Gb/s injection-locked receiver with input duty-cycle distortion tolerable edge-rotating 5/4X sub-rate CDR in 65nm CMOS
+
+2013 A 1.2 pJ/b 6.4 Gb/s 8+1-lane forwarded-clock receiver with PVT-variation-tolerant all-digital clock and data recovery in 28nm CMOS
+
+2011 A novel SST transmitter with mutually decoupled impedance self-calibration and equalization
+
+2008 A PVT Tolerant sub-mA PLL in 65nm CMOS process
+author4046 2
+
+2014 A novel fragmentation-aware spectrum allocation algorithm in flexible bandwidth optical networks
+
+2013 Polarization-interleaved OFDM-PON with DSB modulation
+author29 3
+
+2016 Graphics processing unit-accelerated joint-bitplane belief propagation algorithm in DSC
+
+2014 Accelerating 2D orthogonal matching pursuit algorithm on GPU
+
+2013 Parallel design for error-resilient entropy coding algorithm on GPU
+author2447 6
+
+2016 A Provably-Secure and Efficient Verifier-Based Anonymous Password-Authenticated Key Exchange Protocol
+
+2013 Strongly Password-Based Three-Party Authenticated Key Exchange Protocol
+
+2009 Secure and Efficient Two-Party Authenticated Key Agreement Protocol from Certificateless Public Key Encryption Scheme
+2009 Perfect Forward Secure Two-Party Key Agreement Protocol with Key Escrow
+2009 On the Security of Certificateless Authenticated Key Agreement Protocol (CL-AK) for Grid Computing
+2009 A Secure ID-Based Explicit Authenticated Key Agreement Protocol without Key Escrow
+author5432 3
+
+2014 PFPG: A novel MTU model for IPv4/IPv6 transition.
+
+2009 An Improved Cloud Rendering Method
+2009 Management of Air Quality Monitor Data with Data Warehouse and GIS
+author4836 9
+
+2014 Cross-Layer Transmission for Video Streaming in Wireless Relay Networks
+2014 Energy-efficient co-scheduling of receiving packets and decoding tasks on mobile video streaming terminals
+2014 Parallel Optimization of Motion Estimation for Video Coding on Cell BE Processors
+
+2012 Transrating-assisted MPEG-4 video resizing with rate-distortion optimization
+
+2011 Linear model-based adaptive prediction for video decoding complexity
+
+2010 Feedback-free rate-allocation scheme for transform domain Wyner---Ziv video coding
+
+2008 Rate allocation for transform domain Wyner-Ziv video coding without feedback
+2008 On the Shortest Path to Solve the Problem Based on Vague Sets
+2008 Robust Video Transmission Over Packet Erasure Wireless Channels Based on Wyner-Ziv Coding of Motion Regions
+author2602 3
+
+2016 Feature-based depth refinement for view synthesis
+
+2015 On the Security of Image Manipulation Forensics
+
+2010 Multiple Description Wavelet Based Image Coding with Classification
+author4346 2
+
+2008 Contour Based Forest Fire Detection Using FFT and Wavelet
+
+2007 Feature based segmentation and clustering on forest fire video

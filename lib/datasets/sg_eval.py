@@ -140,7 +140,7 @@ def eval_relation_recall(sg_entry,
                                   gt_triplet_boxes,
                                   pred_triplet_boxes[keep_inds,:],
                                   iou_thresh, num_true_gt_rels=num_true_gt_rels)
-        print(recall)
+        # print(recall)
         result_dict[mode + '_recall'][k].append(recall)
 
     # for visualization

@@ -50,17 +50,18 @@ def add_images(im_data, h5_file, args):
 
     ids = np.array(ids, dtype=np.int32)
     idx = np.array(idx, dtype=np.int32)
+    h5_file.create_dataset('image_filenames', data=fns)
     h5_file.create_dataset('image_ids', data=ids)
     h5_file.create_dataset('valid_idx', data=idx)
 
     num_images = len(fns)
 
     shape = (num_images, 3, args.image_size, args.image_size)
-    image_dset = h5_file.create_dataset('images', shape, dtype=np.uint8)
+    # image_dset = h5_file.create_dataset('images', shape, dtype=np.uint8)
     original_heights = np.zeros(num_images, dtype=np.int32)
     original_widths = np.zeros(num_images, dtype=np.int32)
-    image_heights = np.zeros(num_images, dtype=np.int32)
-    image_widths = np.zeros(num_images, dtype=np.int32)
+    # image_heights = np.zeros(num_images, dtype=np.int32)
+    # image_widths = np.zeros(num_images, dtype=np.int32)
 
     lock = Lock()
     q = Queue()
@@ -78,19 +79,19 @@ def add_images(im_data, h5_file, args):
             if img.ndim == 2:
                 img = img[:, :, None][:, :, [0, 0, 0]]
             H0, W0 = img.shape[0], img.shape[1]
-            img = imresize(img, float(args.image_size) / max(H0, W0))
-            H, W = img.shape[0], img.shape[1]
-            # swap rgb to bgr. This can't be the best way right? #fail
-            r = img[:,:,0].copy()
-            img[:,:,0] = img[:,:,2]
-            img[:,:,2] = r
+            # img = imresize(img, float(args.image_size) / max(H0, W0))
+            # H, W = img.shape[0], img.shape[1]
+            # # swap rgb to bgr. This can't be the best way right? #fail
+            # r = img[:,:,0].copy()
+            # img[:,:,0] = img[:,:,2]
+            # img[:,:,2] = r
 
             lock.acquire()
             original_heights[i] = H0
             original_widths[i] = W0
-            image_heights[i] = H
-            image_widths[i] = W
-            image_dset[i, :, :H, :W] = img.transpose(2, 0, 1)
+            # image_heights[i] = H
+            # image_widths[i] = W
+            # image_dset[i, :, :H, :W] = img.transpose(2, 0, 1)
             lock.release()
             q.task_done()
 
@@ -101,8 +102,8 @@ def add_images(im_data, h5_file, args):
 
     q.join()
 
-    h5_file.create_dataset('image_heights', data=image_heights)
-    h5_file.create_dataset('image_widths', data=image_widths)
+    # h5_file.create_dataset('image_heights', data=image_heights)
+    # h5_file.create_dataset('image_widths', data=image_widths)
     h5_file.create_dataset('original_heights', data=original_heights)
     h5_file.create_dataset('original_widths', data=original_widths)
 
@@ -111,7 +112,8 @@ def add_images(im_data, h5_file, args):
 
 def main(args):
     im_metadata = json.load(open(args.metadata_input))
-    h5_fn = 'imdb_' + str(args.image_size) + '.h5'
+    # h5_fn = 'imdb_' + str(args.image_size) + '.h5'
+    h5_fn = 'imdb.h5'
     # write the h5 file
     h5_file = os.path.join(args.imh5_dir, h5_fn)
     f = h5py.File(h5_file, 'w')
@@ -120,11 +122,11 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--image_dir', default='/hdd/visualgenome/images/')
+    parser.add_argument('--image_dir', default='/hdd/datasets/vrd/visualgenome/images/')
     parser.add_argument('--image_size', default=1024, type=int)
-    parser.add_argument('--imh5_dir', default='.')
+    parser.add_argument('--imh5_dir', default='./data/vg/')
     parser.add_argument('--num_workers', default=10, type=int)
-    parser.add_argument('--metadata_input', default='/hdd/visualgenome/image_data.json', type=str)
+    parser.add_argument('--metadata_input', default='/hdd/datasets/vrd/visualgenome/image_data.json', type=str)
 
     args = parser.parse_args()
     main(args)

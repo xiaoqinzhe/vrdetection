@@ -4,7 +4,7 @@ from fast_rcnn.config import cfg
 import os, json, h5py, cv2, scipy.sparse, copy, pickle
 
 class vrd(imdb):
-    def __init__(self, data_path, split, num_im):
+    def __init__(self, data_path, split=0, num_im=-1):
         super(vrd, self).__init__("vrd_dataset")
 
         if split == 0:
@@ -18,7 +18,7 @@ class vrd(imdb):
         else:
             self.info = pickle.load(open(json_file))
         # projection between class/predicate and idx, add background to class
-        if True:
+        if False:  # ????
             self.class_to_ind = {"background":0}
             self.ind_to_classes = ["background"]
             for i, name in enumerate(self.info['ind_to_class']):
@@ -41,12 +41,14 @@ class vrd(imdb):
             self.predicate_to_ind = self.info['predicate_to_ind']
             self.ind_to_predicates = self.info['ind_to_predicate']
 
-        self.word2vec = np.load(data_path + '/w2v.npy')
+        # self.word2vec = np.load(data_path + '/w2v_all_graph_16.npy')
+        self.word2vec = np.load(data_path + '/w2v_all.npy')
+        self.embedding_size = self.word2vec.shape[1]
         print("load word2vec from "+data_path + '/w2v.npy')
         # if cfg.TRAIN.USE_SAMPLE_GRAPH:
-        vecs = np.zeros([self.word2vec.shape[0]+1, self.word2vec.shape[1]], np.float32)
-        vecs[1:, :] = self.word2vec
-        self.word2vec = vecs
+        # vecs = np.zeros([self.word2vec.shape[0]+1, self.word2vec.shape[1]], np.float32)
+        # vecs[1:, :] = self.word2vec
+        # self.word2vec = vecs
 
         self.spatial_to_ind, self.ind_to_spatials = self.get_spatial_info(data_path + '/spatial_alias.txt')
         self.num_spatials = len(self.ind_to_spatials)
@@ -56,16 +58,6 @@ class vrd(imdb):
         self._image_index = np.arange(0, len(self.info), 1)
         if num_im > -1:
             self._image_index = self._image_index[:num_im]
-
-        # filter rpn roidb with split_mask
-        if cfg.TRAIN.USE_RPN_DB:
-            rpndb_file = 'rpn_file.npy'
-            self.rpn_h5_fn = os.path.join(data_path, rpndb_file)
-            self.rpn_h5 = h5py.File(os.path.join(data_path, rpndb_file), 'r')
-            self.rpn_rois = self.rpn_h5['rpn_rois']
-            self.rpn_scores = self.rpn_h5['rpn_scores']
-            # self.rpn_im_to_roi_idx = np.array(self.rpn_h5['im_to_roi_idx'][split_mask])
-            # self.rpn_num_rois = np.array(self.rpn_h5['num_rois'][split_mask])
 
         # Default to roidb handler
         self._roidb_handler = self.gt_roidb
@@ -83,7 +75,7 @@ class vrd(imdb):
             boxes = np.array(self.info[i]['boxes'], dtype=np.float32)
             if boxes.shape[0] == 0:
                 continue
-            gt_classes = np.array(self.info[i]['labels']) + 1
+            gt_classes = np.array(self.info[i]['labels'])
             overlaps = np.zeros((len(boxes), self.num_classes))
             for j, o in enumerate(overlaps): # to one-hot
                 o[gt_classes[j]] = 1.0

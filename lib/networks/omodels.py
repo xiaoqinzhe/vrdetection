@@ -358,7 +358,7 @@ class multinet(basenet):
         self.if_pred_bbox =False
         self.use_embedding = True
         self.use_spatial = True
-        self.embedded_size = 256
+        self.embedded_size = 128
 
     def _net(self):
         conv_net = self._net_conv(self.ims)
@@ -371,90 +371,88 @@ class multinet(basenet):
         # spatial info
         bbox = self.rois[:, 1:5]
         if self.if_pred_rel:
-            roi_fc_emb = slim.fully_connected(roi_fc_out, 4096)
-            fc_sub = tf.gather(roi_fc_emb, self.rel_inx1)
-            fc_obj = tf.gather(roi_fc_emb, self.rel_inx2)
-            # conv 1 2
-            conv_sub = tf.gather(roi_conv_out, self.rel_inx1)
-            conv_obj = tf.gather(roi_conv_out, self.rel_inx2)
-            net = tf.concat([conv_sub, rel_roi_conv_out, conv_obj], axis=3)
-            net = slim.conv2d(net, 512, [3, 3])
-            net = slim.conv2d(net, 512, [3, 3])
-            net = slim.conv2d(net, 512, [3, 3])
-            net = slim.flatten(net)
-            net = slim.fully_connected(net, 1024)
-            net = slim.dropout(net, keep_prob=self.keep_prob)
-            net = slim.fully_connected(net, 1024)
-            vis = slim.dropout(net, keep_prob=self.keep_prob)
-            vis = tf.concat([fc_sub, vis, fc_obj], axis=1)
-            vis = slim.fully_connected(vis, 1024)
-            vis = slim.dropout(vis, keep_prob=self.keep_prob)
-            vis = slim.fully_connected(vis, 1024)
-            vis_feat = slim.dropout(vis, keep_prob=self.keep_prob)
-            multi_sub, multi_obj = fc_sub, fc_obj
-            info = None
-            if self.use_embedding:
-                # class me
-                sub_emb, obj_emb = self._class_feature(self.rel_inx1, self.rel_inx2)
-                cls_emb = tf.concat([sub_emb, obj_emb], axis=1)
-                cls_proj = slim.fully_connected(cls_emb, 128)
-                if info is None:
-                    info = cls_proj
-                else:
-                    info = tf.concat([info, cls_proj], axis=1)
-            if self.use_spatial:
-                spt = self._spatial_feature(self.rel_inx1, self.rel_inx2)
-                if info is None:
-                    info = spt
-                else:
-                    info = tf.concat([info, spt], axis=1)
+            if cfg.TRAIN.WEIGHT_REG:
+                weights_regularizer = tf.contrib.layers.l2_regularizer(cfg.TRAIN.WEIGHT_DECAY)
+            else: weights_regularizer = tf.no_regularizer
+            with slim.arg_scope([slim.conv2d, slim.fully_connected],
+                       weights_regularizer=weights_regularizer,):
 
-            # case 1   44
-            # self._rel_pred(cls_proj)
+                size = 2048
 
-            # case 2   38.8
-            # self._rel_pred(spt)
+                roi_fc_emb = slim.fully_connected(roi_fc_out, size)
+                fc_sub = tf.gather(roi_fc_emb, self.rel_inx1)
+                fc_obj = tf.gather(roi_fc_emb, self.rel_inx2)
+                # conv 1 2
+                conv_sub = tf.gather(roi_conv_out, self.rel_inx1)
+                conv_obj = tf.gather(roi_conv_out, self.rel_inx2)
+                net = tf.concat([conv_sub, rel_roi_conv_out, conv_obj], axis=3)
+                net = slim.conv2d(net, 512, [3, 3])
+                net = slim.conv2d(net, 512, [3, 3])
+                net = slim.conv2d(net, 512, [3, 3])
+                net = slim.flatten(net)
+                net = slim.fully_connected(net, size)
+                net = slim.dropout(net, keep_prob=self.keep_prob)
+                net = slim.fully_connected(net, size)
+                vis = slim.dropout(net, keep_prob=self.keep_prob)
+                vis = tf.concat([fc_sub, vis, fc_obj], axis=1)
+                vis = slim.fully_connected(vis, size)
+                vis = slim.dropout(vis, keep_prob=self.keep_prob)
+                vis_feat = slim.fully_connected(vis, size)
+                vis_feat = slim.dropout(vis_feat, keep_prob=self.keep_prob)
+                if self.use_embedding:
+                    # class me
+                    sub_emb, obj_emb = self._class_feature(self.rel_inx1, self.rel_inx2)
+                    cls_emb = tf.concat([sub_emb, obj_emb], axis=1)
+                    cls_proj = slim.fully_connected(cls_emb, 128)
+                if self.use_spatial:
+                    spt = self._spatial_feature(self.rel_inx1, self.rel_inx2)
 
-            # case 3   49
-            # self._rel_pred(vis_feat)
-            
-            # case 4    52.6
-            # net = tf.concat([vis_feat, cls_proj], axis=1)
-            # self._rel_pred(net)
+                # case 1   44
+                # self._rel_pred(cls_proj)
 
-            # case 5   51.2
-            # net = tf.concat([vis_feat, spt], axis=1)
-            # self._rel_pred(net)
+                # case 2   38.8
+                # self._rel_pred(spt)
 
-            # case 6
-            # net = tf.stop_gradient(tf.concat([vis_feat, cls_proj], axis=1))
-            # self._rel_pred(tf.concat([net, spt], axis=1))
-            net = tf.concat([vis_feat, cls_proj, spt], axis=1)
-            self._rel_pred(net)
+                # case 3   49
+                # self._rel_pred(vis_feat)
 
-            # case 7
-            # net = tf.concat([vis_feat, cls_proj], axis=1)
-            # with tf.variable_scope('rel_score'):
-            #     weight = tf.get_variable("weight", shape=[net.shape.as_list()[1], self.num_predicates])
-            # rel_score = tf.matmul(net, weight)
-            # self.layers['rel_score'] = rel_score
-            # self.layers['rel_prob'] = slim.softmax(rel_score, scope='rel_prob')
-            # self.layers['rel_pred'] = tf.argmax(self.layers['rel_prob'], axis=1, name='rel_pred')
+                # case 4    52.6
+                # net = tf.concat([vis_feat, cls_proj], axis=1)
+                # self._rel_pred(net)
 
-            # case 8  48.7
-            # rel_roi_fc_out = self._net_rel_roi_fc(self._net_conv_reshape(rel_roi_conv_out))
-            # rel_feat = tf.concat([fc_sub, rel_roi_fc_out, fc_obj], axis=1) # 4
-            # vis = slim.fully_connected(rel_feat, 4096)
-            # vis = slim.dropout(vis, keep_prob=self.keep_prob)
-            # vis = slim.fully_connected(vis, 4096)
-            # vis_feat = slim.dropout(vis, keep_prob=self.keep_prob)
-            # self._rel_pred(tf.concat([vis_feat, cls_proj], axis=1))
+                # case 5   51.2
+                # net = tf.concat([vis_feat, spt], axis=1)
+                # self._rel_pred(net)
 
-            # case 9
-            # rel_roi_fc_out = self._net_rel_roi_fc(self._net_conv_reshape(rel_roi_conv_out))
-            # rel_feat = tf.concat([fc_sub, rel_roi_fc_out, fc_obj], axis=1)  # 4
-            # vis = slim.fully_connected(rel_feat, 4096)
-            # vis = slim.dropout(vis, keep_prob=self.keep_prob)
-            # vis = slim.fully_connected(vis, 4096)
-            # vis_feat = slim.dropout(vis, keep_prob=self.keep_prob)
-            # self._rel_pred(tf.concat([vis_feat, cls_proj, spt], axis=1))
+                # case 6
+                # net = tf.stop_gradient(tf.concat([vis_feat, cls_proj], axis=1))
+                # self._rel_pred(tf.concat([net, spt], axis=1))
+                net = tf.concat([vis_feat, cls_proj, spt], axis=1)
+                self._rel_pred(net)
+
+                # case 7
+                # net = tf.concat([vis_feat, cls_proj], axis=1)
+                # with tf.variable_scope('rel_score'):
+                #     weight = tf.get_variable("weight", shape=[net.shape.as_list()[1], self.num_predicates])
+                # rel_score = tf.matmul(net, weight)
+                # self.layers['rel_score'] = rel_score
+                # self.layers['rel_prob'] = slim.softmax(rel_score, scope='rel_prob')
+                # self.layers['rel_pred'] = tf.argmax(self.layers['rel_prob'], axis=1, name='rel_pred')
+
+                # case 8  48.7
+                # rel_roi_fc_out = self._net_rel_roi_fc(self._net_conv_reshape(rel_roi_conv_out))
+                # rel_feat = tf.concat([fc_sub, rel_roi_fc_out, fc_obj], axis=1) # 4
+                # vis = slim.fully_connected(rel_feat, 4096)
+                # vis = slim.dropout(vis, keep_prob=self.keep_prob)
+                # vis = slim.fully_connected(vis, 4096)
+                # vis_feat = slim.dropout(vis, keep_prob=self.keep_prob)
+                # self._rel_pred(tf.concat([vis_feat, cls_proj], axis=1))
+
+                # case 9
+                # rel_roi_fc_out = self._net_rel_roi_fc(self._net_conv_reshape(rel_roi_conv_out))
+                # rel_feat = tf.concat([fc_sub, rel_roi_fc_out, fc_obj], axis=1)  # 4
+                # vis = slim.fully_connected(rel_feat, 4096)
+                # vis = slim.dropout(vis, keep_prob=self.keep_prob)
+                # vis = slim.fully_connected(vis, 4096)
+                # vis_feat = slim.dropout(vis, keep_prob=self.keep_prob)
+                # self._rel_pred(tf.concat([vis_feat, cls_proj, spt], axis=1))

@@ -64,9 +64,9 @@ def train_words_emb():
         lambda sequence: list(map(lambda seq: ind2name[seq], sequence)),
         seqs,
     ))
-    embedding_size = 30
+    embedding_size = 16
     # no initial w2v weights
-    model = gensim.models.Word2Vec(seqs, min_count=0, sg=1, window=2, size=embedding_size, iter=150)
+    model = gensim.models.Word2Vec(seqs, min_count=0, sg=1, hs=1, window=2, size=embedding_size, iter=200)
     # use w2v weights
     # temp_model = gensim.models.KeyedVectors.load_word2vec_format('./data_tools/walker/w2v_all_vrd.50d.txt', binary=False)
     # model = gensim.models.Word2Vec(min_count=0, sg=1, window=2, size=embedding_size, iter=50)
@@ -81,11 +81,11 @@ def train_words_emb():
     www=np.load('./data/vrd/w2v_all.npy')
     for cls in class2ind:
         obj_embs[class2ind[cls]] = res[cls]
-        print(cls, res[cls])
-        print(www[class2ind[cls]])
+        # print(cls, res[cls])
+        # print(www[class2ind[cls]])
 
-    np.save('./data/vrd/w2v_all_new', obj_embs)
-    print("saved to {}".format('./data/vrd/w2v_all_new' + '.npy'))
+    np.save('./data/vrd/w2v_all_graph_{}'.format(embedding_size), obj_embs)
+    print("saved to {}".format('./data/vrd/w2v_all_graph' + '.npy'))
 
     # show data
     plt.figure()
@@ -94,7 +94,7 @@ def train_words_emb():
     plt.scatter(reduced_emb[:, 0], reduced_emb[:, 1])
     for i in range(len(reduced_emb)):
         plt.annotate(ind2class[i], reduced_emb[i, :])
-    plt.savefig('./data_tools/fig/objs.png')
+    plt.savefig('./data_tools/fig/objs_{}.png'.format(embedding_size))
     print("plot figure saved in {}".format('./data_tools/fig/objs.png'))
 
     plt.figure()

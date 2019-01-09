@@ -214,23 +214,21 @@ def im_detect(sess, net, inputs, im, im_i, boxes, bbox_reg, multi_iter, roidb, p
             rel_probs[rel[0], rel[1], :] = rel_probs_flat[i, :]
 
             # using prior
-            if mode == 'pred_cls':
-                labels = roidb['gt_classes']
-            elif mode == 'sg_det':
-                labels = cls_preds
-            prior = get_prior("./data/vrd/lang_prior.pickle")
-            # prior = get_prior("./data/vrd/dataset_prior.pickle")
-            o2o_prior = get_o2o_prior('./data/vrd/lang_prior_o2o.pickle')
-            num_class = inputs['num_classes']
-
-            prior_predicate = prior[get_oo_id(labels[rel[0]]-1, labels[rel[1]]-1, num_class-1), :]
-            o2o_prior = o2o_prior[labels[rel[0]]-1, labels[rel[1]]-1]
-
-            # rel_probs[rel[0], rel[1], :] = np.max((rel_probs_flat[i, :], prior_predicate), axis=0)
-            if cfg.TRAIN.USE_SAMPLE_GRAPH:
-                rel_probs[rel[0], rel[1], 1:] = rel_probs_flat[i, 1:] * prior_predicate
-            else:
-                rel_probs[rel[0], rel[1], :] = rel_probs_flat[i, :] * prior_predicate
+            # if mode == 'pred_cls':
+            #     labels = roidb['gt_classes']
+            # elif mode == 'sg_det':
+            #     labels = cls_preds
+            # prior = get_prior("./data/"+cfg.DATASET+"/lang_prior_graph_16.pickle")
+            # # prior = get_prior("./data/vrd/dataset_prior.pickle")
+            # num_class = inputs['num_classes']
+            #
+            # prior_predicate = prior[get_oo_id(labels[rel[0]], labels[rel[1]], num_class), :]
+            #
+            # # rel_probs[rel[0], rel[1], :] = np.max((rel_probs_flat[i, :], prior_predicate), axis=0)
+            # if cfg.TRAIN.USE_SAMPLE_GRAPH:
+            #     rel_probs[rel[0], rel[1], 1:] = rel_probs_flat[i, 1:] * prior_predicate
+            # else:
+            #     rel_probs[rel[0], rel[1], :] = rel_probs_flat[i, :] * prior_predicate
 
             # use prior only
             # if cfg.TRAIN.USE_SAMPLE_GRAPH:
@@ -283,8 +281,10 @@ def gt_rois(roidb):
     return rois
 
 def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
+    if net_name in ["weightnet", "ranknet", 'ctxnet', 'graphnet']:
+        cfg.TRAIN.USE_GRAPH_SAMPLE=True
+    else: cfg.TRAIN.USE_GRAPH_SAMPLE=False
     sess = tf.Session()
-
     # set up testing mode
     rois = tf.placeholder(dtype=tf.float32, shape=[None, 5], name='rois')
     rel_rois = tf.placeholder(dtype=tf.float32, shape=[None, 5], name='rel_rois')
@@ -307,7 +307,7 @@ def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
               'obj_context_inds': tf.placeholder(dtype=tf.int32, shape=[None]),
               'rel_context': tf.placeholder(dtype=tf.int32, shape=[None]),
               'rel_context_inds': tf.placeholder(dtype=tf.int32, shape=[None]),
-              'obj_embedding': tf.placeholder(dtype=tf.float32, shape=[imdb.num_classes, cfg.WORD2VEC_SIZE]),
+              'obj_embedding': tf.placeholder(dtype=tf.float32, shape=[imdb.num_classes, imdb.embedding_size]),
               'obj_matrix': tf.placeholder(dtype=tf.float32, shape=[None, None]),
               'rel_matrix': tf.placeholder(dtype=tf.float32, shape=[None, None]),
               'rel_weight_labels': tf.placeholder(dtype=tf.int32, shape=[None]),
@@ -323,7 +323,7 @@ def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
     net = get_network(net_name)(inputs)
     net.setup()
     print ('Loading model weights from {:s}').format(weight_name)
-
+    print(cfg.TRAIN.USE_SAMPLE_GRAPH)
     saver = tf.train.Saver()
     sess.run(tf.global_variables_initializer())
     saver.restore(sess, weight_name)
@@ -414,7 +414,7 @@ def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
                     if(len(detected_res[j])==0): continue
                     # print(detected_res[j], [detected_res[j][k][:4] for k in range(len(detected_res[j]))])
                     box_proposals.extend([detected_res[j][k][:4] for k in range(len(detected_res[j]))])
-                    cls_preds.extend([j for _ in range(len(detected_res[j]))])
+                    cls_preds.extend([j-1 for _ in range(len(detected_res[j]))])
                     cls_scores.extend([detected_res[j][k][4] for k in range(len(detected_res[j]))])
                 box_proposals = np.array(box_proposals)
                 cls_preds = np.array(cls_preds)

@@ -1,0 +1,7 @@
+c1 conf
+c2 conf
+c3 conf
+w1 word
+c4 conf
+c5 conf
+c6 conf

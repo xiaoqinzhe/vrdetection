@@ -1,0 +1,5 @@
+{
+    "python.linting.pylintEnabled": false,
+    "liveshare.connectionMode": "direct",
+    "python.pythonPath": "/home/zjj/anaconda3/bin/python"
+}

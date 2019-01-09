@@ -240,9 +240,9 @@ def encode_box(region, org_h, org_w, im_long_size):
 
 def encode_objects(obj_data, token_to_idx, token_counter, org_h, org_w, im_long_sizes):
     encoded_labels = []
-    encoded_boxes  = {}
-    for size in im_long_sizes:
-        encoded_boxes[size] = []
+    encoded_boxes  = []
+    # for size in im_long_sizes:
+    #     encoded_boxes[size] = []
     im_to_first_obj = np.zeros(len(obj_data), dtype=np.int32)
     im_to_last_obj = np.zeros(len(obj_data), dtype=np.int32)
     obj_counter = 0
@@ -262,9 +262,10 @@ def encode_objects(obj_data, token_to_idx, token_counter, org_h, org_w, im_long_
 
             if obj_label is not None:
                 # encode region
-                for size in im_long_sizes:
-                    encoded_boxes[size].append(encode_box(obj, org_h[i], org_w[i], size))
+                # for size in im_long_sizes:
+                #     encoded_boxes[size].append(encode_box(obj, org_h[i], org_w[i], size))
 
+                encoded_boxes.append([obj['x'], obj['y'], obj['w'], obj['h']])
                 encoded_labels.append(token_to_idx[obj_label])
 
                 for obj_id in obj['ids']: # assign same index for merged ids
@@ -279,9 +280,9 @@ def encode_objects(obj_data, token_to_idx, token_counter, org_h, org_w, im_long_
         else:
             im_to_last_obj[i] = obj_counter - 1
 
-    for k, boxes in encoded_boxes.items():
-        encoded_boxes[k] = np.vstack(boxes)
-    return np.vstack(encoded_labels), encoded_boxes, im_to_first_obj, im_to_last_obj
+    # for k, boxes in encoded_boxes.items():
+    #     encoded_boxes[k] = np.vstack(boxes)
+    return np.vstack(encoded_labels), np.vstack(encoded_boxes), im_to_first_obj, im_to_last_obj
 
 
 def encode_relationship(sub_id, obj_id, id_to_idx):
@@ -473,7 +474,6 @@ def sync_objects(obj_data, rel_data):
 
         obj_data[i]['objects'] = objs
 
-
 def main(args):
     print('start')
     pprint.pprint(args)
@@ -490,7 +490,7 @@ def main(args):
         pred_alias_dict, pred_vocab_list = make_alias_dict(args.pred_alias)
 
     ''' get object/predicate names list from file. '''
-    obj_list = []
+    '''obj_list = []
     if len(args.object_list) > 0:
         print('using object list from %s' % (args.object_list))
         obj_list = make_list(args.object_list)
@@ -502,7 +502,7 @@ def main(args):
         print('using predicate list from %s' % (args.pred_list))
         pred_list = make_list(args.pred_list)
         print("predicate num: {}".format(len(pred_list)))
-        assert(len(pred_list) >= args.num_predicates)
+        assert(len(pred_list) >= args.num_predicates)'''
 
     # read in the annotation data
     print('loading json files..')
@@ -514,7 +514,7 @@ def main(args):
 
     print('read image db from %s' % args.imdb)
     imdb = h5.File(args.imdb, 'r')
-    num_im, _, _, _ = imdb['images'].shape
+    num_im = len(imdb['image_filenames'])
     img_long_sizes = [512, 1024]
     valid_im_idx = imdb['valid_idx'][:] # valid image indices
     img_ids = imdb['image_ids'][:]
@@ -585,9 +585,10 @@ def main(args):
     encode_objects(obj_data, label_to_idx, object_token_counter, \
                    heights, widths, img_long_sizes)
 
+
     f.create_dataset('labels', data=encoded_label)
-    for k, boxes in encoded_boxes.items():
-        f.create_dataset('boxes_%i' % k, data=boxes)
+    # for k, boxes in encoded_boxes.items():
+    f.create_dataset('boxes', data=encoded_boxes)
     f.create_dataset('img_to_first_box', data=im_to_first_obj)
     f.create_dataset('img_to_last_box', data=im_to_last_obj)
 
@@ -614,7 +615,7 @@ def main(args):
     split = encode_splits(obj_data, opt)
 
     if split is not None:
-        f.create_dataset('split', data=split) # 1 = test, 0 = train
+        f.create_dataset('split', data=split) # 2 = test, 1 = val, 0 = train
 
     # and write the additional json file
     json_struct = {
@@ -623,7 +624,10 @@ def main(args):
         'predicate_to_idx': predicate_to_idx,
         'idx_to_predicate': idx_to_predicate,
         'predicate_count': predicate_token_counter,
-        'object_count': object_token_counter
+        'object_count': object_token_counter,
+        'image_filenames': np.array(imdb['image_filenames']).tolist(),
+        'image_heights': np.array(imdb['original_heights']).tolist(),
+        'image_widths': np.array(imdb['original_widths']).tolist(),
     }
 
     with open(args.json_file, 'w') as f:
@@ -632,7 +636,7 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--imdb', default='/hdd/xqz/temp_data/scene_graph/imdb_1024.h5', type=str)
+    parser.add_argument('--imdb', default='/hdd/xqz/project_data/vrdetection/vg/imdb.h5', type=str)
     parser.add_argument('--object_input', default='/hdd/datasets/vrd/visualgenome/objects.json', type=str)
     parser.add_argument('--relationship_input', default='/hdd/datasets/vrd/visualgenome/relationships.json', type=str)
     parser.add_argument('--metadata_input', default='/hdd/datasets/vrd/visualgenome/image_data.json', type=str)
@@ -640,16 +644,16 @@ if __name__ == '__main__':
     parser.add_argument('--pred_alias', default='VG/predicate_alias.txt', type=str)
     parser.add_argument('--object_list', default='VG/object_list.txt', type=str)
     parser.add_argument('--pred_list', default='VG/predicate_list.txt', type=str)
-    parser.add_argument('--num_objects', default=150, type=int, help="set to 0 to disable filtering")
-    parser.add_argument('--num_predicates', default=50, type=int, help="set to 0 to disable filtering")
+    parser.add_argument('--num_objects', default=200, type=int, help="set to 0 to disable filtering")
+    parser.add_argument('--num_predicates', default=100, type=int, help="set to 0 to disable filtering")
     parser.add_argument('--min_box_area_frac', default=0.002, type=float)
-    parser.add_argument('--json_file', default='VG-dicts.json')
-    parser.add_argument('--h5_file', default='VG.h5')
+    parser.add_argument('--json_file', default='../data/vg/VG-dicts.json')
+    parser.add_argument('--h5_file', default='../data/vg/VG.h5')
     parser.add_argument('--load_frac', default=1, type=float)
     parser.add_argument('--use_input_split', default=False, type=bool)
-    parser.add_argument('--train_frac', default=0.7, type=float)
-    parser.add_argument('--val_frac', default=0.7, type=float)
-    parser.add_argument('--shuffle', default=False, type=bool)
+    parser.add_argument('--train_frac', default=0.8, type=float)
+    parser.add_argument('--val_frac', default=0.8, type=float)
+    parser.add_argument('--shuffle', default=True, type=bool)
 
     args = parser.parse_args()
     main(args)

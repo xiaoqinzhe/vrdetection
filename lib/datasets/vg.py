@@ -3,22 +3,21 @@ from datasets.imdb import imdb
 import numpy as np
 import copy
 import scipy.sparse
-import h5py, json
+import h5py, json, cv2
 from fast_rcnn.config import cfg
 
-class vg_hdf5(imdb):
-    def __init__(self, roidb_file, dict_file, imdb_file, rpndb_file, split, num_im):
-        imdb.__init__(self, roidb_file[:-3])
+class vg(imdb):
+    def __init__(self, data_path, split=0, num_im=-1):
+        super(vg, self).__init__("vg_dataset")
+
+        roidb_file, dict_file = 'VG.h5', 'VG-dicts.json'
 
         # read in dataset from a h5 file and a dict (json) file
-        self.im_h5 = h5py.File(os.path.join(cfg.VG_DIR, imdb_file), 'r')
-        self.roi_h5 = h5py.File(os.path.join(cfg.VG_DIR, roidb_file), 'r')
+        self.roi_h5 = h5py.File(os.path.join(data_path, roidb_file), 'r')
 
         # roidb metadata
-        self.info = json.load(open(os.path.join(cfg.VG_DIR,
+        self.info = json.load(open(os.path.join(data_path,
                                                 dict_file), 'r'))
-        self.im_refs = self.im_h5['images'] # image data reference
-        im_scale = self.im_refs.shape[2]
 
         print('split==%i' % split)
         data_split = self.roi_h5['split'][:]
@@ -40,62 +39,75 @@ class vg_hdf5(imdb):
         split_mask = np.zeros_like(data_split).astype(bool)
         split_mask[self.image_index] = True  # build a split mask
         # if use all images
-        self.im_sizes = np.vstack([self.im_h5['image_widths'][split_mask],
-                                   self.im_h5['image_heights'][split_mask]]).transpose()
+        self.info['image_widths'] = np.array(self.info['image_widths'])
+        self.info['image_heights'] = np.array(self.info['image_heights'])
+        self.im_sizes = np.vstack([self.info['image_widths'][split_mask],
+                                   self.info['image_heights'][split_mask]]).transpose()
 
         # filter rpn roidb with split_mask
-        if cfg.TRAIN.USE_RPN_DB:
-            self.rpn_h5_fn = os.path.join(cfg.VG_DIR, rpndb_file)
-            self.rpn_h5 = h5py.File(os.path.join(cfg.VG_DIR, rpndb_file), 'r')
-            self.rpn_rois = self.rpn_h5['rpn_rois']
-            self.rpn_scores = self.rpn_h5['rpn_scores']
-            self.rpn_im_to_roi_idx = np.array(self.rpn_h5['im_to_roi_idx'][split_mask])
-            self.rpn_num_rois = np.array(self.rpn_h5['num_rois'][split_mask])
+        # if cfg.TRAIN.USE_RPN_DB:
+        #     self.rpn_h5_fn = os.path.join(cfg.VG_DIR, rpndb_file)
+        #     self.rpn_h5 = h5py.File(os.path.join(cfg.VG_DIR, rpndb_file), 'r')
+        #     self.rpn_rois = self.rpn_h5['rpn_rois']
+        #     self.rpn_scores = self.rpn_h5['rpn_scores']
+        #     self.rpn_im_to_roi_idx = np.array(self.rpn_h5['im_to_roi_idx'][split_mask])
+        #     self.rpn_num_rois = np.array(self.rpn_h5['num_rois'][split_mask])
 
         # h5 file is in 1-based index
         self.im_to_first_box = self.roi_h5['img_to_first_box'][split_mask]
         self.im_to_last_box = self.roi_h5['img_to_last_box'][split_mask]
-        self.all_boxes = self.roi_h5['boxes_%i' % im_scale][:]  # will index later
+        self.all_boxes = self.roi_h5['boxes'][:]  # will index later
         self.all_boxes[:, :2] = self.all_boxes[:, :2]
         assert(np.all(self.all_boxes[:, :2] >= 0))  # sanity check
         assert(np.all(self.all_boxes[:, 2:] > 0))  # no empty box
 
-
         # convert from xc, yc, w, h to x1, y1, x2, y2
-        self.all_boxes[:, :2] = self.all_boxes[:, :2] - self.all_boxes[:, 2:]/2
-        self.all_boxes[:, 2:] = self.all_boxes[:, :2] + self.all_boxes[:, 2:]
-        self.labels = self.roi_h5['labels'][:,0] - 1
+        self.all_boxes[:, 2:3] = self.all_boxes[:, 0:1] + self.all_boxes[:, 2:3]
+        self.all_boxes[:, 3:4] = self.all_boxes[:, 1:2] + self.all_boxes[:, 3:4]
+        self.labels = self.roi_h5['labels'][:, 0] - 1
 
-        # add background class
-        self.info['label_to_idx']['__background__'] = 0
         self.class_to_ind = self.info['label_to_idx']
-        self.ind_to_classes = sorted(self.class_to_ind, key=lambda k:
-                               self.class_to_ind[k])
+        for name in self.class_to_ind: self.class_to_ind[name] -= 1
+        self.ind_to_classes = ['a' for _ in range(len(self.class_to_ind))]
+        for name in self.class_to_ind: self.ind_to_classes[self.class_to_ind[name]] = name
         cfg.ind_to_class = self.ind_to_classes
 
         # load relation labels
         self.im_to_first_rel = self.roi_h5['img_to_first_rel'][split_mask]
         self.im_to_last_rel = self.roi_h5['img_to_last_rel'][split_mask]
         self._relations = self.roi_h5['relationships'][:]
-        self._relation_predicates = self.roi_h5['predicates'][:,0] - 1
+
+        self.predicate_to_ind = self.info['predicate_to_idx']
+
+        if cfg.TRAIN.USE_SAMPLE_GRAPH:
+            self._relation_predicates = self.roi_h5['predicates'][:, 0]
+            self.predicate_to_ind['__background__'] = 0
+        else:
+            self._relation_predicates = self.roi_h5['predicates'][:, 0] - 1
+            for name in self.predicate_to_ind: self.predicate_to_ind[name] -= 1
         assert(self.im_to_first_rel.shape[0] == self.im_to_last_rel.shape[0])
         assert(self._relations.shape[0] == self._relation_predicates.shape[0]) # sanity check
-        self.predicate_to_ind = self.info['predicate_to_idx']
-        # self.predicate_to_ind['__background__'] = 0
-        self.ind_to_predicates = sorted(self.predicate_to_ind, key=lambda k:
-                                  self.predicate_to_ind[k])
 
+        self.ind_to_predicates = ['a' for _ in range(len(self.predicate_to_ind))]
+        for name in self.predicate_to_ind: self.ind_to_predicates[self.predicate_to_ind[name]] = name
         cfg.ind_to_predicate = self.ind_to_predicates
+
+        self.word2vec = np.load(data_path + '/w2v.npy')
+        self.embedding_size = self.word2vec.shape[1]
+        print("load word2vec from " + data_path + '/w2v.npy')
+        # if cfg.TRAIN.USE_SAMPLE_GRAPH:
+        # vecs = np.zeros([self.word2vec.shape[0], self.word2vec.shape[1]], np.float32)
+        # vecs[1:, :] = self.word2vec
+        # self.word2vec = vecs
+
+        # self.spatial_to_ind, self.ind_to_spatials = self.get_spatial_info(data_path + '/spatial_alias.txt')
+        self.num_spatials = 0
 
         # Default to roidb handler
         self._roidb_handler = self.gt_roidb
 
     def im_getter(self, idx):
-        w, h = self.im_sizes[idx, :]
-        ridx = self.image_index[idx]
-        im = self.im_refs[ridx]
-        im = im[:, :h, :w] # crop out
-        im = im.transpose((1,2,0)) # c h w -> h w c
+        im = cv2.imread(self.info['image_filenames'][self.image_index[idx]])
         return im
 
     def gt_roidb(self):
@@ -139,6 +151,7 @@ class vg_hdf5(imdb):
                              'gt_classes' : gt_classes,
                              'gt_overlaps' : overlaps,
                              'gt_relations': gt_relations,
+                             'gt_spatial': np.zeros((0), np.int32),
                              'flipped' : False,
                              'seg_areas' : seg_areas,
                              'db_idx': i,
@@ -178,7 +191,7 @@ class vg_hdf5(imdb):
 if __name__ == '__main__':
     import roi_data_layer.roidb as roidb
     import roi_data_layer.layer as layer
-    d = vg_hdf5('VG.h5', 'VG-dicts.json', 'imdb_512.h5', 'proposals.h5', 0)
+    d = vg('VG.h5', 'VG-dicts.json', 'imdb_512.h5', 'proposals.h5', 0)
     roidb.prepare_roidb(d)
     roidb.add_bbox_regression_targets(d.roidb)
     l = layer.RoIDataLayer(d.num_classes)

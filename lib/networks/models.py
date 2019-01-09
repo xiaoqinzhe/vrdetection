@@ -88,7 +88,7 @@ class vrdnet(Network):
         # list as many types of layers as possible, even if they are not used now
         with slim.arg_scope([slim.conv2d, slim.conv2d_in_plane, \
                         slim.conv2d_transpose, slim.separable_conv2d, slim.fully_connected],
-                       weights_regularizer=weights_regularizer,
+                       # weights_regularizer=weights_regularizer,
                        biases_regularizer=biases_regularizer,
                        weights_initializer=tf.truncated_normal_initializer(0, 0.01),
                        biases_initializer=tf.constant_initializer(0.0)
@@ -335,10 +335,13 @@ class vrdnet(Network):
         losses = {}
         losses['loss_total'] = None
         if self.if_weight_reg:
-            losses['loss_total'] = tf.add_n(tf.losses.get_regularization_losses(), 'regu')
+            losses['loss_total'] = losses['loss_reg'] = tf.add_n(tf.losses.get_regularization_losses())
         if self.if_pred_rel:
             self._rel_losses(losses)
-            losses['loss_total'] = losses['loss_rel']
+            if losses['loss_total'] == None:
+                losses['loss_total'] = losses['loss_rel']
+            else:
+                losses['loss_total'] += losses['loss_rel']
         if self.if_pred_cls:
             self._cls_losses(losses)
             if losses['loss_total'] == None:

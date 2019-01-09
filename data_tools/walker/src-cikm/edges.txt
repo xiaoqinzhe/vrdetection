@@ -1,0 +1,9 @@
+c1 w1
+c2 w1
+c3 w1
+c1 c2
+c1 c3
+c2 c3
+c4 c5
+c5 c6
+c4 c6

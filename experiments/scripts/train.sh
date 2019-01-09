@@ -20,8 +20,8 @@ DATASET=$1
 ITERS=$5
 
 # log
-OUTPUT=checkpoints/$EXP_DIR
-TF_LOG=checkpoints/$EXP_DIR/tf_logs
+OUTPUT=checkpoints/$DATASET/$EXP_DIR
+TF_LOG=checkpoints/$DATASET/$EXP_DIR/tf_logs
 rm -rf ${OUTPUT}/logs/
 rm -rf ${TF_LOG}
 rm -rf ${TF_LOG}val

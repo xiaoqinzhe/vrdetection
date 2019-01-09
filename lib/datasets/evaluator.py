@@ -15,7 +15,7 @@ class SceneGraphEvaluator:
         self.mode = mode
 
         self.result_dict = {}
-        self.result_dict[self.mode + '_recall'] = {20:[], 50:[], 100:[]}
+        self.result_dict[self.mode + '_recall'] = {10:[], 20:[], 50:[], 100:[]}
         self.metrics = metrics
         if metrics is not None:
             self.metrics = {}

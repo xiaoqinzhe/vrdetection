@@ -31,7 +31,21 @@ def get_vrd_words(json_file):
     info = json.load(open(json_file))
     return info['ind_to_class'], info['ind_to_predicate']
 
-def show_embedding(ind2class, ind2predicate, filename='./data/vrd/w2v_all.npy'):
+def get_vg_words(json_file):
+    info = json.load(open(json_file))
+    class_to_ind = info['label_to_idx']
+    for name in class_to_ind: class_to_ind[name] -= 1
+    ind_to_classes = ['a' for _ in range(len(class_to_ind))]
+    for name in class_to_ind: ind_to_classes[class_to_ind[name]] = name
+
+    predicate_to_ind = info['predicate_to_idx']
+    for name in predicate_to_ind: predicate_to_ind[name] -= 1
+    ind_to_predicates = ['a' for _ in range(len(predicate_to_ind))]
+    for name in predicate_to_ind: ind_to_predicates[predicate_to_ind[name]] = name
+
+    return ind_to_classes, ind_to_predicates
+
+def show_embedding(ind2class, ind2predicate, filename):
     w2v = np.load(filename)
     class_v = w2v[:len(ind2class), :]
     predicate_v = w2v[len(ind2class):, :]
@@ -59,5 +73,12 @@ if __name__=='__main__':
     # # save_wordvecs(w2v, objs, './data/vrd/w2v')
     # save_wordvecs(w2v, objs, './data/vrd/w2v_all', preds=preds)
 
-    objs, preds = get_vrd_words('./data/vrd/train.json')
-    show_embedding(objs, preds)
+    # objs, preds = get_vrd_words('./data/vrd/train.json')
+    # show_embedding(objs, preds, './data/vrd/w2v_all.npy')
+
+    # vg dataset
+    w2v = get_wordvecs('./data/word2vec/glove.6B.50d.txt')
+    objs, preds = get_vg_words('./data/vg/VG-dicts.json')
+    save_wordvecs(w2v, objs, './data/vg/w2v')
+    save_wordvecs(w2v, objs, './data/vg/w2v_all', preds=preds)
+    show_embedding(objs, preds, './data/vg/w2v_all.npy')

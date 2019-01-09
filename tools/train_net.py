@@ -69,6 +69,10 @@ if __name__ == '__main__':
     if args.dataset is not None:
         cfg.DATASET = args.dataset
 
+    if args.network_name in ["weightnet", "ranknet", 'ctxnet', 'graphnet']:
+        cfg.TRAIN.USE_GRAPH_SAMPLE=True
+    else: cfg.TRAIN.USE_GRAPH_SAMPLE=False
+
     print('Using config:')
     pprint.pprint(cfg)
 

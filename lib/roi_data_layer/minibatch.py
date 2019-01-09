@@ -56,7 +56,7 @@ def get_minibatch(roidb, num_classes):
             roi_inds, rels = _sample_graph(roidb[im_i],
                                         fg_rois_per_image,
                                         rois_per_image,
-                                        num_neg_rels=32)
+                                        num_neg_rels=64)
         # print("sample roi = %i"%len(roi_inds), "sample rel = %i"%len(rels))
 
         # print(roi_inds)
@@ -217,13 +217,13 @@ def _sample_graph(roidb, num_fg_rois, num_rois, num_neg_rels=128):
     all_fg_roi_inds = np.array(list(set(all_fg_roi_inds)))
 
     # find all valid relations in fg objects
-    count = np.zeros((71), dtype=np.int32)
+    # count = np.zeros((71), dtype=np.int32)
     pos_rels = []
     for rel in gt_rels:
         for sub_i in gt_to_fg_roi_inds[rel[0]]:
             for obj_i in gt_to_fg_roi_inds[rel[1]]:
                 pos_rels.append([sub_i, obj_i, rel[2]])
-                count[rel[2]]+=1
+                # count[rel[2]]+=1
 
     # print(num_fg_rois, num_rois, num_neg_rels)
     # print(fg_gt_ind_assignments)

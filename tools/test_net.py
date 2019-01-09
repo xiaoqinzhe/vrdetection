@@ -11,7 +11,7 @@ import _init_paths
 from fast_rcnn.test import test_net
 from fast_rcnn.visualize import viz_net
 from fast_rcnn.config import cfg, cfg_from_file
-from datasets.factory import get_db
+from datasets.factory import get_db, get_val_db
 import argparse
 import pprint
 import time, os, sys
@@ -65,6 +65,10 @@ if __name__ == '__main__':
     if args.dataset is not None:
         cfg.DATASET = args.dataset
 
+    if args.network_name in ["weightnet", "ranknet", 'ctxnet', 'graphnet']:
+        cfg.TRAIN.USE_GRAPH_SAMPLE=True
+    else: cfg.TRAIN.USE_GRAPH_SAMPLE=False
+
     print('Using config:')
     pprint.pprint(cfg)
 
@@ -81,7 +85,7 @@ if __name__ == '__main__':
     config = tf.ConfigProto()
     config.allow_soft_placement=True
 
-    imdb = get_db(split=1, num_im=args.test_size)
+    imdb = get_val_db()
     if args.test_mode == 'viz_cls' or args.test_mode == 'viz_det':  # visualize result
         viz_net(args.network_name, args.model, imdb, args.test_mode)
     else:

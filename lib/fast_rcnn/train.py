@@ -36,7 +36,7 @@ class Trainer(object):
         self.if_val = val_roidb is not None
         self.VAL_FREQ = 50
         self.VAL_NUM = 1
-        self.VAL_BATCHES = 1
+        self.VAL_BATCHES = 2
         self.init_conv = True
         self.basenet=cfg.BASENET
         self.basenet_iter=cfg.BASENET_WEIGHT_ITER
@@ -178,7 +178,7 @@ class Trainer(object):
             'obj_context_inds': tf.placeholder(dtype=tf.int32, shape=[None]),
             'rel_context': tf.placeholder(dtype=tf.int32, shape=[None]),
             'rel_context_inds': tf.placeholder(dtype=tf.int32, shape=[None]),
-            'obj_embedding': tf.placeholder(dtype=tf.float32, shape=[self.imdb.num_classes, cfg.WORD2VEC_SIZE]),
+            'obj_embedding': tf.placeholder(dtype=tf.float32, shape=[self.imdb.num_classes, self.imdb.embedding_size]),
             'obj_matrix': tf.placeholder(dtype=tf.float32, shape=[None, None]),
             'rel_matrix': tf.placeholder(dtype=tf.float32, shape=[None, None]),
             'rel_weight_labels': tf.placeholder(dtype=tf.int32, shape=[None]),
@@ -266,12 +266,13 @@ class Trainer(object):
         ops_summary = dict(ops)
         ops_summary['summary'] = tf.summary.merge_all()
         train_writer = tf.summary.FileWriter(self.tf_log, sess.graph)
+        print(self.tf_log)
         val_writer = tf.summary.FileWriter(self.tf_log+'val/')
 
         # intialize variables
         sess.run(tf.global_variables_initializer())
         if self.net.use_embedding:
-            sess.run(self.net.embedding_init, feed_dict={inputs['obj_embedding']:self.imdb.word2vec})
+            sess.run(self.net.embedding_init, feed_dict={inputs['obj_embedding']:self.imdb.word2vec[:self.imdb.num_classes]})
         self.saver = tf.train.Saver(max_to_keep=20)
         self.load_pretrained_models(sess)
         print("load done")
@@ -320,16 +321,16 @@ class Trainer(object):
                 ops_value = sess.run(ops_summary, feed_dict=feed_dict)
                 train_writer.add_summary(ops_value['summary'], iter)
             else:
-                ops['rel'] = self.net.layers['rel_weight_prob']
                 ops_value = sess.run(ops, feed_dict=feed_dict)
 
             timer.toc()
 
-            stats = 'iter: %d / %d, lr: %f' % (iter+1, max_iters, lr.eval())
-            for k in ops_value:
-                if k.startswith('loss') or k.startswith('acc') or k.startswith('rec'):
-                    stats += ', %s: %4f' % (k, ops_value[k])
-            print(stats)
+            if iter%20 == 0:
+                stats = 'iter: %d / %d, lr: %f' % (iter+1, max_iters, lr.eval())
+                for k in ops_value:
+                    if k.startswith('loss') or k.startswith('acc') or k.startswith('rec'):
+                        stats += ', %s: %4f' % (k, ops_value[k])
+                print(stats)
 
             # print(ops_value['rel'])
 
@@ -367,6 +368,9 @@ class Trainer(object):
 
 
 def train_net(network_name, imdb, roidb, output_dir, tf_log, pretrained_model=None, max_iters=200000, val_roidb=None):
+    if network_name in ["weightnet", "ranknet", 'ctxnet', 'graphnet']:
+        cfg.TRAIN.USE_GRAPH_SAMPLE=True
+    else: cfg.TRAIN.USE_GRAPH_SAMPLE=False
     config = tf.ConfigProto()
     config.allow_soft_placement=True
     config.gpu_options.allow_growth=True
