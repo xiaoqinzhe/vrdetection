@@ -6,6 +6,7 @@
 # logs/temp
 checkpoints/
 saved_model/
+output/
 
 ## data
 data/
