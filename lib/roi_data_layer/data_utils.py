@@ -54,7 +54,8 @@ def cal_rel_triples(rels, batch=32):
     rel_triple_labels = []
     pos_inds = np.where(rels[:, 2])[0]
     neg_inds = np.where(rels[:, 2]==0)[0]
-    if len(pos_inds)<=1 or len(neg_inds)<1:
+    min_value=1
+    if len(pos_inds)<=min_value or len(neg_inds)<=min_value:
         return np.zeros([0,2], np.int32), np.zeros([0,1], np.int32)
 
     rand_pos_inds = np.random.permutation(pos_inds)
@@ -70,8 +71,8 @@ def cal_rel_triples(rels, batch=32):
         size+=1
 
     rel_triple_inds = np.array(rel_triple_inds)
-    rel_triple_inds[batch/2:, :] = rel_triple_inds[batch/2:, ::-1]
-    rel_triple_labels = np.concatenate((np.tile([[1]],[batch/2,1]), np.tile([[0]],[batch/2,1])), axis=0)
+    rel_triple_inds[batch//2:, :] = rel_triple_inds[batch//2:, ::-1]
+    rel_triple_labels = np.concatenate((np.tile([[1]],[batch//2,1]), np.tile([[0]],[batch//2,1])), axis=0)
 
     # print(rel_triple_inds)
     # print(rel_triple_labels)
