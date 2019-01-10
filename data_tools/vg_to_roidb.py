@@ -641,7 +641,7 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    data_dir = '/hdd/datasets/vrd/visualgenome/'
+    data_dir = '/hdd/datasets/vrd/vg/'
     parser.add_argument('--imdb', default='../data/vg/imdb.h5', type=str)
     parser.add_argument('--object_input', default=data_dir+'objects.json', type=str)
     parser.add_argument('--relationship_input', default=data_dir+'relationships.json', type=str)

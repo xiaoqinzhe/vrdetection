@@ -90,7 +90,7 @@ class weightednet(basenet):
         # vis_feat = slim.fully_connected(vis_feat, 1024)
         ctx = tf.concat([im_fc_gather, vis_feat], axis=1)
         ctx = slim.fully_connected(ctx, size)
-        ctx = slim.dropout(ctx, keep_prob=self.keep_prob)
+        # ctx = slim.dropout(ctx, keep_prob=self.keep_prob)
         if cls_proj is not None:
             cls_proj = slim.fully_connected(cls_proj, 128)
             ctx = tf.concat([ctx, cls_proj], axis=1)
@@ -218,7 +218,7 @@ class ranknet(basenet):
         # vis_feat = slim.fully_connected(vis_feat, 1024)
         ctx = tf.concat([im_fc_gather, vis_feat], axis=1)
         ctx = slim.fully_connected(ctx, size)
-        ctx = slim.dropout(ctx, keep_prob=self.keep_prob)
+        # ctx = slim.dropout(ctx, keep_prob=self.keep_prob)
         if cls_proj is not None:
             cls_proj = slim.fully_connected(cls_proj, 128)
             ctx = tf.concat([ctx, cls_proj], axis=1)

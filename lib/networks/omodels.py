@@ -43,60 +43,73 @@ class sptnet2(basenet):
         self.num_spatials = data['num_spatials']
         self.if_pred_spt = True
         self.if_pred_rel = True
+        self.use_embedding = True
+        self.use_spatial = True
         self.loss_weights['spt'] = 1
 
     def _net(self):
         conv_net = self._net_conv(self.ims)
         self.layers['conv_out'] = conv_net
-        roi_conv_out = self._net_roi_pooling([conv_net, self.rois], 7, 7, name='roi_conv_out')
+        roi_conv_out = self._net_roi_pooling([conv_net, self.rois], self.pooling_size, self.pooling_size,
+                                             name='roi_conv_out')
+        rel_roi_conv_out = self._net_roi_pooling([conv_net, self.rel_rois], self.pooling_size, self.pooling_size,
+                                                 name='rel_roi_conv_out')
         roi_fc_out = self._net_roi_fc(roi_conv_out)
-        rel_roi_conv_roi = self._net_roi_pooling([conv_net, self.rel_rois], 7, 7, name='rel_roi_conv_out')
-        rel_roi_flatten = self._net_conv_reshape(rel_roi_conv_roi, name='rel_roi_flatten')
-        rel_roi_fc_out = self._net_rel_roi_fc(rel_roi_flatten)
-        # spatial info
-        bbox = self.rois[:, 1:5]
-        rel_inx1, rel_inx2 = self._relation_indexes()
-        con_sub = tf.gather(roi_conv_out, rel_inx1)
-        con_obj = tf.gather(roi_conv_out, rel_inx2)
-        if self.if_pred_spt:
-            sub_feat = tf.concat([con_sub, rel_roi_conv_roi], axis=3)
-            obj_feat = tf.concat([con_obj, rel_roi_conv_roi], axis=3)
+        self.rel_inx1, self.rel_inx2 = self._relation_indexes()
+
+        if cfg.TRAIN.WEIGHT_REG:
+            weights_regularizer = tf.contrib.layers.l2_regularizer(cfg.TRAIN.WEIGHT_DECAY)
+        else:
+            weights_regularizer = tf.no_regularizer
+        with slim.arg_scope([slim.conv2d, slim.fully_connected],
+                            weights_regularizer=weights_regularizer, ):
+
+            size = 2048
+            roi_fc_emb = slim.fully_connected(roi_fc_out, size)
+            fc_sub = tf.gather(roi_fc_emb, self.rel_inx1)
+            fc_obj = tf.gather(roi_fc_emb, self.rel_inx2)
+            # conv 1 2
+            conv_sub = tf.gather(roi_conv_out, self.rel_inx1)
+            conv_obj = tf.gather(roi_conv_out, self.rel_inx2)
+            net = tf.concat([conv_sub, rel_roi_conv_out, conv_obj], axis=3)
+            net = slim.conv2d(net, 512, [3, 3])
+            net = slim.conv2d(net, 512, [3, 3])
+            net = slim.conv2d(net, 512, [3, 3])
+            net = slim.flatten(net)
+            net = slim.fully_connected(net, size)
+            net = slim.dropout(net, keep_prob=self.keep_prob)
+            net = slim.fully_connected(net, size)
+            vis = slim.dropout(net, keep_prob=self.keep_prob)
+            vis = tf.concat([fc_sub, vis, fc_obj], axis=1)
+            vis = slim.fully_connected(vis, size)
+            vis = slim.dropout(vis, keep_prob=self.keep_prob)
+            vis_feat = slim.fully_connected(vis, size)
+            vis_feat = slim.dropout(vis_feat, keep_prob=self.keep_prob)
+            if self.use_embedding:
+                # class me
+                sub_emb, obj_emb = self._class_feature(self.rel_inx1, self.rel_inx2)
+                cls_emb = tf.concat([sub_emb, obj_emb], axis=1)
+                cls_proj = slim.fully_connected(cls_emb, 128)
+            if self.use_spatial:
+                spt = self._spatial_feature(self.rel_inx1, self.rel_inx2)
+            sub_feat = tf.concat([conv_sub, rel_roi_conv_out], axis=3)
+            obj_feat = tf.concat([conv_obj, rel_roi_conv_out], axis=3)
             proj_sub = self._spatial_feature(sub_feat)
             proj_obj = self._spatial_feature(obj_feat, reuse=True)
-            spt = proj_sub - proj_obj
-            self._spatial_pred(spt)
-            # spt = super(sptnet2, self)._spatial_feature(rel_inx1, rel_inx2)
-            # self._spatial_pred(spt)
-        if self.if_pred_rel:
-            # rel visual feature
-            # con_sub = self._box_spatial(rel_inx1, rel_roi_conv_roi)
-            # con_obj = self._box_spatial(rel_inx2, rel_roi_conv_roi)
-            net = tf.concat([con_sub, con_obj, rel_roi_conv_roi], axis=3)
-            net = slim.conv2d(net, 512, [3, 3])
-            net = slim.conv2d(net, 128, [3, 3])
-            net = slim.conv2d(net, 64, [3, 3])
-            rel = slim.fully_connected(slim.flatten(net), 4096)
-            rel = slim.dropout(rel, self.keep_prob)
-            rel = slim.fully_connected(rel, 4096)
-            rel = slim.dropout(rel, self.keep_prob)
-            # class me
-            cls_feat = self._class_feature(rel_inx1, rel_inx2)
-            if self.if_pred_spt:
-                spt = tf.stop_gradient(spt, name='stop_spt_gradient')
-                rel_feat = tf.concat([rel, cls_feat, spt], axis=1)
-            else: rel_feat = tf.concat([rel, cls_feat], axis=1)
-            rel_feat = slim.fully_connected(rel_feat, 512)
-            rel_feat = slim.dropout(rel_feat, self.keep_prob)
-            rel_feat = slim.fully_connected(rel_feat, 512)
+            net_spt = proj_sub - proj_obj
+            if False: self._spatial_pred(net_spt)
+
+            rel_feat = tf.concat([vis_feat, cls_proj, spt, net_spt])
+            rel_feat = slim.fully_connected(rel_feat, size)
             rel_feat = slim.dropout(rel_feat, self.keep_prob)
             self._rel_pred(rel_feat)
 
-    def _spatial_feature(self, inputs, name='spt_feat', reuse=False):
+    def _spatial_net(self, inputs, name='spt_feat', reuse=False):
         with tf.variable_scope(name, 'spt_feat', reuse=reuse):
-            net = slim.conv2d(inputs, 512, [3, 3])
-            net = slim.conv2d(net, 128, [3, 3])
-            net = slim.conv2d(net, 64, [3, 3])
-            net = slim.fully_connected(slim.flatten(net), 512)
+            net = slim.conv2d(inputs, 256, [3, 3])
+            net = slim.conv2d(net, 256, [3, 3])
+            net = slim.conv2d(net, 256, [3, 3])
+            net = slim.fully_connected(slim.flatten(net), 1024)
             net = slim.dropout(net, self.keep_prob)
             net = slim.fully_connected(net, 512)
             net = slim.dropout(net, self.keep_prob)
@@ -428,6 +441,10 @@ class multinet(basenet):
                 # net = tf.stop_gradient(tf.concat([vis_feat, cls_proj], axis=1))
                 # self._rel_pred(tf.concat([net, spt], axis=1))
                 net = tf.concat([vis_feat, cls_proj, spt], axis=1)
+                net = slim.fully_connected(net, size)
+                net = slim.dropout(net, keep_prob=self.keep_prob)
+                net = slim.fully_connected(net, size)
+                net = slim.dropout(net, keep_prob=self.keep_prob)
                 self._rel_pred(net)
 
                 # case 7

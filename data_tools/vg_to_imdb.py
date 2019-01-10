@@ -122,7 +122,7 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    data_dir = '/hdd/datasets/vrd/visualgenome/'
+    data_dir = '/hdd/datasets/vrd/vg/'
     parser.add_argument('--image_dir', default=data_dir+'images/')
     parser.add_argument('--image_size', default=1024, type=int)
     parser.add_argument('--imh5_dir', default='../data/vg/')
