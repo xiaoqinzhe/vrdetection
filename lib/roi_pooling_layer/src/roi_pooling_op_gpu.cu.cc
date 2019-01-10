@@ -6,7 +6,8 @@
 #include <cfloat>
 
 #include "tensorflow/core/framework/register_types.h"
-#include "tensorflow/core/user_ops/roi_pooling_op_gpu.h"
+//#include "tensorflow/core/user_ops/roi_pooling_op_gpu.h"
+#include "./roi_pooling_op_gpu.h"
 #include "tensorflow/core/util/cuda_kernel_helper.h"
 
 using std::max;

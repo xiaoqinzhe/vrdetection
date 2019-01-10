@@ -81,7 +81,7 @@ if __name__ == '__main__':
         np.random.seed(cfg.RNG_SEED)
 
     imdb = get_db(split = 0)
-    print 'Loaded db `{:s}` for training'.format(cfg.DATASET)
+    print('Loaded db `{:s}` for training'.format(cfg.DATASET))
     if cfg.TRAIN.USE_FLIPPED:
         print('appending flipped images')
         imdb.append_flipped_images()
@@ -106,7 +106,7 @@ if __name__ == '__main__':
         np.save(cfg.TRAIN.BBOX_TARGET_NORMALIZATION_FILE, {'means': bbox_means, 'stds': bbox_stds})
 
     device_name = '/gpu:{:d}'.format(args.gpu_id)
-    print device_name
+    print(device_name)
     train_net(args.network_name, imdb, roidb, args.output_dir, args.tf_log,
               pretrained_model=args.pretrained_model,
               max_iters=args.max_iters, val_roidb=val_roidb)

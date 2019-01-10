@@ -18,7 +18,8 @@ Here we provide an instruction on how to compile the `roi_pooling` op specifical
 1. Move everything under `src/` to `YOUR_TENSORFLOW_PATH/lib/python2.7/site-packages/tensorflow/core/user_ops`. You can find out your tensorflow path by running
 
     `python -c 'import tensorflow as tf; print(tf.__file__)'`
-
+In roi_poolint_op_gpu.cu.cc: modify from #include "tensorflow/core/user_ops/roi_pooling_op_gpu.h"
+to #include "./roi_pooling_op_gpu.h"
 2. `cd YOUR_TENSORFLOW_PATH/lib/python2.7/site-packages/tensorflow/core/user_ops/`
 3. Run the following command to compile a GPU-capable RoI-Pooling layer
 

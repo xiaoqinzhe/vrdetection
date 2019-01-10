@@ -59,8 +59,8 @@ def eval_relation_recall(sg_entry,
                 else: predicates.append(arg_sort[k])
                 predicate_scores.append(predicate_preds[i][j][arg_sort[k]])
     else:
-        for i in xrange(num_boxes):
-            for j in xrange(num_boxes):
+        for i in range(num_boxes):
+            for j in range(num_boxes):
                 if i != j:
                     arg_sort = np.argsort(-predicate_preds[i][j])
                     for k in range(num_k):
@@ -79,8 +79,8 @@ def eval_relation_recall(sg_entry,
     #         keep.append(num_boxes * i + j)
     #         relations.append([i, j])
     # else:
-    #     for i in xrange(num_boxes):
-    #         for j in xrange(num_boxes):
+    #     for i in range(num_boxes):
+    #         for j in range(num_boxes):
     #             if i != j:
     #                 keep.append(num_boxes*i + j)
     #                 relations.append([i, j])
@@ -156,7 +156,7 @@ def _triplet(predicates, relations, classes, boxes,
     triplets = np.zeros([num_relations, 3]).astype(np.int32)
     triplet_boxes = np.zeros([num_relations, 8]).astype(np.int32)
     triplet_scores = np.zeros([num_relations]).astype(np.float32)
-    for i in xrange(num_relations):
+    for i in range(num_relations):
         triplets[i, 1] = predicates[i]
         sub_i, obj_i = relations[i,:2]
         triplets[i, 0] = classes[sub_i]

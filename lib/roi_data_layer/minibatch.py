@@ -47,7 +47,7 @@ def get_minibatch(roidb, num_classes):
 
     d_timer = Timer()
     d_timer.tic()
-    for im_i in xrange(num_images):
+    for im_i in range(num_images):
         spts = np.zeros((0), dtype=np.int8)
         # sample graph
         if not cfg.TRAIN.USE_SAMPLE_GRAPH:
@@ -319,7 +319,7 @@ def _get_image_blob(roidb, scale_inds):
     num_images = len(roidb)
     processed_ims = []
     im_scales = []
-    for i in xrange(num_images):
+    for i in range(num_images):
         im = roidb[i]['image']() # use image getter
 
         if roidb[i]['flipped']:

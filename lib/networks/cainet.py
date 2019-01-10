@@ -27,7 +27,7 @@ class cainet(basenet):
         # spatial info
         bbox = self.rois[:, 1:5]
         if self.if_pred_rel:
-            print (self.num_rel)
+            print(self.num_rel)
             cls_emb = self.cls_emb()
             vis = self.visual_feat(rel_roi_conv_out, use_ctx_att=True, cls_emb=cls_emb)
             print(vis.shape)

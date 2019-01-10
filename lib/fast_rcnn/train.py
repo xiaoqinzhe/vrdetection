@@ -53,7 +53,7 @@ class Trainer(object):
             self.bbox_means = bbox_dist['means']
             self.bbox_stds = bbox_dist['stds']
 
-        print 'done'
+        print('done')
 
 
     def snapshot(self, sess, iter):
@@ -81,7 +81,7 @@ class Trainer(object):
         filename = os.path.join(self.output_dir, 'weights_%i.ckpt' % iter)
 
         self.saver.save(sess, filename)
-        print 'Wrote snapshot to: {:s}'.format(filename)
+        print('Wrote snapshot to: {:s}'.format(filename))
 
         if cfg.TRAIN.BBOX_REG and 'bbox_pred' in net.layers and cfg.TRAIN.BBOX_NORMALIZE_TARGETS:
             # restore net to original state
@@ -101,8 +101,8 @@ class Trainer(object):
 
     def load_pretrained_models(self, sess):
         if self.pretrained_model is not None:
-            print ('Loading pretrained model '
-                   'weights from {:s}').format(self.pretrained_model)
+            print(('Loading pretrained model '
+                   'weights from {:s}').format(self.pretrained_model))
             if self.pretrained_model.endswith('.npy'):
                 self.net.load(self.pretrained_model, sess, load_fc=True)
             elif self.pretrained_model.endswith('.ckpt'):
@@ -288,7 +288,7 @@ class Trainer(object):
         next_stepsize = stepsizes.pop()
 
         # Training loop
-        for iter in xrange(max_iters):
+        for iter in range(max_iters):
             # tracing training information
             if iter % 10000 == 0:
                 run_metadata = tf.RunMetadata()
@@ -355,8 +355,8 @@ class Trainer(object):
             iter_timer.toc()
 
             if (iter+1) % (10 * cfg.TRAIN.DISPLAY_FREQ) == 0:
-                print 'speed: {:.3f}s / iter'.format(timer.average_time)
-                print 'iter speed: {:.3f}s / iter'.format(iter_timer.average_time)
+                print('speed: {:.3f}s / iter'.format(timer.average_time))
+                print('iter speed: {:.3f}s / iter'.format(iter_timer.average_time))
 
             # if (iter+1) % cfg.TRAIN.SNAPSHOT_FREQ == 0:
             if (iter + 1) % 5000 == 0:

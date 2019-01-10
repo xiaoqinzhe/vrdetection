@@ -33,7 +33,7 @@ export CUDA_VISIBLE_DEVICES=$GPU_ID
 exec &> >(tee -a "$LOG")
 echo Logging output to "$LOG"
 
-time ./tools/train_net.py --gpu 0 \
+time python ./tools/train_net.py --gpu 0 \
   --weights ${PRETRAINED} \
   --dataset ${DATASET} \
   --iters ${ITERS} \

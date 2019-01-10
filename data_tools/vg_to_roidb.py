@@ -436,7 +436,7 @@ def obj_rel_cross_check(obj_data, rel_data, verbose=False):
     num_img = len(obj_data)
     num_correct = 0
     total_rel = 0
-    for i in xrange(num_img):
+    for i in range(num_img):
         assert(obj_data[i]['image_id'] == rel_data[i]['image_id'])
         objs = obj_data[i]['objects']
         rels = rel_data[i]['relationships']
@@ -456,7 +456,7 @@ def obj_rel_cross_check(obj_data, rel_data, verbose=False):
 # use relationship to complete obj data. (but whether it will repeat)
 def sync_objects(obj_data, rel_data):
     num_img = len(obj_data)
-    for i in xrange(num_img):
+    for i in range(num_img):
         assert(obj_data[i]['image_id'] == rel_data[i]['image_id'])
         objs = obj_data[i]['objects']
         rels = rel_data[i]['relationships']
@@ -523,7 +523,7 @@ def main(args):
     img_data = filter_by_idx(img_data, valid_im_idx)
 
     # sanity check
-    for i in xrange(num_im):
+    for i in range(num_im):
         # print(i, obj_data[i]['image_id'], rel_data[i]['image_id'],
         #      img_data[i]['image_id'], img_ids[i])
         assert(obj_data[i]['image_id'] \

@@ -386,7 +386,7 @@ def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
 
 
 
-    for im_i in xrange(num_images):
+    for im_i in range(num_images):
 
         im = imdb.im_getter(im_i)
 

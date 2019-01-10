@@ -40,7 +40,7 @@ __C.TRAIN.STEPSIZES = [30000, 90000]
 __C.TRAIN.WEIGHT_REG = True
 
 # Weight decay, for regularization
-__C.TRAIN.WEIGHT_DECAY = 0.00005
+__C.TRAIN.WEIGHT_DECAY = 0.0001
 
 # Whether to have weight decay on bias as well
 __C.TRAIN.BIAS_DECAY = True
