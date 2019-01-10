@@ -40,10 +40,10 @@ __C.TRAIN.STEPSIZES = [30000, 90000]
 __C.TRAIN.WEIGHT_REG = True
 
 # Weight decay, for regularization
-__C.TRAIN.WEIGHT_DECAY = 0.00005
+__C.TRAIN.WEIGHT_DECAY = 0.0001
 
 # Whether to have weight decay on bias as well
-__C.TRAIN.BIAS_DECAY = True
+__C.TRAIN.BIAS_DECAY = False
 
 # Scales to use during training (can list multiple scales)
 # Each scale is the pixel size of an image's shortest side
@@ -182,7 +182,7 @@ __C.GPU_ID = 0
 __C.VIZ_DATA_PATH = osp.join(__C.ROOT_DIR, 'data/viz/')
 
 __C.DATASET = 'vrd'
-__C.DATASET_DIR = '/hdd/datasets/vrd/'
+__C.DATASET_DIR = '/data/datasets/vrd/'
 
 __C.TRAIN.USE_VALDB = True
 
@@ -190,7 +190,7 @@ __C.TRAIN.USE_VALDB = True
 __C.TRAIN.MODE = 'cls'
 
 __C.TRAIN.USE_AUG_DATA = False
-__C.TRAIN.USE_SAMPLE_GRAPH = True
+__C.TRAIN.USE_SAMPLE_GRAPH = False
 
 __C.MODEL_PARAMS = {'if_pred_cls': False, 'if_pred_bbox': False, 'if_pred_rel': True, 'if_pred_spt': False,
                     'use_context': True, 'use_spatial': False, 'use_class': False,

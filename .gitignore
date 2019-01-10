@@ -1,3 +1,7 @@
+# config
+.gitignore
+lib/fast_rcnn/config.py
+
 # pycharm project file
 *.temp
 .idea/
