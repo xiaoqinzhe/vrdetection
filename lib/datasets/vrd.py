@@ -1,4 +1,4 @@
-from imdb import imdb
+from datasets.imdb import imdb
 import numpy as np
 from fast_rcnn.config import cfg
 import os, json, h5py, cv2, scipy.sparse, copy, pickle

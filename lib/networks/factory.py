@@ -8,13 +8,13 @@
 
 __sets = {}
 
-from models import *
-from omodels import *
-from attnets import *
-from graphnet import *
-from cainet import *
-from weightednet import *
-from sptnet import *
+from networks.models import *
+from networks.omodels import *
+from networks.attnets import *
+from networks.graphnet import *
+from networks.cainet import *
+from networks.weightednet import *
+from networks.sptnet import *
 
 __sets['vrdnet'] = vrdnet # VRD baseline
 __sets['vggnet'] = basenet # VRD baseline
@@ -42,7 +42,7 @@ __sets['ranknet'] = ranknet
 
 def get_network(name):
     """Get a network by name."""
-    if not __sets.has_key(name):
+    if not name in  __sets:
         raise KeyError('Unknown network: {}'.format(name))
     return __sets[name]
 

@@ -1,5 +1,5 @@
 from datasets.vg import vg
-from vrd import vrd
+from datasets.vrd import vrd
 from fast_rcnn.config import cfg
 
 def get_db(split, num_im = -1):
