@@ -87,7 +87,7 @@ def preprocess(json_file, ims_path, save_file, class_to_ind, ind_to_class, predi
         if len(boxes) == 0:
             continue
         save_info.append({
-            "image_filename" : im_file,
+            "image_filename" : ims_path.split("/")[-2]+"/"+filename,
             "image_width" : width,
             "image_height" : height,
             "boxes" : boxes,
@@ -105,9 +105,9 @@ def preprocess(json_file, ims_path, save_file, class_to_ind, ind_to_class, predi
     }
     with open(save_file, 'w') as f:
         json.dump(final_save, f)
-    print("saved images = %d" % len(save_info))                               # 3780     954
-    print("average boxes per image = %d" % box_count*1.0/len(save_info))      # 26430    6728      7
-    print("saved relationships = %d" % pred_count*1.0/len(save_info))         # 30355    7632      8
+    print("saved images = %d" % len(save_info))                                 # 3780     954
+    print("average boxes per image = %f" % ((box_count*1.0)/len(save_info)))    # 26430    6728      7
+    print("saved relationships = %f" % ((pred_count*1.0)/len(save_info)))         # 30355    7632      8
     print("done.")
 
 def check(json_file, name, ind_to_class, ind_to_predicate):
@@ -176,7 +176,7 @@ def check2(json_file, ims_path):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data_path', default="./data/vrd/", type=str)
+    parser.add_argument('--data_path', default="/hdd/datasets/vrd/vrd/", type=str)
     parser.add_argument('--save_path', default="./data/vrd/", type=str)
     return parser.parse_args()
 
@@ -189,13 +189,13 @@ if __name__ == "__main__":
     class_to_ind, ind_to_class = get_inds(os.path.join(data_path, 'objects.json'))
     predicate_to_ind, ind_to_predicate = get_inds(os.path.join(data_path, 'predicates.json'))
 
-    # preprocess(os.path.join(data_path, 'annotations_train.json'), os.path.join(data_path, 'sg_train_images/'),
-    #            os.path.join(save_path, "train.json"),
-    #            class_to_ind, ind_to_class, predicate_to_ind, ind_to_predicate)
-    # preprocess(os.path.join(data_path, 'annotations_test.json'), os.path.join(data_path, 'sg_test_images/'),
-    #            os.path.join(save_path, "test.json"),
-    #            class_to_ind, ind_to_class, predicate_to_ind, ind_to_predicate)
+    preprocess(os.path.join(data_path, 'annotations_train.json'), os.path.join(data_path, 'sg_train_images/'),
+               os.path.join(save_path, "train.json",),
+               class_to_ind, ind_to_class, predicate_to_ind, ind_to_predicate)
+    preprocess(os.path.join(data_path, 'annotations_test.json'), os.path.join(data_path, 'sg_test_images/'),
+               os.path.join(save_path, "test.json"),
+               class_to_ind, ind_to_class, predicate_to_ind, ind_to_predicate)
 
     # check(os.path.join(data_path, 'annotations_test.json'), "8646018805_d914413321_b.jpg", ind_to_class, ind_to_predicate)
     #
-    check2(os.path.join(data_path, 'annotations_test.json'), os.path.join(data_path, 'sg_test_images/'))
+    # check2(os.path.join(data_path, 'annotations_test.json'), os.path.join(data_path, 'sg_test_images/'))

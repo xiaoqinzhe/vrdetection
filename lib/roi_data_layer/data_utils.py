@@ -1,5 +1,4 @@
 import numpy as np
-import gensim
 from fast_rcnn.config import cfg
 
 def cal_graph_matrix(num_roi, num_rel, relations):

@@ -122,11 +122,12 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--image_dir', default='/hdd/datasets/vrd/visualgenome/images/')
+    data_dir = '/hdd/datasets/vrd/visualgenome/'
+    parser.add_argument('--image_dir', default=data_dir+'images/')
     parser.add_argument('--image_size', default=1024, type=int)
-    parser.add_argument('--imh5_dir', default='./data/vg/')
+    parser.add_argument('--imh5_dir', default='../data/vg/')
     parser.add_argument('--num_workers', default=10, type=int)
-    parser.add_argument('--metadata_input', default='/hdd/datasets/vrd/visualgenome/image_data.json', type=str)
+    parser.add_argument('--metadata_input', default=data_dir+'image_data.json', type=str)
 
     args = parser.parse_args()
     main(args)

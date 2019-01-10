@@ -489,15 +489,15 @@ def main(args):
         print('using predicate alias from %s' % (args.pred_alias))
         pred_alias_dict, pred_vocab_list = make_alias_dict(args.pred_alias)
 
+    obj_list, pred_list = [], []
     ''' get object/predicate names list from file. '''
-    '''obj_list = []
+    '''
     if len(args.object_list) > 0:
         print('using object list from %s' % (args.object_list))
         obj_list = make_list(args.object_list)
         print("object num: {}".format(len(obj_list)))
         assert(len(obj_list) >= args.num_objects)
 
-    pred_list = []
     if len(args.pred_list) > 0:
         print('using predicate list from %s' % (args.pred_list))
         pred_list = make_list(args.pred_list)
@@ -515,6 +515,11 @@ def main(args):
     print('read image db from %s' % args.imdb)
     imdb = h5.File(args.imdb, 'r')
     num_im = len(imdb['image_filenames'])
+    imfs = np.array(imdb['image_filenames']).tolist()
+    for i in range(len(imfs)):
+        imfs[i] = 'images/'+imfs[i].split("/")[-1]
+        # if(i==0): print(imfs[i])
+
     img_long_sizes = [512, 1024]
     valid_im_idx = imdb['valid_idx'][:] # valid image indices
     img_ids = imdb['image_ids'][:]
@@ -625,7 +630,7 @@ def main(args):
         'idx_to_predicate': idx_to_predicate,
         'predicate_count': predicate_token_counter,
         'object_count': object_token_counter,
-        'image_filenames': np.array(imdb['image_filenames']).tolist(),
+        'image_filenames': imfs,
         'image_heights': np.array(imdb['original_heights']).tolist(),
         'image_widths': np.array(imdb['original_widths']).tolist(),
     }
@@ -636,10 +641,11 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--imdb', default='/hdd/xqz/project_data/vrdetection/vg/imdb.h5', type=str)
-    parser.add_argument('--object_input', default='/hdd/datasets/vrd/visualgenome/objects.json', type=str)
-    parser.add_argument('--relationship_input', default='/hdd/datasets/vrd/visualgenome/relationships.json', type=str)
-    parser.add_argument('--metadata_input', default='/hdd/datasets/vrd/visualgenome/image_data.json', type=str)
+    data_dir = '/hdd/datasets/vrd/visualgenome/'
+    parser.add_argument('--imdb', default='../data/vg/imdb.h5', type=str)
+    parser.add_argument('--object_input', default=data_dir+'objects.json', type=str)
+    parser.add_argument('--relationship_input', default=data_dir+'relationships.json', type=str)
+    parser.add_argument('--metadata_input', default=data_dir+'image_data.json', type=str)
     parser.add_argument('--object_alias', default='VG/object_alias.txt', type=str)
     parser.add_argument('--pred_alias', default='VG/predicate_alias.txt', type=str)
     parser.add_argument('--object_list', default='VG/object_list.txt', type=str)

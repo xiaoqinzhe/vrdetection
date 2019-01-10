@@ -63,7 +63,8 @@ class vrd(imdb):
         self._roidb_handler = self.gt_roidb
 
     def im_getter(self, idx):
-        im = cv2.imread(self.info[idx]['image_filename'])
+        # print(os.path.join(cfg.DATASET_DIR, 'vrd', self.info[idx]['image_filename']))
+        im = cv2.imread(os.path.join(cfg.DATASET_DIR, 'vrd', self.info[idx]['image_filename']))
         return im
 
     def gt_roidb(self):
