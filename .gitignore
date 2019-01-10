@@ -6,10 +6,13 @@
 # logs/temp
 checkpoints/
 saved_model/
-output/
+tf_faster_rcnn/output/
+checkpoints
+tf_faster_rcnn/output
 
 ## data
 data/
+data
 
 ## python template
 # Byte-compiled / optimized / DLL files

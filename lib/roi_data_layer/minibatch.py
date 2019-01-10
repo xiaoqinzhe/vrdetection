@@ -10,7 +10,7 @@ import numpy.random as npr
 from fast_rcnn.config import cfg
 from utils.blob import prep_im_for_blob, im_list_to_blob
 #from datasets.viz import viz_scene_graph
-import data_utils
+from roi_data_layer import data_utils
 from IPython import embed
 from utils.timer import Timer
 

@@ -6,12 +6,12 @@
 
 import numpy as np
 import tensorflow as tf
-from network import Network
-import losses
+from networks.network import Network
+from networks import losses
 from fast_rcnn.config import cfg
-import net_utils as utils
+import networks.net_utils as utils
 import tensorflow.contrib.slim as slim
-from basenets import *
+from networks.basenets import *
 
 """
 A TensorFlow implementation of the scene graph generation models introduced in
