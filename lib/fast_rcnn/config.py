@@ -32,15 +32,7 @@ cfg = __C
 #
 __C.TRAIN = edict()
 
-__C.TRAIN.LEARNING_RATE = 0.001
-__C.TRAIN.MOMENTUM = 0.9
-__C.TRAIN.GAMMA = 0.1
-__C.TRAIN.STEPSIZES = [30000, 90000]
 
-__C.TRAIN.WEIGHT_REG = True
-
-# Weight decay, for regularization
-__C.TRAIN.WEIGHT_DECAY = 0.0001
 
 # Whether to have weight decay on bias as well
 __C.TRAIN.BIAS_DECAY = False
@@ -187,10 +179,20 @@ __C.DATASET_DIR = '/hdd/datasets/vrd/'
 __C.TRAIN.USE_VALDB = True
 
 # train mode
+__C.TRAIN.LEARNING_RATE = 0.0005
+__C.TRAIN.MOMENTUM = 0.9
+__C.TRAIN.GAMMA = 0.1
+__C.TRAIN.STEPSIZES = [30000, 90000]
+
+__C.TRAIN.WEIGHT_REG = True
+
+# Weight decay, for regularization
+__C.TRAIN.WEIGHT_DECAY = 0.00005
+
 __C.TRAIN.MODE = 'cls'
 
 __C.TRAIN.USE_AUG_DATA = False
-__C.TRAIN.USE_SAMPLE_GRAPH = False
+__C.TRAIN.USE_SAMPLE_GRAPH = True
 
 __C.MODEL_PARAMS = {'if_pred_cls': False, 'if_pred_bbox': False, 'if_pred_rel': True, 'if_pred_spt': False,
                     'use_context': True, 'use_spatial': False, 'use_class': False,
