@@ -4,7 +4,7 @@ A helper class for evaluating scene graph prediction tasks
 
 import numpy as np
 import copy
-from sg_eval import eval_relation_recall
+from datasets.sg_eval import eval_relation_recall
 
 class SceneGraphEvaluator:
 

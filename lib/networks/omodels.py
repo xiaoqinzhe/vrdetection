@@ -290,10 +290,10 @@ class multinet(basenet):
                 # net = tf.stop_gradient(tf.concat([vis_feat, cls_proj], axis=1))
                 # self._rel_pred(tf.concat([net, spt], axis=1))
                 net = tf.concat([vis_feat, cls_proj, spt], axis=1)
-                net = slim.fully_connected(net, size)
-                net = slim.dropout(net, keep_prob=self.keep_prob)
-                net = slim.fully_connected(net, size)
-                net = slim.dropout(net, keep_prob=self.keep_prob)
+                #net = slim.fully_connected(net, size)
+                #net = slim.dropout(net, keep_prob=self.keep_prob)
+                #net = slim.fully_connected(net, size)
+                #net = slim.dropout(net, keep_prob=self.keep_prob)
                 self._rel_pred(net)
 
                 # case 7

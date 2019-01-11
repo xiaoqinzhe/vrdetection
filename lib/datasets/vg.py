@@ -107,6 +107,7 @@ class vg(imdb):
         self._roidb_handler = self.gt_roidb
 
     def im_getter(self, idx):
+        # print(os.path.join(cfg.DATASET_DIR, 'vg', self.info['image_filenames'][self.image_index[idx]]))
         im = cv2.imread(os.path.join(cfg.DATASET_DIR, 'vg', self.info['image_filenames'][self.image_index[idx]]))
         return im
 

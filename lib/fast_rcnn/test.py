@@ -322,7 +322,7 @@ def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
     inputs['is_training'] = False
     net = get_network(net_name)(inputs)
     net.setup()
-    print ('Loading model weights from {:s}').format(weight_name)
+    print(('Loading model weights from {:s}').format(weight_name))
     print(cfg.TRAIN.USE_SAMPLE_GRAPH)
     saver = tf.train.Saver()
     sess.run(tf.global_variables_initializer())
@@ -477,9 +477,9 @@ def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
                 if metrics_v is not None: evaluators[mode][iter_n].add_metrics(metrics_v)
             _t['evaluate'].toc()
 
-        print 'im_detect: {:d}/{:d} {:.3f}s {:.3f}s' \
+        print('im_detect: {:d}/{:d} {:.3f}s {:.3f}s' \
               .format(im_i + 1, num_images, _t['im_detect'].average_time,
-                      _t['evaluate'].average_time)
+                      _t['evaluate'].average_time))
 
     # print out evaluation results
     for mode in eval_modes:
