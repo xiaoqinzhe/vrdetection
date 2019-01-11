@@ -94,14 +94,14 @@ class sptnet2(basenet):
                 spt = self._spatial_feature(self.rel_inx1, self.rel_inx2)
             sub_feat = tf.concat([conv_sub, rel_roi_conv_out], axis=3)
             obj_feat = tf.concat([conv_obj, rel_roi_conv_out], axis=3)
-            proj_sub = self._spatial_feature(sub_feat)
-            proj_obj = self._spatial_feature(obj_feat, reuse=True)
+            proj_sub = self._spatial_net(sub_feat)
+            proj_obj = self._spatial_net(obj_feat, reuse=True)
             net_spt = proj_sub - proj_obj
-            if False: self._spatial_pred(net_spt)
+            if True: self._spatial_pred(net_spt)
 
-            rel_feat = tf.concat([vis_feat, cls_proj, spt, net_spt])
-            rel_feat = slim.fully_connected(rel_feat, size)
-            rel_feat = slim.dropout(rel_feat, self.keep_prob)
+            rel_feat = tf.concat([vis_feat, cls_proj, spt, net_spt], axis=1)
+            #rel_feat = slim.fully_connected(rel_feat, size)
+            #rel_feat = slim.dropout(rel_feat, self.keep_prob)
             self._rel_pred(rel_feat)
 
     def _spatial_net(self, inputs, name='spt_feat', reuse=False):
@@ -441,10 +441,10 @@ class multinet(basenet):
                 # net = tf.stop_gradient(tf.concat([vis_feat, cls_proj], axis=1))
                 # self._rel_pred(tf.concat([net, spt], axis=1))
                 net = tf.concat([vis_feat, cls_proj, spt], axis=1)
-                net = slim.fully_connected(net, size)
-                net = slim.dropout(net, keep_prob=self.keep_prob)
-                net = slim.fully_connected(net, size)
-                net = slim.dropout(net, keep_prob=self.keep_prob)
+                #net = slim.fully_connected(net, size)
+                #net = slim.dropout(net, keep_prob=self.keep_prob)
+                #net = slim.fully_connected(net, size)
+                #net = slim.dropout(net, keep_prob=self.keep_prob)
                 self._rel_pred(net)
 
                 # case 7
