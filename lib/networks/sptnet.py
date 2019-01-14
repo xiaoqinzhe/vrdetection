@@ -238,7 +238,7 @@ class sptnet2(sptnet):
             proj_sub = self._spatial_net(sub_feat)
             proj_obj = self._spatial_net(obj_feat, reuse=True)
             net_spt = proj_sub - proj_obj
-            if False: self._spatial_pred(net_spt)
+            if self.if_pred_spt: self._spatial_pred(net_spt)
 
             rel_feat = tf.concat([vis_feat, cls_proj, spt, net_spt], axis=1)
             rel_feat = slim.fully_connected(rel_feat, size)

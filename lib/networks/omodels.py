@@ -270,7 +270,7 @@ class multinet(basenet):
                     spt = self._spatial_feature(self.rel_inx1, self.rel_inx2)
 
                 # case 1   44
-                # self._rel_pred(cls_proj)
+                self._rel_pred(cls_proj)
 
                 # case 2   38.8
                 # self._rel_pred(spt)
@@ -287,13 +287,7 @@ class multinet(basenet):
                 # self._rel_pred(net)
 
                 # case 6
-                # net = tf.stop_gradient(tf.concat([vis_feat, cls_proj], axis=1))
-                # self._rel_pred(tf.concat([net, spt], axis=1))
                 net = tf.concat([vis_feat, cls_proj, spt], axis=1)
-                # net = slim.fully_connected(net, size)
-                # net = slim.dropout(net, keep_prob=self.keep_prob)
-                # net = slim.fully_connected(net, size)
-                # net = slim.dropout(net, keep_prob=self.keep_prob)
                 self._rel_pred(net)
 
                 # case 7

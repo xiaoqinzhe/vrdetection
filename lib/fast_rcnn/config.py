@@ -178,14 +178,14 @@ __C.TRAIN.USE_VALDB = True
 __C.TRAIN.LEARNING_RATE = 0.001
 __C.TRAIN.MOMENTUM = 0.9
 __C.TRAIN.GAMMA = 0.1
-__C.TRAIN.STEPSIZES = [30000, 90000]
+__C.TRAIN.STEPSIZES = [30000, 80000]
 
 __C.TRAIN.WEIGHT_REG = True
 # Whether to have weight decay on bias as well
 __C.TRAIN.BIAS_DECAY = True
 
 # Weight decay, for regularization
-__C.TRAIN.WEIGHT_DECAY = 0.00005
+__C.TRAIN.WEIGHT_DECAY = 0.0001
 
 __C.TRAIN.MODE = 'cls'
 
@@ -209,6 +209,7 @@ __C.TRAIN.NUM_NEG_RELS = 32
 __C.TRAIN.NUM_SAMPLE_PAIRS = 32
 
 # __C.TRAIN.GRADIENT_
+
 
 __C.MODEL_PARAMS = {'if_pred_cls': False, 'if_pred_bbox': False, 'if_pred_rel': True, 'if_pred_spt': False,
                     'use_context': True, 'use_spatial': False, 'use_class': False,
