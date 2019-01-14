@@ -7,7 +7,8 @@ def eval_relation_recall(sg_entry,
                          roidb_entry,
                          result_dict,
                          mode,
-                         iou_thresh, num_k=70, use_gt_rel = False):
+                         iou_thresh, num_k=1, use_gt_rel = False):
+    num_k = cfg.TEST.K_PREDICATE
     use_gt_rel = cfg.TEST.METRIC_EVAL
     # gt
     gt_inds = np.where(roidb_entry['max_overlaps'] == 1)[0]

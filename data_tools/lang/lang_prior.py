@@ -140,5 +140,5 @@ def vg_prior():
     save(o2p, "./data/vg/lang_prior.pickle", origin_o2p, "./data/vg/dataset_prior.pickle")
 
 if __name__=='__main__':
-    vrd_prior('_graph_16')
+    vrd_prior('_graph_1_16')
     # vg_prior()

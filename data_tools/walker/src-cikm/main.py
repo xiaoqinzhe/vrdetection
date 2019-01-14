@@ -44,14 +44,14 @@ pred_mat = normalize(mat[100:, 100:])
 
 walker = Walker(graph)
 calculator = TransProbCalculator(graph, lookup)
-    
+
 seq = walker.walk(num_walks=16)
 
 print('Training conf...')
 # conf_mat = calculator.cal_prob_mat('0', seq)
 # np.save('results-new/conf.npy', arr=conf_mat)
 # conf_mat = np.load('results-new/conf.npy')
-conf_model = Model(cls_mat, embedding_dim=16, iterations=200, learning_rate=0.005, batch_size=100, name_scope='conf')
+conf_model = Model(cls_mat, embedding_dim=16, iterations=200, learning_rate=0.001, batch_size=10, name_scope='conf')
 conf_emb = conf_model.train().get_embeddings()
 
 conf_emb2=np.zeros_like(conf_emb)

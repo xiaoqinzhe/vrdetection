@@ -66,8 +66,10 @@ def load_graph(node_file_name, edge_file_name):
                 weight = float(weight)
             else:
                 u, v = sp
-                weight = 1.
-            g.add_edge(u, v, weight=weight)
+                if g.has_edge(u, v):
+                    g[u][v]['weight'] += 1.
+                else:
+                    g.add_edge(u, v, weight=1.)
 
     return g
 

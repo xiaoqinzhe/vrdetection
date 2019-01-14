@@ -262,6 +262,7 @@ class ranknet(basenet):
         losses['loss_total'] = tf.add(losses['loss_total'], losses['loss_weight'])
         if self.is_training:
             losses['loss_triple'] = tf.reduce_mean(tf.losses.sigmoid_cross_entropy(self.rel_triple_labels, self.layers['rel_triple_score']))
+            # losses['loss_triple'] = tf.reduce_mean(tf.abs(self.layers['rel_triple_score']-tf.cast(self.rel_triple_labels, tf.float32)))
             losses['loss_total'] = tf.add(losses['loss_total'], losses['loss_triple'])
         return losses
 

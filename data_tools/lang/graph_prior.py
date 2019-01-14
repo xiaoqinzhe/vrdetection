@@ -5,6 +5,7 @@ sys.path.append(os.path.join(this_dir, '..'))
 import networkx as nx
 import json
 from walker.walker import Walker
+from walker.opowalker import opo_walk
 import pickle
 import gensim
 import numpy as np
@@ -54,17 +55,26 @@ def train_words_emb():
     name2ind = {}
     for i, name in enumerate(ind2name): name2ind[name] = i
 
-    walker = Walker(walk_length=80, multi_process='single', weighted=True)
+    embedding_size = 16
+
+    walker_way = '1'
+    walker = Walker(num_walks=10, walk_length=80, multi_process='single', weighted=True)
     seqs = walker.walk(g)
+
+    # walker_way = '2'
+    # g, seqs = opo_walk('./data_tools/walker/src-cikm/vrd/nodes.txt', './data_tools/walker/src-cikm/vrd/edges.txt')
+
+    saved_filename = './data/vrd/w2v_all_graph_{}_{}'.format(walker_way, embedding_size)
+
     # print(seqs[:10])
     # pickle.dump(seqs, open('./data/walker/seq_vrd.pickle', 'w'))
 
     # run skip_gram
     seqs = list(map(
-        lambda sequence: list(map(lambda seq: ind2name[seq], sequence)),
+        lambda sequence: list(map(lambda seq: ind2name[int(seq)], sequence)),
         seqs,
     ))
-    embedding_size = 16
+
     # no initial w2v weights
     model = gensim.models.Word2Vec(seqs, min_count=0, sg=1, hs=1, window=2, size=embedding_size, iter=200)
     # use w2v weights
@@ -84,8 +94,8 @@ def train_words_emb():
         # print(cls, res[cls])
         # print(www[class2ind[cls]])
 
-    np.save('./data/vrd/w2v_all_graph_{}'.format(embedding_size), obj_embs)
-    print("saved to {}".format('./data/vrd/w2v_all_graph' + '.npy'))
+    np.save(saved_filename, obj_embs)
+    print("saved to {}".format(saved_filename))
 
     # show data
     plt.figure()
@@ -94,7 +104,7 @@ def train_words_emb():
     plt.scatter(reduced_emb[:, 0], reduced_emb[:, 1])
     for i in range(len(reduced_emb)):
         plt.annotate(ind2class[i], reduced_emb[i, :])
-    plt.savefig('./data_tools/fig/objs_{}.png'.format(embedding_size))
+    plt.savefig('./data_tools/fig/objs_{}_{}.png'.format(walker_way, embedding_size))
     print("plot figure saved in {}".format('./data_tools/fig/objs.png'))
 
     plt.figure()

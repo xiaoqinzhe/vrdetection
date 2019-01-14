@@ -5,7 +5,6 @@
 # --------------------------------------------------------
 
 from fast_rcnn.config import cfg
-from fast_rcnn.bbox_transform import clip_boxes, bbox_transform_inv
 from roi_data_layer.roidb import prepare_roidb
 import roi_data_layer.data_utils as data_utils
 from datasets.evaluator import SceneGraphEvaluator
@@ -16,7 +15,6 @@ from utils.cpu_nms import cpu_nms
 import numpy as np
 import scipy.ndimage
 import tensorflow as tf
-import os
 from utils.blob import im_list_to_blob
 
 """
@@ -205,7 +203,7 @@ def im_detect(sess, net, inputs, im, im_i, boxes, bbox_reg, multi_iter, roidb, p
     for mi in multi_iter:
         rel_probs = None
         rel_probs_flat = ops_value['rel_probs'][mi]
-        if 'rel_weighted_probs' in ops_value:
+        if 'rel_weighted_probs' in ops_value and cfg.TEST.USE_WEIGHTED_REL:
             rel_probs_flat = ops_value['rel_weighted_probs']
         # rel_vis_probs_flat = ops_value['rel_probs_vis'][mi]
         # rel_probs_flat = np.max([rel_probs_flat, rel_vis_probs_flat], axis=0)
@@ -214,28 +212,32 @@ def im_detect(sess, net, inputs, im, im_i, boxes, bbox_reg, multi_iter, roidb, p
             rel_probs[rel[0], rel[1], :] = rel_probs_flat[i, :]
 
             # using prior
-            # if mode == 'pred_cls':
-            #     labels = roidb['gt_classes']
-            # elif mode == 'sg_det':
-            #     labels = cls_preds
-            # prior = get_prior("./data/"+cfg.DATASET+"/lang_prior_graph_16.pickle")
-            # # prior = get_prior("./data/vrd/dataset_prior.pickle")
-            # num_class = inputs['num_classes']
-            #
-            # prior_predicate = prior[get_oo_id(labels[rel[0]], labels[rel[1]], num_class), :]
-            #
-            # # rel_probs[rel[0], rel[1], :] = np.max((rel_probs_flat[i, :], prior_predicate), axis=0)
-            # if cfg.TRAIN.USE_SAMPLE_GRAPH:
-            #     rel_probs[rel[0], rel[1], 1:] = rel_probs_flat[i, 1:] * prior_predicate
-            # else:
-            #     rel_probs[rel[0], rel[1], :] = rel_probs_flat[i, :] * prior_predicate
+            if cfg.TEST.USE_PRIOR:
+                # if i==0: print("using prior from {}".format("./data/"+cfg.DATASET+"/"+cfg.TEST.PRIOR_FILENAME))
+                if mode == 'pred_cls':
+                    labels = roidb['gt_classes']
+                elif mode == 'sg_det':
+                    labels = cls_preds
+                prior = get_prior("./data/"+cfg.DATASET+"/"+cfg.TEST.PRIOR_FILENAME)
+                # prior = get_prior("./data/vrd/dataset_prior.pickle")
+                num_class = inputs['num_classes']
+
+                prior_predicate = prior[get_oo_id(labels[rel[0]], labels[rel[1]], num_class), :]
+
+                # rel_probs[rel[0], rel[1], :] = np.max((rel_probs_flat[i, :], prior_predicate), axis=0)
+                if cfg.TRAIN.USE_SAMPLE_GRAPH:
+                    rel_probs[rel[0], rel[1], 1:] = rel_probs_flat[i, 1:] * prior_predicate
+                else:
+                    rel_probs[rel[0], rel[1], :] = rel_probs_flat[i, :] * prior_predicate
 
             # use prior only
-            # if cfg.TRAIN.USE_SAMPLE_GRAPH:
-            #     rel_probs[rel[0], rel[1], 1:] = prior_predicate
-            #     # rel_probs[rel[0], rel[1], 1:] = prior_predicate * ops_value['rel_weight_prob'][i]
-            # else:
-            #     rel_probs[rel[0], rel[1], :] = prior_predicate
+            if not cfg.TEST.USE_PREDICTION:
+                if cfg.TRAIN.USE_SAMPLE_GRAPH:
+                    if not 'rel_weighted_probs' in ops_value:
+                        rel_probs[rel[0], rel[1], 1:] = prior_predicate
+                    else: rel_probs[rel[0], rel[1], 1:] = prior_predicate * ops_value['rel_weight_prob'][i]
+                else:
+                    rel_probs[rel[0], rel[1], :] = prior_predicate
 
         if net.if_pred_cls:
             cls_probs = ops_value['cls_probs'][mi]
@@ -423,7 +425,7 @@ def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
                 # filter box
                 filter_gt_box = False
                 max_boxes = 20
-                score_thresh = 0.
+                score_thresh = 0.0
                 if score_thresh>0.0:
                     th_inds = np.where(cls_scores>score_thresh)
                     box_proposals = box_proposals[th_inds]

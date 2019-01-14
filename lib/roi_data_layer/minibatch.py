@@ -56,7 +56,7 @@ def get_minibatch(roidb, num_classes):
             roi_inds, rels = _sample_graph(roidb[im_i],
                                         fg_rois_per_image,
                                         rois_per_image,
-                                        num_neg_rels=32)
+                                        num_neg_rels=cfg.TRAIN.NUM_NEG_RELS)
         # print("sample roi = %i"%len(roi_inds), "sample rel = %i"%len(rels))
 
         # print(roi_inds)
@@ -134,7 +134,7 @@ def get_minibatch(roidb, num_classes):
     blobs['rel_weight_labels'], blobs['rel_weight_rois'] = data_utils.cal_rel_weights(im_blob, rels_blob)
 
     # relationship triple ranking
-    blobs['rel_triple_inds'], blobs['rel_triple_labels'] = data_utils.cal_rel_triples(rels_blob, 32)
+    blobs['rel_triple_inds'], blobs['rel_triple_labels'] = data_utils.cal_rel_triples(rels_blob, cfg.TRAIN.NUM_SAMPLE_PAIRS)
 
     # show data
     # print("num_roi: ", num_roi)
