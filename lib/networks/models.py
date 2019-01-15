@@ -89,7 +89,7 @@ class vrdnet(Network):
         with slim.arg_scope([slim.conv2d, slim.conv2d_in_plane, \
                         slim.conv2d_transpose, slim.separable_conv2d, slim.fully_connected],
                        # weights_regularizer=weights_regularizer,
-                       biases_regularizer=biases_regularizer,
+                       # biases_regularizer=biases_regularizer,
                        weights_initializer=tf.truncated_normal_initializer(0, 0.01),
                        biases_initializer=tf.constant_initializer(0.0)
                             ):
