@@ -42,9 +42,9 @@ class Trainer(object):
         self.basenet_iter=cfg.BASENET_WEIGHT_ITER
         self.pretrained_model = 'checkpoints/ranknet/initial_weights/weights_49999.ckpt'
         if self.init_conv:
-            if cfg.MODEL_PARAMS['stop_gradient']:
-                self.pretrained_model = 'tf_faster_rcnn/output/{}/vrd_train/default/{}_faster_rcnn_iter_{}.ckpt'.format(self.basenet, self.basenet, self.basenet_iter)
-            else: self.pretrained_model = 'tf_faster_rcnn/data/imagenet_weights/imagenet_vgg16.ckpt'
+            # if cfg.MODEL_PARAMS['stop_gradient']:
+            self.pretrained_model = 'tf_faster_rcnn/output/{}/vrd_train/default/{}_faster_rcnn_iter_{}.ckpt'.format(self.basenet, self.basenet, self.basenet_iter)
+            #else: self.pretrained_model = 'tf_faster_rcnn/data/imagenet_weights/imagenet_vgg16.ckpt'
 
         if cfg.TRAIN.BBOX_NORMALIZE_TARGETS:
             print('Loaded precomputer bbox target distribution from %s' % \
@@ -244,7 +244,7 @@ class Trainer(object):
         ops['train'] = tf.train.MomentumOptimizer(lr, momentum).minimize(ops['loss_total'])
         # ops['train'] = tf.train.AdamOptimizer(lr).minimize(ops['loss_total'])
         # ops['train'] = tf.train.GradientDescentOptimizer(lr).minimize(ops['loss_total'])
-        if not self.net.stop_gradient:
+        """if not self.net.stop_gradient:
             # different learning rate
             all_variables = tf.trainable_variables()
             finetune_variables = tf.trainable_variables(scope=self.net._scope)
@@ -260,7 +260,7 @@ class Trainer(object):
             op_finetune = opt_finetune.apply_gradients(zip(grads[:len(finetune_variables)], finetune_variables))
             op_new = opt_new.apply_gradients(zip(grads[len(finetune_variables):], new_variables))
             train_op = tf.group(op_finetune, op_new)
-            ops['train'] = train_op
+            ops['train'] = train_op"""
 
         # ops merge summaries
         ops_summary = dict(ops)
@@ -359,7 +359,7 @@ class Trainer(object):
                 print('iter speed: {:.3f}s / iter'.format(iter_timer.average_time))
 
             # if (iter+1) % cfg.TRAIN.SNAPSHOT_FREQ == 0:
-            if (iter + 1) % 5000 == 0:
+            if (iter + 1) % 5000 == 0 or (iter>30000 and iter%1000==0):
                 last_snapshot_iter = iter
                 self.snapshot(sess, iter)
 

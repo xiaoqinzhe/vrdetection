@@ -21,6 +21,7 @@ def get_val_db(num_im = -1):
         raise AttributeError("dataset name does not exist")
 
 def get_detections_filename(iter=75000, net="res50"):
+# def get_detections_filename(iter=75000, net="vgg16"):
     dataset_name = cfg.DATASET
     if dataset_name == 'vrd':
         return "tf_faster_rcnn/output/{}/vrd_test/default/{}_faster_rcnn_iter_{}/detections.pkl".format(net, net, iter)

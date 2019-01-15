@@ -237,9 +237,10 @@ class multinet(basenet):
                 weights_regularizer = tf.contrib.layers.l2_regularizer(cfg.TRAIN.WEIGHT_DECAY)
             else: weights_regularizer = tf.no_regularizer
             with slim.arg_scope([slim.conv2d, slim.fully_connected],
-                       weights_regularizer=weights_regularizer,):
+                       weights_regularizer=weights_regularizer,
+                                ):
 
-                size = 2048
+                size = 1024
 
                 roi_fc_emb = slim.fully_connected(roi_fc_out, size)
                 fc_sub = tf.gather(roi_fc_emb, self.rel_inx1)
@@ -273,7 +274,7 @@ class multinet(basenet):
                 #self._rel_pred(cls_proj)
 
                 # case 2   38.8
-                self._rel_pred(spt)
+                # self._rel_pred(spt)
 
                 # case 3   49
                 # self._rel_pred(vis_feat)
@@ -287,8 +288,8 @@ class multinet(basenet):
                 # self._rel_pred(net)
 
                 # case 6
-                #net = tf.concat([vis_feat, cls_proj, spt], axis=1)
-                #self._rel_pred(net)
+                net = tf.concat([vis_feat, cls_proj, spt], axis=1)
+                self._rel_pred(net)
 
                 # case 7
                 # net = tf.concat([vis_feat, cls_proj], axis=1)
