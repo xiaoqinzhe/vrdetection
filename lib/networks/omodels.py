@@ -270,10 +270,10 @@ class multinet(basenet):
                     spt = self._spatial_feature(self.rel_inx1, self.rel_inx2)
 
                 # case 1   44
-                self._rel_pred(cls_proj)
+                #self._rel_pred(cls_proj)
 
                 # case 2   38.8
-                # self._rel_pred(spt)
+                self._rel_pred(spt)
 
                 # case 3   49
                 # self._rel_pred(vis_feat)
@@ -287,8 +287,8 @@ class multinet(basenet):
                 # self._rel_pred(net)
 
                 # case 6
-                net = tf.concat([vis_feat, cls_proj, spt], axis=1)
-                self._rel_pred(net)
+                #net = tf.concat([vis_feat, cls_proj, spt], axis=1)
+                #self._rel_pred(net)
 
                 # case 7
                 # net = tf.concat([vis_feat, cls_proj], axis=1)

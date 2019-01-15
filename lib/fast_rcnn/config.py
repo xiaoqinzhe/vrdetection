@@ -170,7 +170,7 @@ __C.GPU_ID = 0
 __C.VIZ_DATA_PATH = osp.join(__C.ROOT_DIR, 'data/viz/')
 
 __C.DATASET = 'vrd'
-__C.DATASET_DIR = '/hdd/datasets/vrd/'
+__C.DATASET_DIR = '/data/datasets/vrd/'
 
 __C.TRAIN.USE_VALDB = True
 
@@ -191,19 +191,19 @@ __C.TRAIN.MODE = 'cls'
 
 __C.TRAIN.USE_AUG_DATA = False
 
-__C.TRAIN.USE_SAMPLE_GRAPH = True
-__C.TEST.USE_WEIGHTED_REL = True
-__C.TEST.USE_PRIOR = True
+__C.TRAIN.USE_SAMPLE_GRAPH = False
+__C.TEST.USE_WEIGHTED_REL = False
+__C.TEST.USE_PRIOR = False
 # __C.TEST.PRIOR_FILENAME = 'lang_prior_graph_1_16.pickle'
 __C.TEST.PRIOR_FILENAME = 'lang_prior.pickle'
 __C.TEST.USE_PREDICTION = True
 __C.TEST.K_PREDICATE = 70
 
 # sample
-__C.TEST.USE_PRIOR = False
-__C.TEST.USE_PREDICTION = True
-__C.TRAIN.USE_SAMPLE_GRAPH = True
-__C.TEST.K_PREDICATE = 70
+#__C.TEST.USE_PRIOR = False
+#__C.TEST.USE_PREDICTION = True
+#__C.TRAIN.USE_SAMPLE_GRAPH = True
+#__C.TEST.K_PREDICATE = 70
 
 __C.TRAIN.NUM_NEG_RELS = 32
 __C.TRAIN.NUM_SAMPLE_PAIRS = 32
