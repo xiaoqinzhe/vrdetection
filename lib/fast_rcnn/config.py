@@ -170,7 +170,7 @@ __C.GPU_ID = 0
 __C.VIZ_DATA_PATH = osp.join(__C.ROOT_DIR, 'data/viz/')
 
 __C.DATASET = 'vrd'
-__C.DATASET_DIR = '/hdd/datasets/vrd/'
+__C.DATASET_DIR = '/data/datasets/vrd/'
 
 __C.TRAIN.USE_VALDB = True
 
@@ -200,10 +200,10 @@ __C.TEST.USE_PREDICTION = True
 __C.TEST.K_PREDICATE = 1
 
 # sample
-# __C.TEST.USE_PRIOR = False
-# __C.TEST.USE_PREDICTION = True
-# __C.TRAIN.USE_SAMPLE_GRAPH = True
-# __C.TEST.K_PREDICATE = 70
+#__C.TEST.USE_PRIOR = False
+#__C.TEST.USE_PREDICTION = True
+#__C.TRAIN.USE_SAMPLE_GRAPH = True
+#__C.TEST.K_PREDICATE = 70
 
 __C.TRAIN.NUM_NEG_RELS = 32
 __C.TRAIN.NUM_SAMPLE_PAIRS = 32
@@ -214,10 +214,10 @@ __C.MODEL_PARAMS = {'if_pred_cls': False, 'if_pred_bbox': False, 'if_pred_rel': 
                     'use_context': True, 'use_spatial': False, 'use_class': False,
                     'stop_gradient': True, }
 
-__C.BASENET='res50'
+#__C.BASENET='res50'
+#__C.BASENET_WEIGHT_ITER='75000'
+__C.BASENET='vgg16'
 __C.BASENET_WEIGHT_ITER='75000'
-# __C.BASENET='vgg16'
-# __C.BASENET_WEIGHT_ITER='75000'
 
 __C.TEST.REL_EVAL = True
 __C.TEST.METRIC_EVAL = True

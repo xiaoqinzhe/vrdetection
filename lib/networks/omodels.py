@@ -283,7 +283,7 @@ class multinet(basenet):
                     spt = self._spatial_feature(self.rel_inx1, self.rel_inx2)
 
                 # case 1   44
-                # self._rel_pred(cls_proj)
+                #self._rel_pred(cls_proj)
 
                 # case 2   38.8
                 # self._rel_pred(spt)
