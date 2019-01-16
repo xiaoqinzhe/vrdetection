@@ -9,7 +9,7 @@ def get_oo_id(i, j, num_class):
     return i*num_class + j
 
 def reverse_id(id, num_class):
-    return id/num_class, id%num_class
+    return id//num_class, id%num_class
 
 def get_vrd_o2pm(info):
     num_class = len(info['ind_to_class'])
@@ -140,5 +140,5 @@ def vg_prior():
     save(o2p, "./data/vg/lang_prior.pickle", origin_o2p, "./data/vg/dataset_prior.pickle")
 
 if __name__=='__main__':
-    vrd_prior('_graph_1_16')
+    vrd_prior('')
     # vg_prior()

@@ -175,7 +175,7 @@ __C.DATASET_DIR = '/data/datasets/vrd/'
 __C.TRAIN.USE_VALDB = True
 
 # train mode
-__C.TRAIN.LEARNING_RATE = 0.0008
+__C.TRAIN.LEARNING_RATE = 0.001
 __C.TRAIN.MOMENTUM = 0.9
 __C.TRAIN.GAMMA = 0.1
 __C.TRAIN.STEPSIZES = [30000, 40000]
@@ -193,17 +193,17 @@ __C.TRAIN.USE_AUG_DATA = False
 
 __C.TRAIN.USE_SAMPLE_GRAPH = False
 __C.TEST.USE_WEIGHTED_REL = True
-__C.TEST.USE_PRIOR = True
+__C.TEST.USE_PRIOR = False
 # __C.TEST.PRIOR_FILENAME = 'lang_prior_graph_1_16.pickle'
 __C.TEST.PRIOR_FILENAME = 'lang_prior.pickle'
 __C.TEST.USE_PREDICTION = True
 __C.TEST.K_PREDICATE = 1
 
 # sample
-# __C.TEST.USE_PRIOR = False
-# __C.TEST.USE_PREDICTION = True
-# __C.TRAIN.USE_SAMPLE_GRAPH = True
-# __C.TEST.K_PREDICATE = 70
+#__C.TEST.USE_PRIOR = False
+#__C.TEST.USE_PREDICTION = True
+#__C.TRAIN.USE_SAMPLE_GRAPH = True
+#__C.TEST.K_PREDICATE = 70
 
 __C.TRAIN.NUM_NEG_RELS = 32
 __C.TRAIN.NUM_SAMPLE_PAIRS = 32
@@ -214,10 +214,10 @@ __C.MODEL_PARAMS = {'if_pred_cls': False, 'if_pred_bbox': False, 'if_pred_rel': 
                     'use_context': True, 'use_spatial': False, 'use_class': False,
                     'stop_gradient': True, }
 
-__C.BASENET='res50'
+#__C.BASENET='res50'
+#__C.BASENET_WEIGHT_ITER='75000'
+__C.BASENET='vgg16'
 __C.BASENET_WEIGHT_ITER='75000'
-# __C.BASENET='vgg16'
-# __C.BASENET_WEIGHT_ITER='75000'
 
 __C.TEST.REL_EVAL = True
 __C.TEST.METRIC_EVAL = True
