@@ -40,7 +40,7 @@ class Trainer(object):
         self.init_conv = True
         self.basenet=cfg.BASENET
         self.basenet_iter=cfg.BASENET_WEIGHT_ITER
-        self.pretrained_model = 'checkpoints/ranknet/initial_weights/weights_49999.ckpt'
+        self.pretrained_model = 'checkpoints/vrd/multinet_6_res50/weights_59999.ckpt'
         if self.init_conv:
             # if cfg.MODEL_PARAMS['stop_gradient']:
             self.pretrained_model = 'tf_faster_rcnn/output/{}/vrd_train/default/{}_faster_rcnn_iter_{}.ckpt'.format(self.basenet, self.basenet, self.basenet_iter)
@@ -359,7 +359,8 @@ class Trainer(object):
                 print('iter speed: {:.3f}s / iter'.format(iter_timer.average_time))
 
             # if (iter+1) % cfg.TRAIN.SNAPSHOT_FREQ == 0:
-            if (iter + 1) % 5000 == 0 or (iter>30000 and iter%1000==0):
+            # if (iter + 1) % 5000 == 0:
+            if (iter + 1) % 5000 == 0 or (iter > 30000 and iter % 2000 == 0):
                 last_snapshot_iter = iter
                 self.snapshot(sess, iter)
 

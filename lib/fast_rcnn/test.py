@@ -116,8 +116,7 @@ prior = None
 def get_prior(filename):
     global prior
     if prior is None:
-        import pickle
-        prior = pickle.load(open(filename))
+        prior = np.load(open(filename))
     return prior
 
 o2o_prior = None
@@ -125,8 +124,7 @@ o2o_prior = None
 def get_o2o_prior(filename):
     global o2o_prior
     if o2o_prior is None:
-        import pickle
-        o2o_prior = pickle.load(open(filename))
+        o2o_prior = np.load(open(filename))
     return o2o_prior
 
 detections = None

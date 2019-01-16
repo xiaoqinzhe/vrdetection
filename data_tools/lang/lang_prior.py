@@ -101,10 +101,9 @@ def get_vrd_o2o_matrix(info, w2v_filename):
     return o2o_m, new_o2o_m
 
 def save(lang_o2p_m, filename, o2p_m=None, d_filename=None):
-    import pickle
-    pickle.dump(lang_o2p_m, open(filename, 'w'))
+    np.save(filename, lang_o2p_m)
     if o2p_m is not None:
-        pickle.dump(o2p_m, open(d_filename, 'w'))
+        np.save(d_filename, o2p_m)
     print("saved successful!")
 
 def show_o2p(origin_o2p, o2p, ind2class, ind2predicate, num_show=1000):
@@ -126,7 +125,7 @@ def vrd_prior(suffix=''):
     o2p_m = get_vrd_o2pm(info)
     origin_o2p, o2p = get_matrix(info['ind_to_class'], o2p_m, w2v_filename)
     show_o2p(origin_o2p, o2p, info['ind_to_class'], info['ind_to_predicate'])
-    save(o2p, "./data/vrd/lang_prior{}.pickle".format(suffix), origin_o2p, "./data/vrd/dataset_prior.pickle")
+    save(o2p, "./data/vrd/lang_prior{}".format(suffix), origin_o2p, "./data/vrd/dataset_prior")
 
     # origin_o2o, o2o = get_vrd_o2o_matrix(info, w2v_filename)
     # print(o2o)
@@ -137,8 +136,8 @@ def vg_prior():
     o2p_m, ind2class, ind2predicate = get_vg_info()
     origin_o2p, o2p = get_matrix(ind2class, o2p_m, w2v_filename)
     show_o2p(origin_o2p, o2p, ind2class, ind2predicate)
-    save(o2p, "./data/vg/lang_prior.pickle", origin_o2p, "./data/vg/dataset_prior.pickle")
+    save(o2p, "./data/vg/lang_prior", origin_o2p, "./data/vg/dataset_prior")
 
 if __name__=='__main__':
-    vrd_prior('_graph_1_16')
+    vrd_prior('')
     # vg_prior()

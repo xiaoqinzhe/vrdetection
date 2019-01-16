@@ -175,10 +175,10 @@ __C.DATASET_DIR = '/hdd/datasets/vrd/'
 __C.TRAIN.USE_VALDB = True
 
 # train mode
-__C.TRAIN.LEARNING_RATE = 0.0008
+__C.TRAIN.LEARNING_RATE = 0.001
 __C.TRAIN.MOMENTUM = 0.9
 __C.TRAIN.GAMMA = 0.1
-__C.TRAIN.STEPSIZES = [30000, 40000]
+__C.TRAIN.STEPSIZES = [30000, 80000]
 
 __C.TRAIN.WEIGHT_REG = False
 # Whether to have weight decay on bias as well
@@ -194,8 +194,8 @@ __C.TRAIN.USE_AUG_DATA = False
 __C.TRAIN.USE_SAMPLE_GRAPH = False
 __C.TEST.USE_WEIGHTED_REL = True
 __C.TEST.USE_PRIOR = True
-# __C.TEST.PRIOR_FILENAME = 'lang_prior_graph_1_16.pickle'
-__C.TEST.PRIOR_FILENAME = 'lang_prior.pickle'
+# __C.TEST.PRIOR_FILENAME = 'lang_prior_graph_1_16.npy'
+__C.TEST.PRIOR_FILENAME = 'lang_prior.npy'
 __C.TEST.USE_PREDICTION = True
 __C.TEST.K_PREDICATE = 1
 

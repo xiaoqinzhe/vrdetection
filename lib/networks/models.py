@@ -78,23 +78,7 @@ class vrdnet(Network):
         return inputs
 
     def setup(self):
-        # handle most of the regularizers here
-        weights_regularizer = tf.contrib.layers.l2_regularizer(cfg.TRAIN.WEIGHT_DECAY)
-        if cfg.TRAIN.BIAS_DECAY:
-            biases_regularizer = weights_regularizer
-        else:
-            biases_regularizer = tf.no_regularizer
-
-        # list as many types of layers as possible, even if they are not used now
-        with slim.arg_scope([slim.conv2d, slim.conv2d_in_plane, \
-                        slim.conv2d_transpose, slim.separable_conv2d, slim.fully_connected],
-                       # weights_regularizer=weights_regularizer,
-                       # biases_regularizer=biases_regularizer,
-                       weights_initializer=tf.truncated_normal_initializer(0, 0.01),
-                       biases_initializer=tf.constant_initializer(0.0)
-                            ):
-            # cfg.TRAIN.WEIGHT_REG = True
-            self._net()
+        self._net()
 
     def _net(self):
         conv_net = self._net_conv(self.ims)
