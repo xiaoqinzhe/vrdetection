@@ -37,7 +37,6 @@ time python ./tools/train_net.py --gpu 0 \
   --weights ${PRETRAINED} \
   --dataset ${DATASET} \
   --iters ${ITERS} \
-  --cfg ${CFG_FILE} \
   --network ${NET} \
   --inference_iter ${INFERENCE_ITER} \
   --output ${OUTPUT} \

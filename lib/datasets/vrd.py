@@ -11,8 +11,10 @@ class vrd(imdb):
             if not cfg.TRAIN.USE_AUG_DATA:
                 json_file = data_path + "/train.json"
             else: json_file = data_path + "/train_aug.pickle"
+            self.is_training = True
         else:
             json_file = data_path + "/test.json"
+            self.is_training = False
         if json_file.endswith("json"):
             self.info = json.load(open(json_file))
         else:
@@ -90,6 +92,7 @@ class vrd(imdb):
                              'gt_overlaps' : overlaps,
                              'gt_relations': relation,
                              'gt_spatial': self.get_spatial_class(relation, self.ind_to_predicates, self.spatial_to_ind),
+
                              'flipped' : False,
                              'seg_areas' : seg_areas,
                              'db_idx': i,
@@ -97,6 +100,8 @@ class vrd(imdb):
                              'roi_scores': np.ones(boxes.shape[0]),
                              'width': self.info[i]['image_width'],
                              'height': self.info[i]['image_height']})
+            if not self.is_training:
+                gt_roidb[-1]['zero_shot_tags'] = np.array(self.info[i]['zero_shot_tags'])
         return gt_roidb
 
     def add_rpn_rois(self, gt_roidb_batch, make_copy=True):

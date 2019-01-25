@@ -24,7 +24,7 @@ def get_detections_filename(iter=75000, net="res50"):
 # def get_detections_filename(iter=75000, net="vgg16"):
     dataset_name = cfg.DATASET
     if dataset_name == 'vrd':
-        return "tf_faster_rcnn/output/{}/vrd_test/default/{}_faster_rcnn_iter_{}/detections.pkl".format(net, net, iter)
+        return "tf_faster_rcnn/output/{}/vrd_test/default/{}_faster_rcnn_iter_{}/detections.npy".format(net, net, iter)
     elif dataset_name == 'vg':
         return ""
     else:

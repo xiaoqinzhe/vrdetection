@@ -6,9 +6,9 @@ import scipy.sparse
 import h5py, json, cv2
 from fast_rcnn.config import cfg
 
-class vg(imdb):
-    def __init__(self, data_path, split=0, num_im=-1):
-        super(vg, self).__init__("vg_dataset")
+class vg_hdf5(imdb):
+    def __init__(self, data_path, split, num_im):
+        super(vg_hdf5, self).__init__("vg_dataset")
 
         roidb_file, dict_file = 'VG.h5', 'VG-dicts.json'
 
@@ -93,7 +93,6 @@ class vg(imdb):
         cfg.ind_to_predicate = self.ind_to_predicates
 
         self.word2vec = np.load(data_path + '/w2v.npy')
-        self.embedding_size = self.word2vec.shape[1]
         print("load word2vec from " + data_path + '/w2v.npy')
         # if cfg.TRAIN.USE_SAMPLE_GRAPH:
         # vecs = np.zeros([self.word2vec.shape[0], self.word2vec.shape[1]], np.float32)
@@ -101,13 +100,13 @@ class vg(imdb):
         # self.word2vec = vecs
 
         # self.spatial_to_ind, self.ind_to_spatials = self.get_spatial_info(data_path + '/spatial_alias.txt')
-        self.num_spatials = 0
+        # self.num_spatials = len(self.ind_to_spatials)
 
         # Default to roidb handler
         self._roidb_handler = self.gt_roidb
 
     def im_getter(self, idx):
-        im = cv2.imread(os.path.join(cfg.DATASET_DIR, 'vg', self.info['image_filenames'][self.image_index[idx]]))
+        im = cv2.imread(self.info['image_filenames'][self.image_index[idx]])
         return im
 
     def gt_roidb(self):
@@ -191,7 +190,7 @@ class vg(imdb):
 if __name__ == '__main__':
     import roi_data_layer.roidb as roidb
     import roi_data_layer.layer as layer
-    d = vg('VG.h5', 'VG-dicts.json', 'imdb_512.h5', 'proposals.h5', 0)
+    d = vg_hdf5('VG.h5', 'VG-dicts.json', 'imdb_512.h5', 'proposals.h5', 0)
     roidb.prepare_roidb(d)
     roidb.add_bbox_regression_targets(d.roidb)
     l = layer.RoIDataLayer(d.num_classes)

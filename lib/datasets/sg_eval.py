@@ -7,9 +7,9 @@ def eval_relation_recall(sg_entry,
                          roidb_entry,
                          result_dict,
                          mode,
-                         iou_thresh, num_k=1, use_gt_rel = False):
+                         iou_thresh):
     num_k = cfg.TEST.K_PREDICATE
-    use_gt_rel = cfg.TEST.METRIC_EVAL
+    use_gt_rel = cfg.TEST.USE_GT_REL
     # gt
     gt_inds = np.where(roidb_entry['max_overlaps'] == 1)[0]
     gt_boxes = roidb_entry['boxes'][gt_inds].copy().astype(float)
@@ -49,8 +49,8 @@ def eval_relation_recall(sg_entry,
     relations = []
     predicates = []
     predicate_scores = []
-    if use_gt_rel and not cfg.TRAIN.USE_SAMPLE_GRAPH:
-    # if use_gt_rel:
+    # if use_gt_rel and not cfg.TRAIN.USE_SAMPLE_GRAPH:
+    if use_gt_rel:
         for rel in gt_relations:
             i, j = rel[0], rel[1]
             arg_sort = np.argsort(-predicate_preds[i][j])
@@ -110,7 +110,7 @@ def eval_relation_recall(sg_entry,
         classes = np.argmax(class_preds, 1)
         class_scores = class_preds.max(axis=1)
         boxes = gt_boxes
-    elif mode =='sg_det':
+    elif mode == 'sg_det' or mode == 'phrase':
         # if scene graph detection task
         # use preicted boxes and predicted classes
         # classes = np.argmax(class_preds, 1)
@@ -132,6 +132,9 @@ def eval_relation_recall(sg_entry,
 
     sorted_inds = np.argsort(relation_scores)[::-1]
     # compue recall
+    if cfg.TEST.ZERO_SHOT:
+        zero_shot_tags = roidb_entry['zero_shot_tags']
+    else: zero_shot_tags = None
     for k in result_dict[mode + '_recall']:
         # print(k, num_relations)
         this_k = min(k, num_relations)
@@ -140,7 +143,7 @@ def eval_relation_recall(sg_entry,
                                   pred_triplets[keep_inds,:],
                                   gt_triplet_boxes,
                                   pred_triplet_boxes[keep_inds,:],
-                                  iou_thresh, num_true_gt_rels=num_true_gt_rels)
+                                  iou_thresh, num_true_gt_rels=num_true_gt_rels, mode=mode, zero_shot_tags=zero_shot_tags)
         # print(recall)
         result_dict[mode + '_recall'][k].append(recall)
 
@@ -173,7 +176,7 @@ def _triplet(predicates, relations, classes, boxes,
 
 
 def _relation_recall(gt_triplets, pred_triplets,
-                     gt_boxes, pred_boxes, iou_thresh, num_true_gt_rels):
+                     gt_boxes, pred_boxes, iou_thresh, num_true_gt_rels, mode, zero_shot_tags=None):
 
     # compute the R@K metric for a set of predicted triplets
 
@@ -184,7 +187,10 @@ def _relation_recall(gt_triplets, pred_triplets,
     if num_true_gt_rels is not None:
         num_gt = num_true_gt_rels
 
-    for gt, gt_box in zip(gt_triplets, gt_boxes):
+    for i, data in enumerate(zip(gt_triplets, gt_boxes)):
+        gt, gt_box = data[0], data[1]
+        if zero_shot_tags is not None and not zero_shot_tags[i]:
+            continue
         keep = np.zeros(pred_triplets.shape[0]).astype(bool)
         for i, pred in enumerate(pred_triplets):
             if gt[0] == pred[0] and gt[1] == pred[1] and gt[2] == pred[2]:
@@ -192,13 +198,23 @@ def _relation_recall(gt_triplets, pred_triplets,
         if not np.any(keep):
             continue
         boxes = pred_boxes[keep,:]
-        sub_iou = iou(gt_box[:4], boxes[:,:4])
-        obj_iou = iou(gt_box[4:], boxes[:,4:])
-        inds = np.intersect1d(np.where(sub_iou >= iou_thresh)[0],
-                              np.where(obj_iou >= iou_thresh)[0])
+        if mode == 'phrase':
+            gt_ubox = union_box(gt_box[:4], gt_box[4:])
+            uboxes = union_boxes(boxes[:, :4], boxes[:, 4:])
+            uiou = iou(gt_ubox, uboxes)
+            # print(boxes[0], uboxes[0], gt_box, gt_ubox)
+            inds = np.where(uiou >= iou_thresh)[0]
+        else:
+            sub_iou = iou(gt_box[:4], boxes[:,:4])
+            obj_iou = iou(gt_box[4:], boxes[:,4:])
+            inds = np.intersect1d(np.where(sub_iou >= iou_thresh)[0],
+                                  np.where(obj_iou >= iou_thresh)[0])
         if inds.size > 0:
             num_correct_pred_gt += 1
-    return float(num_correct_pred_gt) / float(num_gt)
+    if zero_shot_tags is None:
+        return float(num_correct_pred_gt) / float(num_gt)
+    else:
+        return float(num_correct_pred_gt) / float(np.sum(zero_shot_tags))
 
 
 def iou(gt_box, pred_boxes):
@@ -218,3 +234,9 @@ def iou(gt_box, pred_boxes):
 
     overlaps = inters / uni
     return overlaps
+
+def union_box(box1, box2):
+    return np.hstack([np.minimum(box1[:2], box2[:2]), np.maximum(box1[2:], box2[2:])])
+
+def union_boxes(boxes1, boxes2):
+    return np.hstack([np.minimum(boxes1[:,:2], boxes2[:,:2]), np.maximum(boxes1[:,2:], boxes2[:,2:])])

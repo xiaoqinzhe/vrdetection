@@ -27,7 +27,6 @@ export CUDA_VISIBLE_DEVICES=$GPU_ID
 
 time python ./tools/test_net.py --gpu ${GPU_ID} \
   --weights ${WEIGHT_FN} \
-  --cfg ${CFG_FILE} \
   --dataset ${DATASET} \
   --network ${NET} \
   --test_size ${NUM_IM} \

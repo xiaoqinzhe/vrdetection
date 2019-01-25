@@ -170,7 +170,7 @@ __C.GPU_ID = 0
 __C.VIZ_DATA_PATH = osp.join(__C.ROOT_DIR, 'data/viz/')
 
 __C.DATASET = 'vrd'
-__C.DATASET_DIR = '/data/datasets/vrd/'
+__C.DATASET_DIR = '/hdd/sda/datasets/vrd/'
 
 __C.TRAIN.USE_VALDB = True
 
@@ -178,14 +178,14 @@ __C.TRAIN.USE_VALDB = True
 __C.TRAIN.LEARNING_RATE = 0.001
 __C.TRAIN.MOMENTUM = 0.9
 __C.TRAIN.GAMMA = 0.1
-__C.TRAIN.STEPSIZES = [30000, 80000]
+__C.TRAIN.STEPSIZES = [30000, 60000]
 
-__C.TRAIN.WEIGHT_REG = False
+__C.TRAIN.WEIGHT_REG = True
 # Whether to have weight decay on bias as well
 __C.TRAIN.BIAS_DECAY = False
 
 # Weight decay, for regularization
-__C.TRAIN.WEIGHT_DECAY = 0.0001
+__C.TRAIN.WEIGHT_DECAY = 0.00005
 
 __C.TRAIN.MODE = 'cls'
 
@@ -198,14 +198,17 @@ __C.TEST.USE_PRIOR = True
 __C.TEST.PRIOR_FILENAME = 'lang_prior.npy'
 __C.TEST.USE_PREDICTION = True
 __C.TEST.K_PREDICATE = 1
+# zero shot testing
+__C.TEST.ZERO_SHOT = False
+__C.TEST.USE_GT_REL = False
 
 # sample
-#__C.TEST.USE_PRIOR = False
-#__C.TEST.USE_PREDICTION = True
-#__C.TRAIN.USE_SAMPLE_GRAPH = True
-#__C.TEST.K_PREDICATE = 70
+__C.TEST.USE_PRIOR = False
+__C.TEST.USE_PREDICTION = True
+__C.TRAIN.USE_SAMPLE_GRAPH = True
+__C.TEST.K_PREDICATE = 70
 
-__C.TRAIN.NUM_NEG_RELS = 32
+__C.TRAIN.NUM_NEG_RELS = 128
 __C.TRAIN.NUM_SAMPLE_PAIRS = 32
 
 __C.TRAIN.CONV_BP = True
@@ -214,8 +217,8 @@ __C.MODEL_PARAMS = {'if_pred_cls': False, 'if_pred_bbox': False, 'if_pred_rel': 
                     'use_context': True, 'use_spatial': False, 'use_class': False,
                     'stop_gradient': True, }
 
-#__C.BASENET='res50'
-#__C.BASENET_WEIGHT_ITER='75000'
+# __C.BASENET='res50'
+# __C.BASENET_WEIGHT_ITER='75000'
 __C.BASENET='vgg16'
 __C.BASENET_WEIGHT_ITER='75000'
 
