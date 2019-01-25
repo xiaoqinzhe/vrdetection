@@ -233,8 +233,8 @@ class multinet(basenet):
         # list as many types of layers as possible, even if they are not used now
         with slim.arg_scope([slim.conv2d, slim.conv2d_in_plane,
                              slim.conv2d_transpose, slim.separable_conv2d, slim.fully_connected],
-                            # weights_regularizer=weights_regularizer,
-                            # biases_regularizer=biases_regularizer,
+                            #weights_regularizer=weights_regularizer,
+                            #biases_regularizer=biases_regularizer,
                             weights_initializer=tf.truncated_normal_initializer(0, 0.01),
                             biases_initializer=tf.constant_initializer(0.0)
                             ):
@@ -253,7 +253,7 @@ class multinet(basenet):
                         weights_regularizer=weights_regularizer,
                         trainable=True,
                                 ):
-                size = 1024
+                size = 2048
                 roi_fc_emb = slim.fully_connected(roi_fc_out, size)
                 fc_sub = tf.gather(roi_fc_emb, self.rel_inx1)
                 fc_obj = tf.gather(roi_fc_emb, self.rel_inx2)
@@ -301,4 +301,10 @@ class multinet(basenet):
 
                 # case 6
                 net = tf.concat([vis_feat, cls_proj, spt], axis=1)
-                self._rel_pred(net)
+                # self._rel_pred(net)
+                with tf.variable_scope('rel_score'):
+                    weight = tf.get_variable("weight", shape=[net.shape.as_list()[1], self.num_predicates])
+                rel_score = tf.matmul(net, weight)
+                self.layers['rel_score'] = rel_score
+                self.layers['rel_prob'] = slim.softmax(rel_score, scope='rel_prob')
+                self.layers['rel_pred'] = tf.argmax(self.layers['rel_prob'], axis=1, name='rel_pred')

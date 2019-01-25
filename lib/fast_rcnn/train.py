@@ -40,11 +40,11 @@ class Trainer(object):
         self.init_conv = True
         self.basenet=cfg.BASENET
         self.basenet_iter=cfg.BASENET_WEIGHT_ITER
-        self.pretrained_model = 'checkpoints/vrd/multinet_6_res50/weights_59999.ckpt'
+        self.pretrained_model = 'checkpoints/vrd/multinet_6_fine/pre_trained/weights_49999.ckpt'
         if self.init_conv:
             # if cfg.MODEL_PARAMS['stop_gradient']:
-            #self.pretrained_model = 'tf_faster_rcnn/output/{}/vrd_train/default/{}_faster_rcnn_iter_{}.ckpt'.format(self.basenet, self.basenet, self.basenet_iter)
-            self.pretrained_model = 'tf_faster_rcnn/data/imagenet_weights/imagenet_vgg16.ckpt'
+            self.pretrained_model = 'tf_faster_rcnn/output/{}/vrd_train/default/{}_faster_rcnn_iter_{}.ckpt'.format(self.basenet, self.basenet, self.basenet_iter)
+            # self.pretrained_model = 'tf_faster_rcnn/data/imagenet_weights/imagenet_vgg16.ckpt'
 
         if cfg.TRAIN.BBOX_NORMALIZE_TARGETS:
             print('Loaded precomputer bbox target distribution from %s' % \
@@ -244,23 +244,23 @@ class Trainer(object):
         ops['train'] = tf.train.MomentumOptimizer(lr, momentum).minimize(ops['loss_total'])
         # ops['train'] = tf.train.AdamOptimizer(lr).minimize(ops['loss_total'])
         # ops['train'] = tf.train.GradientDescentOptimizer(lr).minimize(ops['loss_total'])
-        if not self.net.stop_gradient:
-            # different learning rate
-            all_variables = tf.trainable_variables()
-            finetune_variables = tf.trainable_variables(scope=self.net._scope)
-            new_variables = []
-            for var in all_variables:
-                if var not in finetune_variables:
-                    new_variables.append(var)
-            print("finetune_variables", finetune_variables)
-            print("new_variables", new_variables)
-            opt_finetune = tf.train.GradientDescentOptimizer(lr*0.1)
-            opt_new = tf.train.GradientDescentOptimizer(lr)
-            grads = tf.gradients(ops['loss_total'], finetune_variables+new_variables)
-            op_finetune = opt_finetune.apply_gradients(zip(grads[:len(finetune_variables)], finetune_variables))
-            op_new = opt_new.apply_gradients(zip(grads[len(finetune_variables):], new_variables))
-            train_op = tf.group(op_finetune, op_new)
-            ops['train'] = train_op
+        # if not self.net.stop_gradient:
+        #     # different learning rate
+        #     all_variables = tf.trainable_variables()
+        #     finetune_variables = tf.trainable_variables(scope=self.net._scope)
+        #     new_variables = []
+        #     for var in all_variables:
+        #         if var not in finetune_variables:
+        #             new_variables.append(var)
+        #     print("finetune_variables", finetune_variables)
+        #     print("new_variables", new_variables)
+        #     opt_finetune = tf.train.MomentumOptimizer(lr*0.1, momentum)
+        #     opt_new = tf.train.MomentumOptimizer(lr, momentum)
+        #     grads = tf.gradients(ops['loss_total'], finetune_variables+new_variables)
+        #     op_finetune = opt_finetune.apply_gradients(zip(grads[:len(finetune_variables)], finetune_variables))
+        #     op_new = opt_new.apply_gradients(zip(grads[len(finetune_variables):], new_variables))
+        #     train_op = tf.group(op_finetune, op_new)
+        #     ops['train'] = train_op
 
         # ops merge summaries
         ops_summary = dict(ops)
@@ -359,8 +359,8 @@ class Trainer(object):
                 print('iter speed: {:.3f}s / iter'.format(iter_timer.average_time))
 
             # if (iter+1) % cfg.TRAIN.SNAPSHOT_FREQ == 0:
-            # if (iter + 1) % 5000 == 0:
-            if (iter + 1) % 5000 == 0 or (iter > 30000 and iter % 2000 == 0):
+            if (iter + 1) % 5000 == 0:
+            # if (iter + 1) % 5000 == 0 or (iter > 30000 and iter % 2000 == 0):
                 last_snapshot_iter = iter
                 self.snapshot(sess, iter)
 

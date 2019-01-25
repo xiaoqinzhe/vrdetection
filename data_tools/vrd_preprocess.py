@@ -64,12 +64,16 @@ def get_objs_rels(rels):
         labels.append(obj['category'])
     return boxes, labels, relations
 
-def preprocess(json_file, ims_path, save_file, class_to_ind, ind_to_class, predicate_to_ind, ind_to_predicate):
-
+def preprocess(json_file, ims_path, save_file, class_to_ind, ind_to_class, predicate_to_ind, ind_to_predicate, exist_rels=None):
+    is_train = 'train' in json_file
     info = json.load(open(json_file))
     save_info = []
     print("images amount = %d"%len(info))
     box_count, pred_count = 0, 0
+    zs_count=0
+    # recording rels that exists in training data
+    if is_train:
+        exist_rels = np.zeros([len(ind_to_class), len(ind_to_class), len(ind_to_predicate)], dtype=np.bool)
     for i, filename in enumerate(info):
         d = info[filename]
         if i % 1000 == 0:
@@ -80,7 +84,7 @@ def preprocess(json_file, ims_path, save_file, class_to_ind, ind_to_class, predi
             if os.path.exists(im_file):
                 print("destroyed image: %s id: %d" % (im_file, i))
             else:
-                print("missing image: %s id: %d. (you can change the img file from .gif to .jpg to fix this.)" % (im_file, i))
+                print("missing image: %s id: %d. (you can try to change the img file from .gif to .jpg to fix this.)" % (im_file, i))
             continue
         height, width = im.shape[0], im.shape[1]
         boxes, labels, rels = get_objs_rels(d)
@@ -92,8 +96,18 @@ def preprocess(json_file, ims_path, save_file, class_to_ind, ind_to_class, predi
             "image_height" : height,
             "boxes" : boxes,
             "labels" : labels,
-            "relations" : rels
+            "relations" : rels,
         })
+        if is_train:
+            for rel in rels:
+                exist_rels[rel[0], rel[1], rel[2]] = True
+        else:
+            zero_shot_tags = np.zeros(len(rels), np.bool)
+            for i, rel in enumerate(rels):
+                if not exist_rels[rel[0], rel[1], rel[2]]:
+                    zero_shot_tags[i] = True
+                    zs_count+=1
+            save_info[-1]['zero_shot_tags'] = zero_shot_tags.tolist()
         box_count += len(boxes)
         pred_count += len(rels)
     final_save = {
@@ -108,7 +122,9 @@ def preprocess(json_file, ims_path, save_file, class_to_ind, ind_to_class, predi
     print("saved images = %d" % len(save_info))                                 # 3780     954
     print("average boxes per image = %f" % ((box_count*1.0)/len(save_info)))    # 26430    6728      7
     print("saved relationships = %f" % ((pred_count*1.0)/len(save_info)))         # 30355    7632      8
+    print("zero shot count = {}".format(zs_count))
     print("done.")
+    return exist_rels
 
 def check(json_file, name, ind_to_class, ind_to_predicate):
     info = json.load(open(json_file))
@@ -189,12 +205,12 @@ if __name__ == "__main__":
     class_to_ind, ind_to_class = get_inds(os.path.join(data_path, 'objects.json'))
     predicate_to_ind, ind_to_predicate = get_inds(os.path.join(data_path, 'predicates.json'))
 
-    preprocess(os.path.join(data_path, 'annotations_train.json'), os.path.join(data_path, 'sg_train_images/'),
+    exist_rels = preprocess(os.path.join(data_path, 'annotations_train.json'), os.path.join(data_path, 'sg_train_images/'),
                os.path.join(save_path, "train.json",),
                class_to_ind, ind_to_class, predicate_to_ind, ind_to_predicate)
     preprocess(os.path.join(data_path, 'annotations_test.json'), os.path.join(data_path, 'sg_test_images/'),
                os.path.join(save_path, "test.json"),
-               class_to_ind, ind_to_class, predicate_to_ind, ind_to_predicate)
+               class_to_ind, ind_to_class, predicate_to_ind, ind_to_predicate, exist_rels=exist_rels)
 
     # check(os.path.join(data_path, 'annotations_test.json'), "8646018805_d914413321_b.jpg", ind_to_class, ind_to_predicate)
     #

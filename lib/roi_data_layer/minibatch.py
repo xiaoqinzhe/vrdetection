@@ -57,6 +57,7 @@ def get_minibatch(roidb, num_classes):
                                         fg_rois_per_image,
                                         rois_per_image,
                                         num_neg_rels=cfg.TRAIN.NUM_NEG_RELS)
+            # print(cfg.TRAIN.NUM_NEG_RELS)
         # print("sample roi = %i"%len(roi_inds), "sample rel = %i"%len(rels))
 
         # print(roi_inds)

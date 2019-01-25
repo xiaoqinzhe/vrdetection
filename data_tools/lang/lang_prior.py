@@ -140,4 +140,3 @@ def vg_prior():
 
 if __name__=='__main__':
     vrd_prior('')
-    # vg_prior()

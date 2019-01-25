@@ -68,17 +68,17 @@ def show_embedding(ind2class, ind2predicate, filename):
 
 if __name__=='__main__':
     # # convert('data/word2vec/glove/glove.6B.50d.txt', 'data/word2vec/glove.6B.50d.txt')
-    # w2v = get_wordvecs('./data/word2vec/glove.6B.50d.txt')
-    # objs, preds = get_vrd_words('./data/vrd/train.json')
-    # # save_wordvecs(w2v, objs, './data/vrd/w2v')
-    # save_wordvecs(w2v, objs, './data/vrd/w2v_all', preds=preds)
+    w2v = get_wordvecs('./data/word2vec/glove.6B.50d.txt')
+    objs, preds = get_vrd_words('./data/vrd/train.json')
+    save_wordvecs(w2v, objs, './data/vrd/w2v')
+    save_wordvecs(w2v, objs, './data/vrd/w2v_all', preds=preds)
 
     # objs, preds = get_vrd_words('./data/vrd/train.json')
     # show_embedding(objs, preds, './data/vrd/w2v_all.npy')
 
     # vg dataset
-    w2v = get_wordvecs('./data/word2vec/glove.6B.50d.txt')
-    objs, preds = get_vg_words('./data/vg/VG-dicts.json')
-    save_wordvecs(w2v, objs, './data/vg/w2v')
-    save_wordvecs(w2v, objs, './data/vg/w2v_all', preds=preds)
-    show_embedding(objs, preds, './data/vg/w2v_all.npy')
+    # w2v = get_wordvecs('./data/word2vec/glove.6B.50d.txt')
+    # objs, preds = get_vg_words('./data/vg/VG-dicts.json')
+    # save_wordvecs(w2v, objs, './data/vg/w2v')
+    # save_wordvecs(w2v, objs, './data/vg/w2v_all', preds=preds)
+    # show_embedding(objs, preds, './data/vg/w2v_all.npy')

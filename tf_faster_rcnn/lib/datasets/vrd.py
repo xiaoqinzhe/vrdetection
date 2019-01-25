@@ -31,7 +31,7 @@ class vrd(imdb):
     imdb.__init__(self, name)
     self._image_set = image_set
     self._data_path = '../data/vrd'
-    image_set='train'
+    # image_set='train'
     if image_set == 'train':
         json_file = self._data_path + "/train.json"
         # json_file = self._data_path + "/train_aug.pickle"
@@ -61,7 +61,7 @@ class vrd(imdb):
     """
     Construct an image path from the image's "index" identifier.
     """
-    image_path = self.info[index]['image_filename']
+    image_path = "/hdd/datasets/vrd/vrd/"+self.info[index]['image_filename']
     assert os.path.exists(image_path), \
       'Path does not exist: {}'.format(image_path)
     return image_path

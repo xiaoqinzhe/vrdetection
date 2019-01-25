@@ -114,16 +114,9 @@ def get_oo_id(i, j, num_class):
 prior = None
 
 def get_prior(filename):
-    class StrToBytes:
-        def __init__(self, fileobj):
-            self.fileobj = fileobj
-        def read(self, size):
-            return self.fileobj.read(size).encode()
-        def readline(self, size=-1):
-            return self.fileobj.readline(size).encode()
     global prior
     if prior is None:
-        prior = np.load(open(filename))
+        prior = np.load(filename)
     return prior
 
 o2o_prior = None
@@ -131,7 +124,7 @@ o2o_prior = None
 def get_o2o_prior(filename):
     global o2o_prior
     if o2o_prior is None:
-        o2o_prior = np.load(open(filename))
+        o2o_prior = np.load(filename)
     return o2o_prior
 
 detections = None
@@ -139,8 +132,7 @@ def get_detections(im_i):
     global detections
     if detections is None:
         filename = get_detections_filename()
-        import pickle
-        detections = pickle.load(open(filename, 'rb'))
+        detections = np.load(filename, encoding="latin1")
     return [detections[j][im_i] for j in range(len(detections))]
 
 def im_detect(sess, net, inputs, im, im_i, boxes, bbox_reg, multi_iter, roidb, pred_ops, metric_ops, mode, cls_preds, cls_scores):
@@ -221,7 +213,7 @@ def im_detect(sess, net, inputs, im, im_i, boxes, bbox_reg, multi_iter, roidb, p
                 # if i==0: print("using prior from {}".format("./data/"+cfg.DATASET+"/"+cfg.TEST.PRIOR_FILENAME))
                 if mode == 'pred_cls':
                     labels = roidb['gt_classes']
-                elif mode == 'sg_det':
+                elif mode == 'sg_det' or mode == 'phrase':
                     labels = cls_preds
                 prior = get_prior("./data/"+cfg.DATASET+"/"+cfg.TEST.PRIOR_FILENAME)
                 # prior = get_prior("./data/vrd/dataset_prior.pickle")
@@ -346,7 +338,7 @@ def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
     _t = {'im_detect' : Timer(), 'evaluate' : Timer()}
 
     if mode == 'all':
-        eval_modes = ['pred_cls', 'sg_cls', 'sg_det']
+        eval_modes = ['pred_cls', 'sg_cls', 'sg_det', 'phrase']
     else:
         eval_modes = [mode]
     multi_iter = [0]
@@ -355,10 +347,9 @@ def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
     print('EVAL MODES ='),
     print(eval_modes)
 
-    if mode == 'sg_det':
-        cfg.TEST.METRIC_EVAL = False
-
     # metrics to show
+    if mode == 'sg_det' or mode == 'phrase':
+        cfg.TEST.METRIC_EVAL = False
     if cfg.TEST.METRIC_EVAL:
         metric_ops = net.losses()
         net.metrics(metric_ops)
@@ -390,7 +381,6 @@ def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
             ops['cls_probs'] = net.cls_pred_output(multi_iter)
     else:
         ops = tf.no_op(name="no_pred_sg")
-
 
 
     for im_i in range(num_images):
@@ -456,11 +446,14 @@ def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
 
                 # cls_scores = np.ones_like(cls_scores, np.float)
 
-                print("predicted boxes have {}".format(len(box_proposals)))
+                # print("predicted boxes have {}".format(len(box_proposals)))
 
             if box_proposals.size == 0 or box_proposals.shape[0] < 2:
                 # continue if no graph
                 print("image %d in mode %s has no or one box proposal"%(im_i, mode))
+                continue
+            if cfg.TEST.ZERO_SHOT and np.sum(roidb[im_i]['zero_shot_tags'])==0:
+                print("image %d in mode %s has no zero shot relations"%(im_i, mode))
                 continue
             if len(roidb[im_i]['gt_relations']) == 0:
                 print("image %d in mode %s has no relation" % (im_i, mode))
@@ -475,7 +468,7 @@ def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
             for iter_n in multi_iter:
                 if out_dict is not None:
                     sg_entry = out_dict[iter_n]
-                    if mode == 'sg_det':
+                    if mode == 'sg_det' or mode=='phrase':
                         sg_entry['boxes'] = box_proposals
                         sg_entry['cls_preds'] = cls_preds
                         sg_entry['cls_scores'] = cls_scores

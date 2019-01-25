@@ -37,3 +37,8 @@ with tf.Session() as sess:
     print(var3.name, sess.run(var3))
     print(tf.global_variables())
     tf.summary.FileWriter('./logs/', sess.graph)
+
+
+from sklearn.tree import DecisionTreeClassifier
+
+DecisionTreeClassifier()
