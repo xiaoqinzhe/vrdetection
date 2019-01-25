@@ -233,8 +233,8 @@ class multinet(basenet):
         # list as many types of layers as possible, even if they are not used now
         with slim.arg_scope([slim.conv2d, slim.conv2d_in_plane,
                              slim.conv2d_transpose, slim.separable_conv2d, slim.fully_connected],
-                            #weights_regularizer=weights_regularizer,
-                            #biases_regularizer=biases_regularizer,
+                            weights_regularizer=weights_regularizer,
+                            biases_regularizer=biases_regularizer,
                             weights_initializer=tf.truncated_normal_initializer(0, 0.01),
                             biases_initializer=tf.constant_initializer(0.0)
                             ):
@@ -250,7 +250,7 @@ class multinet(basenet):
             self.rel_inx1, self.rel_inx2 = self._relation_indexes()
 
             with slim.arg_scope([slim.conv2d, slim.fully_connected],
-                        weights_regularizer=weights_regularizer,
+                        #weights_regularizer=weights_regularizer,
                         trainable=True,
                                 ):
                 size = 2048
@@ -289,22 +289,23 @@ class multinet(basenet):
                 # self._rel_pred(spt)
 
                 # case 3   49
-                # self._rel_pred(vis_feat)
+                #self._rel_pred(vis_feat)
 
                 # case 4    52.6
-                # net = tf.concat([vis_feat, cls_proj], axis=1)
-                # self._rel_pred(net)
+                #net = tf.concat([vis_feat, cls_proj], axis=1)
+                #self._rel_pred(net)
 
                 # case 5   51.2
-                # net = tf.concat([vis_feat, spt], axis=1)
-                # self._rel_pred(net)
+                net = tf.concat([vis_feat, spt], axis=1)
+                self._rel_pred(net)
 
                 # case 6
-                net = tf.concat([vis_feat, cls_proj, spt], axis=1)
-                # self._rel_pred(net)
-                with tf.variable_scope('rel_score'):
+                #net = tf.concat([vis_feat, cls_proj, spt], axis=1)
+                #self._rel_pred(net)
+
+                '''with tf.variable_scope('rel_score'):
                     weight = tf.get_variable("weight", shape=[net.shape.as_list()[1], self.num_predicates])
                 rel_score = tf.matmul(net, weight)
                 self.layers['rel_score'] = rel_score
                 self.layers['rel_prob'] = slim.softmax(rel_score, scope='rel_prob')
-                self.layers['rel_pred'] = tf.argmax(self.layers['rel_prob'], axis=1, name='rel_pred')
+                self.layers['rel_pred'] = tf.argmax(self.layers['rel_prob'], axis=1, name='rel_pred')'''
