@@ -230,9 +230,9 @@ def im_detect(sess, net, inputs, im, im_i, boxes, bbox_reg, multi_iter, roidb, p
             # use prior only
             if not cfg.TEST.USE_PREDICTION:
                 if cfg.TRAIN.USE_SAMPLE_GRAPH:
-                    if not 'rel_weighted_probs' in ops_value:
-                        rel_probs[rel[0], rel[1], 1:] = prior_predicate
-                    else: rel_probs[rel[0], rel[1], 1:] = prior_predicate * ops_value['rel_weight_prob'][i]
+                    if 'rel_weighted_probs' in ops_value and cfg.TEST.USE_WEIGHTED_REL:
+                        rel_probs[rel[0], rel[1], 1:] = prior_predicate * ops_value['rel_weight_prob'][i]
+                    else: rel_probs[rel[0], rel[1], 1:] = prior_predicate
                 else:
                     rel_probs[rel[0], rel[1], :] = prior_predicate
 

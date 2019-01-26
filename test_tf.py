@@ -19,26 +19,29 @@ import numpy as np
 import tensorflow.contrib.slim as slim
 
 # with tf.name_scope('name_scope_1'):
-with tf.variable_scope('v'):
-    # var1 = tf.get_variable(name='var1', shape=[1], dtype=tf.float32)
-    var1 = slim.fully_connected([[1.0,2.0]], 10)
-    var2 = slim.fully_connected([[1.0,2.0]], 10)
+# with tf.variable_scope('v'):
+#     # var1 = tf.get_variable(name='var1', shape=[1], dtype=tf.float32)
+#     var1 = slim.fully_connected([[1.0,2.0]], 10)
+#     var2 = slim.fully_connected([[1.0,2.0]], 10)
+#
+# # with tf.name_scope('name_scope_1'):
+# with tf.variable_scope('v', reuse=True) as scope:
+#     scope.reuse_variables()
+#     # var2 = tf.get_variable(name='var1', shape=[1], dtype=tf.float32)
+#     var3 = slim.fully_connected([[1.0,2.0]], 10)
+#     var4 = slim.fully_connected([[1.0,2.0]], 10)
+#
+# with tf.Session() as sess:
+#     sess.run(tf.global_variables_initializer())
+#     print(var1.name, sess.run(var1))
+#     print(var3.name, sess.run(var3))
+#     print(tf.global_variables())
+#     tf.summary.FileWriter('./logs/', sess.graph)
 
-# with tf.name_scope('name_scope_1'):
-with tf.variable_scope('v', reuse=True) as scope:
-    scope.reuse_variables()
-    # var2 = tf.get_variable(name='var1', shape=[1], dtype=tf.float32)
-    var3 = slim.fully_connected([[1.0,2.0]], 10)
-    var4 = slim.fully_connected([[1.0,2.0]], 10)
+
+inputs = tf.constant([1,2,3,4,5,6],dtype=tf.float32)
+outputs = slim.dropout(inputs, keep_prob=0.5)
 
 with tf.Session() as sess:
-    sess.run(tf.global_variables_initializer())
-    print(var1.name, sess.run(var1))
-    print(var3.name, sess.run(var3))
-    print(tf.global_variables())
-    tf.summary.FileWriter('./logs/', sess.graph)
-
-
-from sklearn.tree import DecisionTreeClassifier
-
-DecisionTreeClassifier()
+    val = sess.run(outputs)
+    print(val)
