@@ -45,3 +45,11 @@ outputs = slim.dropout(inputs, keep_prob=0.5)
 with tf.Session() as sess:
     val = sess.run(outputs)
     print(val)
+
+import pandas as pd
+data=pd.read_csv("../data/FT_Camp_1/X_rev_exp_4_10.csv", encoding='gbk', engine='python')
+# print(data.head)
+print(data.columns)
+
+data['date', 'monney', 'use_id']
+

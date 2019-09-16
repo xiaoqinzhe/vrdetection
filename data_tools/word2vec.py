@@ -22,7 +22,7 @@ def save_wordvecs(w2v, words, save_file, preds=None):
         words = np.hstack([words, preds])
     vecs = np.zeros([len(words), len(w2v['the'])])
     for i, word in enumerate(words):
-        ws = word.split(' ')[0]
+        ws = word.split(' ')
         for w in ws: vecs[i] += w2v[w]
     np.save(save_file, np.array(vecs))
     print('done. save to %s' % save_file)
@@ -68,10 +68,11 @@ def show_embedding(ind2class, ind2predicate, filename):
 
 if __name__=='__main__':
     # # convert('data/word2vec/glove/glove.6B.50d.txt', 'data/word2vec/glove.6B.50d.txt')
+    dataset_name = 'vg/vg_vtranse'
     w2v = get_wordvecs('./data/word2vec/glove.6B.50d.txt')
-    objs, preds = get_vrd_words('./data/vrd/train.json')
-    save_wordvecs(w2v, objs, './data/vrd/w2v')
-    save_wordvecs(w2v, objs, './data/vrd/w2v_all', preds=preds)
+    objs, preds = get_vrd_words('./data/{}/train.json'.format(dataset_name))
+    save_wordvecs(w2v, objs, './data/{}/w2v'.format(dataset_name))
+    save_wordvecs(w2v, objs, './data/{}/w2v_all'.format(dataset_name), preds=preds)
 
     # objs, preds = get_vrd_words('./data/vrd/train.json')
     # show_embedding(objs, preds, './data/vrd/w2v_all.npy')

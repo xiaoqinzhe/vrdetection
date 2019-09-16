@@ -113,10 +113,15 @@ def get_oo_id(i, j, num_class):
 
 prior = None
 
-def get_prior(filename):
+def get_prior():
+    path = './data/' + cfg.DATASET
+    if 'vg' in cfg.DATASET:
+        path = './data/vg/' + cfg.DATASET
+    filename = path + "/" + cfg.TEST.PRIOR_FILENAME
     global prior
     if prior is None:
         prior = np.load(filename)
+        print("load prior from {}".format(filename))
     return prior
 
 o2o_prior = None
@@ -135,37 +140,43 @@ def get_detections(im_i):
         detections = np.load(filename, encoding="latin1")
     return [detections[j][im_i] for j in range(len(detections))]
 
-def im_detect(sess, net, inputs, im, im_i, boxes, bbox_reg, multi_iter, roidb, pred_ops, metric_ops, mode, cls_preds, cls_scores):
+def im_detect(sess, net, inputs, im, im_i, boxes, bbox_reg, roidb, pred_ops, metric_ops, mode, cls_preds, cls_scores):
     blobs, im_scales = _get_blobs(im, boxes)
 
-    rel_pos = np.ones([boxes.shape[0], boxes.shape[0]], np.int8)*-1
-    k = 0
-    relations = []
-    for i in range(boxes.shape[0]):
-        for j in range(boxes.shape[0]):
-            if i != j:
-                relations.append([i, j])
-                rel_pos[i][j] = k
-                k += 1
+    # rel_pos = np.ones([boxes.shape[0], boxes.shape[0]], np.int8)*-1
+    # k = 0
+    if cfg.TEST.USE_GT_REL and not mode=="viz":
+        relations = roidb['gt_relations'][:, 0:2]
+        predicates = roidb['gt_relations'][:, 2]
+    else:
+        relations = []
+        for i in range(boxes.shape[0]):
+            for j in range(boxes.shape[0]):
+                if i != j:
+                    relations.append([i, j])
+                    # rel_pos[i][j] = k
+                    # k += 1
+        predicates = np.zeros(len(relations), np.int32)
 
     num_roi = blobs['rois'].shape[0]
-    predicates = np.zeros(len(relations), np.int32)
 
-    if cfg.TEST.METRIC_EVAL:
+
+    '''if cfg.TEST.METRIC_EVAL:
         if not cfg.TRAIN.USE_SAMPLE_GRAPH:
             relations = roidb['gt_relations'][:, 0:2]
             predicates = roidb['gt_relations'][:,2]
         else:
             predicates = np.zeros(len(relations), np.int32)
             for rel in roidb['gt_relations']:
-                predicates[rel_pos[rel[0], rel[1]]] = rel[2]
+                predicates[rel_pos[rel[0], rel[1]]] = rel[2]'''
 
     relations = np.array(relations, dtype=np.int32)  # all possible combinations
 
-
+    num_predictes = inputs['num_predicates']
+    num_classes = inputs['num_classes']
     num_rel  = relations.shape[0]
 
-    inputs_feed = data_utils.create_graph_data(num_roi, num_rel, relations)
+    # inputs_feed = data_utils.create_graph_data(num_roi, num_rel, relations)
 
     feed_dict = {inputs['ims']: blobs['data'],
                  inputs['rois']: blobs['rois'],
@@ -173,95 +184,64 @@ def im_detect(sess, net, inputs, im, im_i, boxes, bbox_reg, multi_iter, roidb, p
                  inputs['rel_spts']: roidb['gt_spatial'],
                  inputs['labels']: roidb['gt_classes'],
                  inputs['predicates']: predicates,
-                 net.keep_prob: 1}
-
-    for k in inputs_feed:
-        feed_dict[inputs[k]] = inputs_feed[k]
+                 net.keep_prob: 1
+                 }
+    feed_dict[inputs['num_roi']] = num_roi
+    feed_dict[inputs['num_rel']] = num_rel
+    # for k in inputs_feed:
+    #     feed_dict[inputs[k]] = inputs_feed[k]
 
     # compute relation rois
     feed_dict[inputs['rel_rois']] = \
         data_utils.compute_rel_rois(num_rel, blobs['rois'], relations)
 
-    feed_dict[inputs['obj_matrix']], feed_dict[inputs['rel_matrix']] = \
-        data_utils.cal_graph_matrix(num_roi, num_rel, relations)
+    '''feed_dict[inputs['obj_matrix']], feed_dict[inputs['rel_matrix']] = \
+        data_utils.cal_graph_matrix(num_roi, num_rel, relations)'''
 
     feed_dict[inputs['rel_weight_labels']], feed_dict[inputs['rel_weight_rois']] = \
         data_utils.cal_rel_weights(blobs['data'], np.hstack((relations, np.expand_dims(predicates, axis=1))))
 
     ops_value, metrics = sess.run([pred_ops, metric_ops], feed_dict=feed_dict)
 
-    if ops_value is None: return None, metrics
+    rel_probs = np.zeros([num_roi, num_roi, num_predictes])
 
-    # for key in ops_value:
-    #     if key.startswith('acc'):
-    #         print(key, ops_value[key])
+    if mode == 'pred_cls'or mode=="viz":
+        labels = roidb['gt_classes']
+    elif mode == 'sg_det' or mode == 'phrase':
+        labels = cls_preds
+    for i, rel in enumerate(relations):
+        rel_probs_flat = ops_value['rel_probs']
+        rel_probs[rel[0], rel[1], :] = rel_probs_flat[i, :]
 
-    out_dict = {}
-    for mi in multi_iter:
-        rel_probs = None
-        rel_probs_flat = ops_value['rel_probs'][mi]
-        if 'rel_weighted_probs' in ops_value and cfg.TEST.USE_WEIGHTED_REL:
-            rel_probs_flat = ops_value['rel_weighted_probs']
-        # rel_vis_probs_flat = ops_value['rel_probs_vis'][mi]
-        # rel_probs_flat = np.max([rel_probs_flat, rel_vis_probs_flat], axis=0)
-        rel_probs = np.zeros([num_roi, num_roi, rel_probs_flat.shape[1]])
-        for i, rel in enumerate(relations):
-            rel_probs[rel[0], rel[1], :] = rel_probs_flat[i, :]
+    if net.if_pred_cls:
+        cls_probs = ops_value['cls_probs']
+    else:
+        cls_probs = np.zeros((boxes.shape[0], num_classes), dtype=np.float32)
+        if mode == 'pred_cls':
+            for i in range(boxes.shape[0]): cls_probs[i, roidb['gt_classes'][i]] = 1.0
+        else: cls_probs = cls_scores
 
-            # using prior
-            if cfg.TEST.USE_PRIOR:
-                # if i==0: print("using prior from {}".format("./data/"+cfg.DATASET+"/"+cfg.TEST.PRIOR_FILENAME))
-                if mode == 'pred_cls':
-                    labels = roidb['gt_classes']
-                elif mode == 'sg_det' or mode == 'phrase':
-                    labels = cls_preds
-                prior = get_prior("./data/"+cfg.DATASET+"/"+cfg.TEST.PRIOR_FILENAME)
-                # prior = get_prior("./data/vrd/dataset_prior.pickle")
-                num_class = inputs['num_classes']
+    out_dict = {'scores': cls_probs.copy(),
+                'boxes': boxes.copy(),
+                'relations': rel_probs.copy()}
+    if 'rel_weight_prob' in pred_ops:
+        out_dict['rel_weights'] = ops_value['rel_weight_prob']
+        # print(np.sum(ops_value["rel_weight_prob"]))
 
-                prior_predicate = prior[get_oo_id(labels[rel[0]], labels[rel[1]], num_class), :]
-
-                # rel_probs[rel[0], rel[1], :] = np.max((rel_probs_flat[i, :], prior_predicate), axis=0)
-                if cfg.TRAIN.USE_SAMPLE_GRAPH:
-                    rel_probs[rel[0], rel[1], 1:] = rel_probs_flat[i, 1:] * prior_predicate
-                else:
-                    rel_probs[rel[0], rel[1], :] = rel_probs_flat[i, :] * prior_predicate
-
-            # use prior only
-            if not cfg.TEST.USE_PREDICTION:
-                if cfg.TRAIN.USE_SAMPLE_GRAPH:
-                    if 'rel_weighted_probs' in ops_value and cfg.TEST.USE_WEIGHTED_REL:
-                        rel_probs[rel[0], rel[1], 1:] = prior_predicate * ops_value['rel_weight_prob'][i]
-                    else: rel_probs[rel[0], rel[1], 1:] = prior_predicate
-                else:
-                    rel_probs[rel[0], rel[1], :] = prior_predicate
-
-        if net.if_pred_cls:
-            cls_probs = ops_value['cls_probs'][mi]
-        else:
-            cls_probs = np.zeros((boxes.shape[0], inputs['num_classes']), dtype=np.float32)
-            if mode == 'pred_cls':
-                for i in range(boxes.shape[0]): cls_probs[i, roidb['gt_classes'][i]] = 1.0
-            else: cls_probs = cls_scores
-
-        out_dict[mi] = {'scores': cls_probs.copy(),
-                        'boxes': boxes.copy(),
-                        'relations': rel_probs.copy()}
-
-        # cal rels show
-        # if cfg.TRAIN.USE_SAMPLE_GRAPH:
-        #     predicts = np.argmax(rel_probs_flat[:, 1:], axis=1) + 1
-        #     show_inds = np.where(predicates)
-        # else:
-        #     predicts = np.argmax(rel_probs_flat, axis=1)
-        #     show_inds = np.arange(len(predicates))
-        # labels = roidb['gt_classes']
-        # predicts = np.expand_dims(predicts[show_inds], axis=1)
-        # rels = labels[relations[show_inds]]
-        # gt_rels = np.expand_dims(predicates[show_inds], axis=1)
-        # # print(predicts, rels, gt_rels)
-        # rels_show = np.hstack((rels, gt_rels, predicts))
-        # out_dict[mi]['rels_show'] = rels_show
+    # cal rels show
+    # if cfg.TRAIN.USE_SAMPLE_GRAPH:
+    #     predicts = np.argmax(rel_probs_flat[:, 1:], axis=1) + 1
+    #     show_inds = np.where(predicates)
+    # else:
+    #     predicts = np.argmax(rel_probs_flat, axis=1)
+    #     show_inds = np.arange(len(predicates))
+    # labels = roidb['gt_classes']
+    # predicts = np.expand_dims(predicts[show_inds], axis=1)
+    # rels = labels[relations[show_inds]]
+    # gt_rels = np.expand_dims(predicates[show_inds], axis=1)
+    # # print(predicts, rels, gt_rels)
+    # rels_show = np.hstack((rels, gt_rels, predicts))
+    # out_dict[mi]['rels_show'] = rels_show
 
     return out_dict, metrics
 
@@ -338,74 +318,89 @@ def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
     _t = {'im_detect' : Timer(), 'evaluate' : Timer()}
 
     if mode == 'all':
-        eval_modes = ['pred_cls', 'sg_cls', 'sg_det', 'phrase']
+        eval_modes = ['pred_cls', 'sg_det', 'phrase']
     else:
         eval_modes = [mode]
-    multi_iter = [0]
-    print('Graph Inference Iteration ='),
-    print(multi_iter)
-    print('EVAL MODES ='),
+    print('EVAL MODES =')
     print(eval_modes)
 
-    # metrics to show
-    if mode == 'sg_det' or mode == 'phrase':
-        cfg.TEST.METRIC_EVAL = False
-    if cfg.TEST.METRIC_EVAL:
-        metric_ops = net.losses()
-        net.metrics(metric_ops)
-    else:
-        metric_ops = tf.no_op(name='no_test_metric')
-
     # initialize evaluator for each task
+    use_prediction = [True, False]
+    num_pred = imdb.num_predicates-1 if cfg.TRAIN.USE_SAMPLE_GRAPH else imdb.num_predicates
+    top_k = [1, num_pred]
+    use_prior = [True, False]
+    if 'rel_weighted_prob' in net.layers:
+        use_weight = [True, False]
+    else: use_weight = [False]
+
+    use_weight=[True]
+    use_prediction=[True]
+    use_prior=[True]
+
+    if mode == "viz":
+        top_k=[1]
+        use_prior=[True]
+        use_prediction=[True]
+        use_weight=[True]
+
     evaluators = {}
     for m in eval_modes:
-        evaluators[m] = {}
-        for it in multi_iter:
-            if cfg.TEST.METRIC_EVAL:
-                evaluators[m][it] = SceneGraphEvaluator(imdb, mode=m, metrics=metric_ops.keys())
-            else: evaluators[m][it] = SceneGraphEvaluator(imdb, mode=m)
-
+        evaluators[m] = []
+        for prediction in use_prediction:
+            for k in top_k:
+                for prior in use_prior:
+                    if not prediction and not prior: continue
+                    for weight in use_weight:
+                        if mode=="pred_cls":
+                            metric_ops = net.losses()
+                            net.metrics(metric_ops)
+                            evaluators[m].append( SceneGraphEvaluator(imdb, mode=m, metrics=metric_ops.keys(), top_k=k, use_prediction=prediction, use_prior=prior, use_weight=weight) )
+                        else: evaluators[m].append( SceneGraphEvaluator(imdb, mode=m, top_k=k, use_prediction=prediction, use_prior=prior, use_weight=weight) )
+                        if prior:
+                            evaluators[m][-1].prior = get_prior()
     # rel predictions
     ops = {}
     if cfg.TEST.REL_EVAL:
-        if cfg.MODEL_PARAMS['if_pred_bbox']:
-            ops['bbox_deltas'] = net.bbox_pred_output(multi_iter)
-        ops['rel_probs'] = net.rel_pred_output(multi_iter)
+        ops['rel_probs'] = net.rel_pred_output()
         if 'rel_weighted_prob' in net.layers:
             print("using weighted rel prob!!!!!!!!")
             ops['rel_weighted_probs'] = net.layers['rel_weighted_prob']
-            ops['rel_weight_prob'] = net.layers['rel_weight_prob']
-        # ops['rel_probs'] = net.rel_pred_output('_vis')
-        # ops['rel_probs_vis'] = net.rel_pred_output('_vis')
-        if net.if_pred_cls:
-            ops['cls_probs'] = net.cls_pred_output(multi_iter)
+            ops['rel_weight_prob'] = net.layers['rel_weight_soft']
     else:
         ops = tf.no_op(name="no_pred_sg")
 
 
-    for im_i in range(num_images):
+    #metric_ops = tf.no_op(name='no_test_metric')
 
-        im = imdb.im_getter(im_i)
+    for mode in eval_modes:
+        if mode == 'sg_det' or mode == 'phrase':
+            cfg['TEST']['USE_GT_REL'] = False
+            cfg['TEST']['METRIC_EVAL'] = False
+        else:
+            cfg['TEST']['USE_GT_REL'] = True
+        if cfg.TEST.METRIC_EVAL:
+            metric_ops = net.losses()
+            net.metrics(metric_ops)
+        else:
+            metric_ops = tf.no_op(name='no_test_metric')
+        for im_i in range(num_images):
 
-        for mode in eval_modes:
+            # gt_labels = roidb[im_i]['gt_classes']
+            # if imdb.class_to_ind['person'] in gt_labels and imdb.class_to_ind['horse'] in gt_labels:
+            #     imdb.show(im_i)
+            # continue
+
+            im = imdb.im_getter(im_i)
             bbox_reg = False
             box_proposals = []
             cls_preds = []
             cls_scores = []
-            if mode == 'pred_cls' or mode == 'sg_cls':
+            if mode == 'pred_cls' or mode == "viz":
                 # use ground truth object locations
                 bbox_reg = False
                 box_proposals = gt_rois(roidb[im_i])
+
             else:
-                # use RPN-proposed object locations
-                # box_proposals, roi_scores = non_gt_rois(roidb[im_i])
-                # roi_scores = np.expand_dims(roi_scores, axis=1)
-                # nms_keep = cpu_nms(np.hstack((box_proposals, roi_scores)).astype(np.float32),
-                #             cfg.TEST.PROPOSAL_NMS)
-                # nms_keep = np.array(nms_keep)
-                # num_proposal = min(cfg.TEST.NUM_PROPOSALS, nms_keep.shape[0])
-                # keep = nms_keep[:num_proposal]
-                # box_proposals = box_proposals[keep, :]
                 detected_res = get_detections(im_i)
                 for j in range(1, imdb.num_classes):
                     if(len(detected_res[j])==0): continue
@@ -426,7 +421,7 @@ def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
                     box_proposals = box_proposals[th_inds]
                     cls_preds = cls_preds[th_inds]
                     cls_scores = cls_scores[th_inds]
-                    print("after filtered by score_thresh", len(box_proposals))
+                    #print("after filtered by score_thresh", len(box_proposals))
                 if max_boxes>0 and len(cls_preds)>max_boxes:
                     inds = np.argsort(-cls_scores)
                     th_inds = inds[:max_boxes]
@@ -442,7 +437,7 @@ def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
                     box_proposals = box_proposals[inds]
                     cls_preds = cls_preds[inds]
                     cls_scores = cls_scores[inds]
-                    print("after filtered by gt box iou>0.5", len(box_proposals))
+                    #print("after filtered by gt box iou>0.5", len(box_proposals))
 
                 # cls_scores = np.ones_like(cls_scores, np.float)
 
@@ -461,28 +456,31 @@ def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
 
             _t['im_detect'].tic()
             out_dict, metrics_v = im_detect(sess, net, inputs, im, im_i,box_proposals,
-                                 bbox_reg, multi_iter, roidb[im_i], ops, metric_ops, mode, cls_preds, cls_scores)
+                                 bbox_reg, roidb[im_i], ops, metric_ops, mode, cls_preds, cls_scores)
             _t['im_detect'].toc()
             _t['evaluate'].tic()
 
-            for iter_n in multi_iter:
-                if out_dict is not None:
-                    sg_entry = out_dict[iter_n]
-                    if mode == 'sg_det' or mode=='phrase':
-                        sg_entry['boxes'] = box_proposals
-                        sg_entry['cls_preds'] = cls_preds
-                        sg_entry['cls_scores'] = cls_scores
-                    evaluators[mode][iter_n].evaluate_scene_graph_entry(sg_entry, im_i, iou_thresh=0.5)
-                    # evaluators[mode][iter_n].add_rels_to_show(sg_entry['rels_show'])
-                if metrics_v is not None: evaluators[mode][iter_n].add_metrics(metrics_v)
+            if out_dict is not None:
+                sg_entry = out_dict
+                if mode == 'sg_det' or mode=='phrase':
+                    sg_entry['boxes'] = box_proposals
+                    sg_entry['cls_preds'] = cls_preds
+                    sg_entry['cls_scores'] = cls_scores
+                for evaluator in evaluators[mode]:
+                    evaluator.evaluate_scene_graph_entry(sg_entry, im_i, iou_thresh=0.5, prior=get_prior(), viz=(mode=="viz"))
+                # evaluators[mode][iter_n].add_rels_to_show(sg_entry['rels_show'])
+            if metrics_v is not None:
+                for evaluator in evaluators[mode]:
+                    evaluator.add_metrics(metrics_v)
             _t['evaluate'].toc()
 
-        print('im_detect: {:d}/{:d} {:.3f}s {:.3f}s' \
-              .format(im_i + 1, num_images, _t['im_detect'].average_time,
-                      _t['evaluate'].average_time))
+            if im_i % 100 == 0:
+                print('im_detect: {:d}/{:d} {:.3f}s {:.3f}s' \
+                   .format(im_i + 1, num_images, _t['im_detect'].average_time,
+                          _t['evaluate'].average_time))
 
     # print out evaluation results
     for mode in eval_modes:
-        for iter_n in multi_iter:
-            evaluators[mode][iter_n].print_stats()
+        for evaluator in evaluators[mode]:
+            evaluator.print_stats()
             # evaluators[mode][iter_n].save_rels_to_show(open('./data/viz/rels_train_show.txt', 'w'), save_true_pred=True)

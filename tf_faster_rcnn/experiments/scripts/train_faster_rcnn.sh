@@ -47,6 +47,22 @@ case ${DATASET} in
     ANCHORS="[4,8,16,32]"
     RATIOS="[0.5,1,2]"
     ;;
+  vg_drnet)
+    TRAIN_IMDB="vg_drnet_train"
+    TEST_IMDB="vg_drnet_test"
+    STEPSIZE="[300000]"
+    ITERS=450000
+    ANCHORS="[4,8,16,32]"
+    RATIOS="[0.5,1,2]"
+    ;;
+  vg_msdn)
+    TRAIN_IMDB="vg_msdn_train"
+    TEST_IMDB="vg_msdn_test"
+    STEPSIZE="[300000]"
+    ITERS=450000
+    ANCHORS="[4,8,16,32]"
+    RATIOS="[0.5,1,2]"
+    ;;
   *)
     echo "No dataset given"
     exit
@@ -61,7 +77,7 @@ set +x
 if [[ ! -z  ${EXTRA_ARGS_SLUG}  ]]; then
   NET_FINAL=output/${NET}/${TRAIN_IMDB}/${EXTRA_ARGS_SLUG}/${NET}_faster_rcnn_iter_${ITERS}.ckpt
 else
-  NET_FINAL=output/${NET}/${TRAIN_IMDB}/default/${NET}_faster_rcnn_iter_${ITERS}.ckpt
+  NET_FINAL=output/${NET}/${TRAIN_IMDB}/default2/${NET}_faster_rcnn_iter_${ITERS}.ckpt
 fi
 set -x
 

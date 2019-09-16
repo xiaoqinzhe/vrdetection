@@ -3,13 +3,19 @@ from fast_rcnn.config import cfg
 
 total = 0
 
+def get_oo_id(i, j, num_class):
+    return i*num_class + j
+
 def eval_relation_recall(sg_entry,
                          roidb_entry,
                          result_dict,
                          mode,
-                         iou_thresh):
-    num_k = cfg.TEST.K_PREDICATE
-    use_gt_rel = cfg.TEST.USE_GT_REL
+                         iou_thresh,
+                         top_k=1, use_prediction=True,
+                         use_prior=False, use_weight=False, prior=None
+                         ):
+    use_gt_rel = True if mode=="pred_cls" else False
+
     # gt
     gt_inds = np.where(roidb_entry['max_overlaps'] == 1)[0]
     gt_boxes = roidb_entry['boxes'][gt_inds].copy().astype(float)
@@ -36,15 +42,52 @@ def eval_relation_recall(sg_entry,
     # print(num_gt_relations, num_true_gt_rels, total)
 
     # pred
+    import copy
     box_preds = sg_entry['boxes']
     num_boxes = box_preds.shape[0]
     predicate_preds = sg_entry['relations']
     class_preds = sg_entry['scores']
-    predicate_preds = predicate_preds.reshape(num_boxes, num_boxes, -1)
+    predicate_preds = copy.deepcopy(predicate_preds)
 
     # no bg
     if cfg.TRAIN.USE_SAMPLE_GRAPH:
         predicate_preds = predicate_preds[:, :, 1:]
+
+    num_classes = sg_entry['num_classes']
+    #print("num_classes: ", num_classes, top_k)
+
+    # use prediction, prior, weight
+    if use_gt_rel:
+        for i, rel in enumerate(gt_relations):
+            if use_prediction:
+                if use_prior:
+                    predicate_preds[rel[0], rel[1], :] *= prior[
+                        get_oo_id(gt_classes[rel[0]], gt_classes[rel[1]],num_classes)]
+                if use_weight:
+                    predicate_preds[rel[0], rel[1], :] *= sg_entry["rel_weights"][i]
+            else:
+                predicate_preds[rel[0], rel[1], :] = prior[
+                    get_oo_id(gt_classes[rel[0]], gt_classes[rel[1]], num_classes)]
+                if use_weight:
+                    predicate_preds[rel[0], rel[1], :] *= sg_entry["rel_weights"][i]
+    else:
+        k=0
+        classes = sg_entry['cls_preds']
+        for i in range(num_boxes):
+            for j in range(num_boxes):
+                if i == j: continue
+                if use_prediction:
+                    if use_prior:
+                        predicate_preds[i, j, :] *= prior[
+                            get_oo_id(classes[i], classes[j],num_classes)]
+                    if use_weight:
+                        predicate_preds[i, j, :] *= sg_entry["rel_weights"][k]
+                else:
+                    predicate_preds[i, j, :] = prior[
+                        get_oo_id(classes[i], classes[j], num_classes)]
+                    if use_weight:
+                        predicate_preds[i, j, :] *= sg_entry["rel_weights"][k]
+                k += 1
 
     relations = []
     predicates = []
@@ -54,7 +97,7 @@ def eval_relation_recall(sg_entry,
         for rel in gt_relations:
             i, j = rel[0], rel[1]
             arg_sort = np.argsort(-predicate_preds[i][j])
-            for k in range(num_k):
+            for k in range(top_k):
                 relations.append([i, j])
                 if cfg.TRAIN.USE_SAMPLE_GRAPH: predicates.append(arg_sort[k] + 1)
                 else: predicates.append(arg_sort[k])
@@ -64,7 +107,7 @@ def eval_relation_recall(sg_entry,
             for j in range(num_boxes):
                 if i != j:
                     arg_sort = np.argsort(-predicate_preds[i][j])
-                    for k in range(num_k):
+                    for k in range(top_k):
                         relations.append([i, j])
                         if cfg.TRAIN.USE_SAMPLE_GRAPH: predicates.append(arg_sort[k]+1)
                         else: predicates.append(arg_sort[k])

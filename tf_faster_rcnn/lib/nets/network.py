@@ -67,12 +67,14 @@ class Network(object):
 
   def _reshape_layer(self, bottom, num_dim, name):
     input_shape = tf.shape(bottom)
+    # print(bottom.get_shape(), num_dim, name)
     with tf.variable_scope(name) as scope:
       # change the channel to the caffe format
       to_caffe = tf.transpose(bottom, [0, 3, 1, 2])
       # then force it to have channel 2
       reshaped = tf.reshape(to_caffe,
                             tf.concat(axis=0, values=[[1, num_dim, -1], [input_shape[2]]]))
+      # print(reshaped.get_shape())
       # then swap the channel back
       to_tf = tf.transpose(reshaped, [0, 2, 3, 1])
       return to_tf

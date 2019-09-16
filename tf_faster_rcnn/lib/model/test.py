@@ -188,11 +188,11 @@ def test_net(sess, net, imdb, weights_filename, max_per_image=100, thresh=0., de
             .format(i + 1, num_images, _t['im_detect'].average_time,
                 _t['misc'].average_time))
 
-        det_file = os.path.join(output_dir, 'detections')
-        np.save(det_file, all_boxes)
-      else:
-        det_file = os.path.join(output_dir, 'detections.npy')
-        all_boxes = np.load(det_file)
+      det_file = os.path.join(output_dir, 'detections')
+      np.save(det_file, all_boxes)
+  else:
+    det_file = os.path.join(output_dir, 'detections.npy')
+    all_boxes = np.load(det_file)
   #     # det_file = os.path.join(output_dir, 'detections.pkl')
   #     # with open(det_file, 'wb') as f:
   #     #   pickle.dump(all_boxes, f, pickle.HIGHEST_PROTOCOL)

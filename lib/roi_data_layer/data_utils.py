@@ -84,60 +84,60 @@ def create_graph_data(num_roi, num_rel, relations):
     compute graph structure from relations
     """
 
-    rel_fully_connect = True
-
-    rel_mask = np.zeros((num_roi, num_rel)).astype(np.bool)
-    roi_rel_inds = np.ones((num_roi, num_roi)).astype(np.int32) * -1
-    for i, rel in enumerate(relations):
-        rel_mask[rel[0], i] = True
-        rel_mask[rel[1], i] = True
-        roi_rel_inds[rel[0], rel[1]] = i
-
-    # roi context
-    obj_context_o = []
-    obj_context_p = []
-    obj_context_inds = []
-    for i, mask in enumerate(rel_mask):
-        rels = np.where(mask)[0].tolist()
-        for reli in rels:
-            obj_context_p.append(reli)
-            o = relations[reli][0] if relations[reli][0]!=i else relations[reli][1]
-            obj_context_o.append(o)
-            obj_context_inds.append(i)
-        obj_context_o.append(num_roi)
-        obj_context_p.append(num_rel)
-        obj_context_inds.append(i)
-
-    # rel context
-    rel_context = []
-    rel_context_inds = []
-    for i, rel in enumerate(relations):
-        if rel_fully_connect:
-            for r in range(len(relations)):
-                if r!=i:
-                    rel_context.append(r)
-                    rel_context_inds.append(i)
-        else:
-            sub_rels = np.where(rel_mask[rel[0]])[0].tolist()
-            for r in sub_rels:
-                if r!=i:
-                    rel_context.append(r)
-                    rel_context_inds.append(i)
-            obj_rels = np.where(rel_mask[rel[1]])[0].tolist()
-            for r in obj_rels:
-                if r != i:
-                    rel_context.append(r)
-                    rel_context_inds.append(i)
-        rel_context.append(num_rel)
-        rel_context_inds.append(i)
+    # rel_fully_connect = True
+    #
+    # rel_mask = np.zeros((num_roi, num_rel)).astype(np.bool)
+    # roi_rel_inds = np.ones((num_roi, num_roi)).astype(np.int32) * -1
+    # for i, rel in enumerate(relations):
+    #     rel_mask[rel[0], i] = True
+    #     rel_mask[rel[1], i] = True
+    #     roi_rel_inds[rel[0], rel[1]] = i
+    #
+    # # roi context
+    # obj_context_o = []
+    # obj_context_p = []
+    # obj_context_inds = []
+    # for i, mask in enumerate(rel_mask):
+    #     rels = np.where(mask)[0].tolist()
+    #     for reli in rels:
+    #         obj_context_p.append(reli)
+    #         o = relations[reli][0] if relations[reli][0]!=i else relations[reli][1]
+    #         obj_context_o.append(o)
+    #         obj_context_inds.append(i)
+    #     obj_context_o.append(num_roi)
+    #     obj_context_p.append(num_rel)
+    #     obj_context_inds.append(i)
+    #
+    # # rel context
+    # rel_context = []
+    # rel_context_inds = []
+    # for i, rel in enumerate(relations):
+    #     if rel_fully_connect:
+    #         for r in range(len(relations)):
+    #             if r!=i:
+    #                 rel_context.append(r)
+    #                 rel_context_inds.append(i)
+    #     else:
+    #         sub_rels = np.where(rel_mask[rel[0]])[0].tolist()
+    #         for r in sub_rels:
+    #             if r!=i:
+    #                 rel_context.append(r)
+    #                 rel_context_inds.append(i)
+    #         obj_rels = np.where(rel_mask[rel[1]])[0].tolist()
+    #         for r in obj_rels:
+    #             if r != i:
+    #                 rel_context.append(r)
+    #                 rel_context_inds.append(i)
+    #     rel_context.append(num_rel)
+    #     rel_context_inds.append(i)
 
 
     output_dict = {
-        'obj_context_o': np.array(obj_context_o).astype(np.int32),
-        'obj_context_p': np.array(obj_context_p).astype(np.int32),
-        'obj_context_inds': np.array(obj_context_inds).astype(np.int32),
-        'rel_context': np.array(rel_context).astype(np.int32),
-        'rel_context_inds': np.array(rel_context_inds).astype(np.int32),
+        # 'obj_context_o': np.array(obj_context_o).astype(np.int32),
+        # 'obj_context_p': np.array(obj_context_p).astype(np.int32),
+        # 'obj_context_inds': np.array(obj_context_inds).astype(np.int32),
+        # 'rel_context': np.array(rel_context).astype(np.int32),
+        # 'rel_context_inds': np.array(rel_context_inds).astype(np.int32),
         'num_roi': num_roi,
         'num_rel': num_rel
     }

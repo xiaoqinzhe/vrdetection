@@ -67,7 +67,7 @@ if __name__ == '__main__':
     cfg.TRAIN.INFERENCE_ITER = args.inference_iter
 
     if args.dataset is not None:
-        cfg.DATASET = args.dataset
+        cfg['DATASET'] = args.dataset
 
     if args.network_name in ["weightnet", "ranknet", 'ctxnet', 'graphnet']:
         cfg.TRAIN.USE_GRAPH_SAMPLE=True

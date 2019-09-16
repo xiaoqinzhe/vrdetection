@@ -4,31 +4,30 @@ from fast_rcnn.config import cfg
 import os, json, h5py, cv2, scipy.sparse, copy, pickle
 
 class vrd(imdb):
-    def __init__(self, data_path, split=0, num_im=-1):
-        super(vrd, self).__init__("vrd_dataset")
+    def __init__(self, image_set, version=None, num_im=-1):
+        if version is None:
+            self._data_path = './data/vrd'
+            name = 'vrd_' + image_set
+        else:
+            self._data_path = './data/vg/vg_' + version
+            name = 'vg_' + version + "_" + image_set
+        super(vrd, self).__init__(name)
 
-        if split == 0:
-            if not cfg.TRAIN.USE_AUG_DATA:
-                json_file = data_path + "/train.json"
-            else: json_file = data_path + "/train_aug.pickle"
+        # image_set='train'
+        if image_set == 'train':
+            json_file = self._data_path + "/train.json"
+            # json_file = self._data_path + "/train_aug.pickle"
             self.is_training = True
         else:
-            json_file = data_path + "/test.json"
+            json_file = self._data_path + "/test.json"
             self.is_training = False
         if json_file.endswith("json"):
             self.info = json.load(open(json_file))
         else:
             self.info = pickle.load(open(json_file))
         # projection between class/predicate and idx, add background to class
-        if False:  # ????
-            self.class_to_ind = {"background":0}
-            self.ind_to_classes = ["background"]
-            for i, name in enumerate(self.info['ind_to_class']):
-                self.class_to_ind[name] = i + 1
-                self.ind_to_classes.append(name)
-        else:
-            self.class_to_ind = self.info['class_to_ind']
-            self.ind_to_classes = self.info['ind_to_class']
+        self.class_to_ind = self.info['class_to_ind']
+        self.ind_to_classes = np.array(self.info['ind_to_class'])
         if cfg.TRAIN.USE_SAMPLE_GRAPH:
             self.predicate_to_ind = {"background": 0}
             self.ind_to_predicates = ["background"]
@@ -42,18 +41,20 @@ class vrd(imdb):
         else:
             self.predicate_to_ind = self.info['predicate_to_ind']
             self.ind_to_predicates = self.info['ind_to_predicate']
+        self.ind_to_predicates = np.array(self.ind_to_predicates)
 
         # self.word2vec = np.load(data_path + '/w2v_all_graph_16.npy')
-        self.word2vec = np.load(data_path + '/w2v_all.npy')
+        self.word2vec = np.load(self._data_path + '/w2v_all.npy')
         self.embedding_size = self.word2vec.shape[1]
-        print("load word2vec from "+data_path + '/w2v.npy')
+        print("load word2vec from "+self._data_path + '/w2v.npy')
         # if cfg.TRAIN.USE_SAMPLE_GRAPH:
         # vecs = np.zeros([self.word2vec.shape[0]+1, self.word2vec.shape[1]], np.float32)
         # vecs[1:, :] = self.word2vec
         # self.word2vec = vecs
 
-        self.spatial_to_ind, self.ind_to_spatials = self.get_spatial_info(data_path + '/spatial_alias.txt')
-        self.num_spatials = len(self.ind_to_spatials)
+        # self.spatial_to_ind, self.ind_to_spatials = self.get_spatial_info(data_path + '/spatial_alias.txt')
+        # self.num_spatials = len(self.ind_to_spatials)
+        self.num_spatials = 0
 
         self.info = self.info['data']
 
@@ -64,9 +65,21 @@ class vrd(imdb):
         # Default to roidb handler
         self._roidb_handler = self.gt_roidb
 
+    def get_image_path(self, idx):
+        if 'vrd' in self.name:
+            image_path = "/hdd/sda/datasets/vrd/vrd/" + self.info[idx]['image_filename']
+        else:
+            image_path = "/hdd/sda/datasets/vrd/vg/" + self.info[idx]['image_filename']
+        return image_path
+
     def im_getter(self, idx):
-        # print(os.path.join(cfg.DATASET_DIR, 'vrd', self.info[idx]['image_filename']))
-        im = cv2.imread(os.path.join(cfg.DATASET_DIR, 'vrd', self.info[idx]['image_filename']))
+        if 'vrd' in self.name:
+            image_path = "/hdd/sda/datasets/vrd/vrd/" + self.info[idx]['image_filename']
+        else:
+            image_path = "/hdd/sda/datasets/vrd/vg/" + self.info[idx]['image_filename']
+        assert os.path.exists(image_path), \
+            'Path does not exist: {}'.format(image_path)
+        im = cv2.imread(image_path)
         return im
 
     def gt_roidb(self):
@@ -91,8 +104,8 @@ class vrd(imdb):
                              'gt_classes' : gt_classes,
                              'gt_overlaps' : overlaps,
                              'gt_relations': relation,
-                             'gt_spatial': self.get_spatial_class(relation, self.ind_to_predicates, self.spatial_to_ind),
-
+                             # 'gt_spatial': self.get_spatial_class(relation, self.ind_to_predicates, self.spatial_to_ind),
+                             'gt_spatial': np.zeros((0), np.int32),
                              'flipped' : False,
                              'seg_areas' : seg_areas,
                              'db_idx': i,
@@ -103,6 +116,18 @@ class vrd(imdb):
             if not self.is_training:
                 gt_roidb[-1]['zero_shot_tags'] = np.array(self.info[i]['zero_shot_tags'])
         return gt_roidb
+
+    def show(self, im_i):
+        roidb = self.gt_roidb()[im_i]
+        filename = self.info[im_i]['image_filename']
+        print("image_name: {}".format(filename))
+        print("boxes:", roidb['boxes'])
+        print("labels", self.ind_to_classes[roidb["gt_classes"]])
+        print("relationship:")
+        for rel in roidb["gt_relations"]:
+            print("{}:{}".format(rel[0], self.ind_to_classes[roidb["gt_classes"][rel[0]]]),
+                  "{}:{}".format(rel[2], self.ind_to_predicates[rel[2]]),
+                  "{}:{}".format(rel[1], self.ind_to_classes[roidb["gt_classes"][rel[1]]]))
 
     def add_rpn_rois(self, gt_roidb_batch, make_copy=True):
         """

@@ -26,11 +26,16 @@ from utils.cython_bbox import bbox_overlaps
 from datasets.eval import draw_det_images, draw_gt_images, mAP, maxRelPrecision
 
 class vrd(imdb):
-  def __init__(self, image_set):
-    name = 'vrd_' + image_set
+  def __init__(self, image_set, version=None):
+    if version is None:
+        self._data_path = '../data/vrd'
+        name = 'vrd_'+ image_set
+    else:
+        self._data_path = '../data/vg/vg_'+version
+        name = 'vg_' + version + "_" + image_set
     imdb.__init__(self, name)
     self._image_set = image_set
-    self._data_path = '../data/vrd'
+
     # image_set='train'
     if image_set == 'train':
         json_file = self._data_path + "/train.json"
@@ -61,7 +66,10 @@ class vrd(imdb):
     """
     Construct an image path from the image's "index" identifier.
     """
-    image_path = "/hdd/datasets/vrd/vrd/"+self.info[index]['image_filename']
+    if 'vrd' in self.name:
+        image_path = "/hdd/sda/datasets/vrd/vrd/"+self.info[index]['image_filename']
+    else:
+        image_path = "/hdd/sda/datasets/vrd/vg/" + self.info[index]['image_filename']
     assert os.path.exists(image_path), \
       'Path does not exist: {}'.format(image_path)
     return image_path
@@ -127,8 +135,8 @@ class vrd(imdb):
     self._image_index = np.hstack([self._image_index, self._image_index])
 
   def evaluate_detections(self, all_boxes, output_dir=None):
-      draw_gt_images(self, get_output_dir(self, "det_images"), num_images=-1)
-      print("implementation is coming soon.")
+      # draw_gt_images(self, get_output_dir(self, "det_images"), num_images=-1)
+      print("evaluating detections...")
       iou_threshhold = np.arange(0.0, 1.0, 0.1)
       cls_score_threshold = 0.0
       gt_roidb = self.roidb

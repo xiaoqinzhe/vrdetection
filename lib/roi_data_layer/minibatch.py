@@ -322,6 +322,8 @@ def _get_image_blob(roidb, scale_inds):
     im_scales = []
     for i in range(num_images):
         im = roidb[i]['image']() # use image getter
+        if im is None:
+            raise Exception('image is None')
 
         if roidb[i]['flipped']:
             im = im[:, ::-1, :]

@@ -42,7 +42,7 @@ class vrdnet(Network):
         self.use_gt_box = data['use_gt_box'] if 'use_gt_box' in data else True
         self.use_gt_cls = data['use_gt_cls'] if 'use_gt_cls' in data else True
         self.stop_gradient = data['stop_gradient'] if 'stop_gradient' in data else False
-        self.use_context = data['use_context'] if 'use_context' in data else False
+        self.use_vis = data['use_vis'] if 'use_vis' in data else False
         self.use_spatial = data['use_spatial'] if 'use_spatial' in data else False
         self.use_class = data['use_class'] if 'use_class' in data else False
         self.use_embedding = data['use_embedding'] if 'use_embedding' in data else False
@@ -429,21 +429,8 @@ class vrdnet(Network):
             op = self.get_output('bbox_pred')
         return op
 
-    def rel_pred_output(self, iters=None):
-        if iters is not None:
-            op = {}
-            if type(iters) == str:
-                op[0] = self.get_output('rel_prob'+iters)
-                return op
-            for i in iters:
-                if self.iterable and i != self.n_iter - 1:
-                    op[i] = self.get_output('rel_prob_iter%i' % i)
-                else:
-                    op[i] = self.get_output('rel_prob')
-
-        else:
-            op = self.get_output('rel_prob')
-        return op
+    def rel_pred_output(self):
+        return self.get_output('rel_prob')
 
 class basenet(vrdnet):
     def __init__(self, data):

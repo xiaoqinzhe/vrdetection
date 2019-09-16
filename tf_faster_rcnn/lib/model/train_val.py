@@ -154,6 +154,7 @@ class SolverWrapper(object):
 
   def find_previous(self):
     sfiles = os.path.join(self.output_dir, cfg.TRAIN.SNAPSHOT_PREFIX + '_iter_*.ckpt.meta')
+    print(sfiles)
     sfiles = glob.glob(sfiles)
     sfiles.sort(key=os.path.getmtime)
     # Get the snapshot name in TensorFlow

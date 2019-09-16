@@ -43,7 +43,7 @@ class Trainer(object):
         self.pretrained_model = 'checkpoints/vrd/multinet_6_fine/pre_trained/weights_49999.ckpt'
         if self.init_conv:
             # if cfg.MODEL_PARAMS['stop_gradient']:
-            self.pretrained_model = 'tf_faster_rcnn/output/{}/vrd_train/default/{}_faster_rcnn_iter_{}.ckpt'.format(self.basenet, self.basenet, self.basenet_iter)
+            self.pretrained_model = 'tf_faster_rcnn/output/{}/{}_train/default/{}_faster_rcnn_iter_{}.ckpt'.format(self.basenet, cfg.DATASET, self.basenet, self.basenet_iter)
             # self.pretrained_model = 'tf_faster_rcnn/data/imagenet_weights/imagenet_vgg16.ckpt'
 
         if cfg.TRAIN.BBOX_NORMALIZE_TARGETS:
@@ -141,7 +141,7 @@ class Trainer(object):
                     restorer.restore(sess, self.pretrained_model)
             else:
                 print('Unsupported pretrained weights format')
-                raise
+                raise Exception
 
     def get_data_runner(self, sess, input_pls, data_layer, capacity=30):
 
@@ -273,7 +273,7 @@ class Trainer(object):
         sess.run(tf.global_variables_initializer())
         if self.net.use_embedding:
             sess.run(self.net.embedding_init, feed_dict={inputs['obj_embedding']:self.imdb.word2vec[:self.imdb.num_classes]})
-        self.saver = tf.train.Saver(max_to_keep=20)
+        self.saver = tf.train.Saver(max_to_keep=25)
         self.load_pretrained_models(sess)
         print("load done")
 
@@ -324,6 +324,12 @@ class Trainer(object):
                 ops_value = sess.run(ops, feed_dict=feed_dict)
 
             timer.toc()
+
+            if np.isnan(ops_value['loss_total']):
+                print('nan', iter)
+                for k in feed_dict:
+                    print(k, feed_dict[k])
+                exit()
 
             if iter%20 == 0:
                 stats = 'iter: %d / %d, lr: %f' % (iter+1, max_iters, lr.eval())
