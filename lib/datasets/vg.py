@@ -86,7 +86,6 @@ class vg(imdb):
                              'gt_overlaps' : overlaps,
                              'gt_relations': relation,
                              'gt_spatial': self.get_spatial_class(relation, self.ind_to_predicates, self.spatial_to_ind),
-
                              'flipped' : False,
                              'seg_areas' : seg_areas,
                              'db_idx': i,

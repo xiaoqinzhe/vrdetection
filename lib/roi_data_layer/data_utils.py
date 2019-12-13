@@ -1,6 +1,12 @@
 import numpy as np
 from fast_rcnn.config import cfg
 
+def get_priors(rels, labels, num_classes, rel_prior):
+    p = np.zeros([len(rels), rel_prior.shape[1]], dtype=np.float32)
+    for i, rel in enumerate(rels):
+        p[i] = rel_prior[labels[rel[0]] * num_classes + labels[rel[1]]]
+    return p
+
 def cal_graph_matrix(num_roi, num_rel, relations):
     if num_roi <= 1: obj_d = np.eye(num_roi) * 1.0
     else: obj_d = np.eye(num_roi) * (1.0/(num_roi-1))

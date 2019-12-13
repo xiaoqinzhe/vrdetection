@@ -359,11 +359,10 @@ def sentence_preprocess(phrase):
       'è': 'e',
       '…': '',
     }
-    phrase = phrase.encode('utf-8')
     phrase = phrase.lstrip(' ').rstrip(' ')
-    for k, v in replacements.iteritems():
+    for k, v in replacements.items():
         phrase = phrase.replace(k, v)
-    return str(phrase).lower().translate(None, string.punctuation).decode('utf-8', 'ignore')
+    return str(phrase).lower().translate(string.punctuation)
 
 
 def encode_splits(obj_data, opt=None):
@@ -515,10 +514,10 @@ def main(args):
     print('read image db from %s' % args.imdb)
     imdb = h5.File(args.imdb, 'r')
     num_im = len(imdb['image_filenames'])
-    imfs = np.array(imdb['image_filenames']).tolist()
+    imfs = imdb['image_filenames'].value
     for i in range(len(imfs)):
-        imfs[i] = 'images/'+imfs[i].split("/")[-1]
-        # if(i==0): print(imfs[i])
+        imfs[i] = 'images/'+imfs[i].decode('utf-8').split("/")[-1]
+        if(i==0): print(imfs[i])
 
     img_long_sizes = [512, 1024]
     valid_im_idx = imdb['valid_idx'][:] # valid image indices
@@ -564,6 +563,27 @@ def main(args):
     merge_duplicate_boxes(obj_data)
 
     # build vocabulary
+    def save_token_counter(counter, savefile):
+        json.dump(counter.most_common(), open(savefile, 'w'))
+
+    token_counter = Counter()
+    for img in obj_data:
+        for region in img['objects']:
+            for name in region['names']:
+                #if not obj_list or name in obj_list:
+                token_counter.update([name])
+    save_token_counter(token_counter, '../data/vg/obj_counter.json')
+    token_counter.clear()
+    for img in rel_data:
+        for relation in img['relationships']:
+            predicate = relation['predicate']
+            #if not pred_list or predicate in pred_list:
+            token_counter.update([predicate])
+    save_token_counter(token_counter, '../data/vg/pred_counter.json')
+
+
+
+    exit()
     object_tokens, object_token_counter = extract_object_token(obj_data, args.num_objects,
                                                                obj_list)
 
@@ -641,7 +661,7 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    data_dir = '/hdd/datasets/vrd/vg/'
+    data_dir = '/hdd/sda/datasets/vrd/vg/'
     parser.add_argument('--imdb', default='../data/vg/imdb.h5', type=str)
     parser.add_argument('--object_input', default=data_dir+'objects.json', type=str)
     parser.add_argument('--relationship_input', default=data_dir+'relationships.json', type=str)

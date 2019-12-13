@@ -28,8 +28,8 @@ class vgg16net:
             if self.stop_gradient: net = tf.stop_gradient(net, name='stop_gradient')
         return net
 
-    def _net_roi_fc(self, inputs):
-        with tf.variable_scope(self._scope):
+    def _net_roi_fc(self, inputs, reuse=False):
+        with tf.variable_scope(self._scope, reuse=reuse):
             flatten = slim.flatten(inputs, scope='flatten')
             net = slim.fully_connected(flatten, 4096, scope='fc6')
             net = slim.dropout(net, self.keep_prob, scope='drop6')
@@ -75,8 +75,8 @@ class resnetv1:
     def _net_conv(self, inputs):
         return self._image_to_head(inputs, self.is_training)
 
-    def _net_roi_fc(self, inputs):
-        return self._head_to_tail(inputs, self.is_training)
+    def _net_roi_fc(self, inputs, reuse=False):
+        return self._head_to_tail(inputs, self.is_training, reuse=reuse)
 
     # Do the first few layers manually, because 'SAME' padding can behave inconsistently
     # for images of different sizes: sometimes 0, sometimes 1

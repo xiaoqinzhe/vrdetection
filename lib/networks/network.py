@@ -1,5 +1,6 @@
 import numpy as np
 import tensorflow as tf
+from tensorflow.contrib import slim
 import roi_pooling_layer.roi_pooling_op as roi_pool_op
 import roi_pooling_layer.roi_pooling_op_grad
 
@@ -42,30 +43,6 @@ class Network(object):
 
     def setup(self):
         raise NotImplementedError('Must be subclassed.')
-
-    # def _crop_pool_layer(self, bottom, rois, name):
-    #     with tf.variable_scope(name) as scope:
-    #         batch_ids = tf.squeeze(tf.slice(rois, [0, 0], [-1, 1], name="batch_id"), [1])
-    #         # Get the normalized coordinates of bboxes
-    #         bottom_shape = tf.shape(bottom)
-    #         height = (tf.to_float(bottom_shape[1]) - 1.) * np.float32(self._feat_stride[0])
-    #         width = (tf.to_float(bottom_shape[2]) - 1.) * np.float32(self._feat_stride[0])
-    #         x1 = tf.slice(rois, [0, 1], [-1, 1], name="x1") / width
-    #         y1 = tf.slice(rois, [0, 2], [-1, 1], name="y1") / height
-    #         x2 = tf.slice(rois, [0, 3], [-1, 1], name="x2") / width
-    #         y2 = tf.slice(rois, [0, 4], [-1, 1], name="y2") / height
-    #         # Won't be back-propagated to rois anyway, but to save time
-    #         bboxes = tf.stop_gradient(tf.concat([y1, x1, y2, x2], 1))
-    #         if cfg.RESNET.MAX_POOL:
-    #             pre_pool_size = cfg.POOLING_SIZE * 2
-    #             crops = tf.image.crop_and_resize(bottom, bboxes, tf.to_int32(batch_ids), [pre_pool_size, pre_pool_size],
-    #                                              name="crops")
-    #             crops = slim.max_pool2d(crops, [2, 2], padding='SAME')
-    #         else:
-    #             crops = tf.image.crop_and_resize(bottom, bboxes, tf.to_int32(batch_ids),
-    #                                              [cfg.POOLING_SIZE, cfg.POOLING_SIZE],
-    #                                              name="crops")
-    #     return crops
 
     def load(self, data_path, session, ignore_missing=False, load_fc=True):
         # import pprint
@@ -214,8 +191,29 @@ class Network(object):
                               spatial_scale,
                               name=name)
 
-    def bilinear_pool(self):
-        pass
+    def crop_pool(self, bottom, rois, pooling_size, feat_stride, name, RESNET_MAX_POOL=False):
+        with tf.variable_scope(name) as scope:
+            batch_ids = tf.squeeze(tf.slice(rois, [0, 0], [-1, 1], name="batch_id"), [1])
+            # Get the normalized coordinates of bboxes
+            bottom_shape = tf.shape(bottom)
+            height = (tf.to_float(bottom_shape[1]) - 1.) * np.float32(feat_stride)
+            width = (tf.to_float(bottom_shape[2]) - 1.) * np.float32(feat_stride)
+            x1 = tf.slice(rois, [0, 1], [-1, 1], name="x1") / width
+            y1 = tf.slice(rois, [0, 2], [-1, 1], name="y1") / height
+            x2 = tf.slice(rois, [0, 3], [-1, 1], name="x2") / width
+            y2 = tf.slice(rois, [0, 4], [-1, 1], name="y2") / height
+            # Won't be back-propagated to rois anyway, but to save time
+            bboxes = tf.stop_gradient(tf.concat([y1, x1, y2, x2], 1))
+            if RESNET_MAX_POOL:
+                pre_pool_size = pooling_size * 2
+                crops = tf.image.crop_and_resize(bottom, bboxes, tf.to_int32(batch_ids), [pre_pool_size, pre_pool_size],
+                                                 name="crops")
+                crops = slim.max_pool2d(crops, [2, 2], padding='SAME')
+            else:
+                crops = tf.image.crop_and_resize(bottom, bboxes, tf.to_int32(batch_ids),
+                                                 [pooling_size, pooling_size],
+                                                 name="crops")
+        return crops
 
     @layer
     def lrn(self, input, radius, alpha, beta, name, bias=1.0):

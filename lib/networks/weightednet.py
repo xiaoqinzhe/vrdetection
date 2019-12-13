@@ -11,6 +11,8 @@ class weightednet(basenet):
         self.if_pred_cls = False
         self.if_pred_bbox = False
         self.embedded_size = 256
+        self.fuse_size = 512
+        self.if_fuse = True
         print(self.use_vis, self.use_embedding, self.use_spatial)
 
     def _net(self):
@@ -31,10 +33,14 @@ class weightednet(basenet):
                             ):
             conv_net = self._net_conv(self.ims)
             self.layers['conv_out'] = conv_net
-            roi_conv_out = self._net_roi_pooling([conv_net, self.rois], self.pooling_size, self.pooling_size,
+            # roi_conv_out = self._net_roi_pooling([conv_net, self.rois], self.pooling_size, self.pooling_size,
+            #                                      name='roi_conv_out')
+            # rel_roi_conv_out = self._net_roi_pooling([conv_net, self.rel_rois], self.pooling_size,
+            #                                          self.pooling_size,
+            #                                          name='rel_roi_conv_out')
+            roi_conv_out = self._net_crop_pooling([conv_net, self.rois], self.pooling_size,
                                                  name='roi_conv_out')
-            rel_roi_conv_out = self._net_roi_pooling([conv_net, self.rel_rois], self.pooling_size,
-                                                     self.pooling_size,
+            rel_roi_conv_out = self._net_crop_pooling([conv_net, self.rel_rois], self.pooling_size,
                                                      name='rel_roi_conv_out')
             roi_fc_out = self._net_roi_fc(roi_conv_out)
             self.rel_inx1, self.rel_inx2 = self._relation_indexes()
@@ -80,14 +86,18 @@ class weightednet(basenet):
                 # self.weighted_attention(conv_net, vis_feat)
 
                 if self.use_vis:
+                    if self.if_fuse: vis_feat = slim.fully_connected(vis_feat, self.fuse_size)
                     feat = vis_feat
-                else: feat=None
+                else:
+                    feat = None
                 if self.use_embedding:
-                    if feat is None:  feat=cls_proj
-                    else:  feat=tf.concat([feat, cls_proj], axis=1)
+                    if self.if_fuse: cls_proj = slim.fully_connected(cls_proj, self.fuse_size)
+                    if feat is None:  feat = cls_proj
+                    else:  feat = tf.concat([feat, cls_proj], axis=1)
                 if self.use_spatial:
-                    if feat is None:  feat=spt
-                    else: feat=tf.concat([feat, spt], axis=1)
+                    if self.if_fuse: spt = slim.fully_connected(spt, self.fuse_size)
+                    if feat is None:  feat = spt
+                    else: feat = tf.concat([feat, spt], axis=1)
                 # feat = tf.concat([vis_feat, cls_proj, spt], axis=1)
 
                 with tf.variable_scope('rel_score'):
@@ -456,3 +466,179 @@ class weightednet2(weightednet):
             net = tf.matmul(tf.matmul(matrix, inputs), weight)
             net = activation(net)
         return net
+
+class simplenet(basenet):
+    def __init__(self, data):
+        super(simplenet, self).__init__(data)
+        self.if_pred_rel = True
+        self.if_pred_cls = False
+        self.if_pred_bbox = False
+        self.embedded_size = 256
+        self.fuse_size = 512
+        self.rel_prior = self.data['prior'] if 'prior' in self.data else None
+        self.if_fuse = True
+        print(self.use_vis, self.use_embedding, self.use_spatial)
+
+    def _net(self):
+        # handle most of the regularizers here
+        weights_regularizer = tf.contrib.layers.l2_regularizer(cfg.TRAIN.WEIGHT_DECAY)
+        if cfg.TRAIN.BIAS_DECAY:
+            biases_regularizer = weights_regularizer
+        else:
+            biases_regularizer = tf.no_regularizer
+
+        # list as many types of layers as possible, even if they are not used now
+        with slim.arg_scope([slim.conv2d, slim.conv2d_in_plane,
+                             slim.conv2d_transpose, slim.separable_conv2d, slim.fully_connected],
+                            #weights_regularizer=weights_regularizer,
+                            #biases_regularizer=biases_regularizer,
+                            weights_initializer=tf.truncated_normal_initializer(0, 0.01),
+                            biases_initializer=tf.constant_initializer(0.0)
+                            ):
+            conv_net = self._net_conv(self.ims)
+            self.layers['conv_out'] = conv_net
+            roi_conv_out = self._net_roi_pooling([conv_net, self.rois], self.pooling_size, self.pooling_size,
+                                                 name='roi_conv_out')
+            rel_roi_conv_out = self._net_roi_pooling([conv_net, self.rel_rois], self.pooling_size,
+                                                     self.pooling_size,
+                                                     name='rel_roi_conv_out')
+            # roi_conv_out = self._net_crop_pooling([conv_net, self.rois], self.pooling_size,
+            #                                      name='roi_conv_out')
+            # rel_roi_conv_out = self._net_crop_pooling([conv_net, self.rel_rois], self.pooling_size,
+            #                                          name='rel_roi_conv_out')
+            roi_fc_out = self._net_roi_fc(roi_conv_out)
+            rel_roi_fc_out = self._net_roi_fc(rel_roi_conv_out, reuse=True)
+            self.rel_inx1, self.rel_inx2 = self._relation_indexes()
+
+            with slim.arg_scope([slim.conv2d, slim.fully_connected],
+                                weights_regularizer=weights_regularizer,
+                                ):
+                size = 2048
+                roi_fc_emb = slim.fully_connected(roi_fc_out, size)
+                fc_sub = tf.gather(roi_fc_emb, self.rel_inx1)
+                fc_obj = tf.gather(roi_fc_emb, self.rel_inx2)
+                fc_pred = slim.fully_connected(rel_roi_fc_out, size)
+                vis_feat = slim.fully_connected(tf.concat([fc_sub, fc_pred, fc_obj], axis=1), size)
+                vis_feat = slim.dropout(vis_feat, keep_prob=self.keep_prob)
+                vis_feat = slim.fully_connected(vis_feat, size)
+                vis_feat = slim.dropout(vis_feat, keep_prob=self.keep_prob)
+
+                emb_size = 2048
+
+                if self.use_embedding:
+                    # class me
+                    sub_emb, obj_emb = self._class_feature(self.rel_inx1, self.rel_inx2)
+                    cls_emb = tf.concat([sub_emb, obj_emb], axis=1)
+                    cls_proj = slim.fully_connected(cls_emb, emb_size)
+                else:
+                    cls_proj = None
+                if self.use_spatial:
+                    spt = self._spatial_feature(self.rel_inx1, self.rel_inx2)
+                    spt = slim.fully_connected(spt, emb_size)
+                else:
+                    spt = None
+
+                prior = slim.fully_connected(self.rel_prior, emb_size)
+
+                # weighted attention layer
+                if not self.use_vis:  vis_feat = None
+                self.weighted_attention(conv_net, vis_feat, cls_proj=cls_proj, spt=spt)
+                # self.weighted_attention(conv_net, vis_feat)
+
+                # attention vision
+                fc_sub_proj = slim.fully_connected(fc_sub, emb_size, scope="proj_obj_fc")
+                fc_obj_proj = slim.fully_connected(fc_obj, emb_size, scope="proj_obj_fc", reuse=True)
+                vis_ctx = slim.fully_connected(tf.concat([fc_sub_proj, fc_obj_proj, cls_proj, spt], axis=1), emb_size)
+                vis_feat_att = self.local_attention(vis_feat, rel_roi_conv_out)
+
+                if self.use_vis:
+                    vis_feat = slim.fully_connected(vis_feat, size)
+                    # vis_feat = vis_feat_att
+                    feat = vis_feat
+                else:
+                    feat = None
+                if self.use_embedding:
+                    cls_proj = slim.fully_connected(cls_proj, size)
+                    if feat is None:
+                        feat = cls_proj
+                    else:
+                        feat = tf.concat([feat, cls_proj], axis=1)
+                if self.use_spatial:
+                    spt = slim.fully_connected(spt, size)
+                    if feat is None:
+                        feat = spt
+                    else:
+                        feat = tf.concat([feat, spt], axis=1)
+                feat = tf.concat([feat, prior], axis=1)
+                feat = slim.fully_connected(feat, size)
+
+                with tf.variable_scope('rel_score'):
+                    weight = tf.get_variable("weight", shape=[feat.shape.as_list()[1], self.num_predicates])
+                rel_score = tf.matmul(feat, weight)
+                self.layers['rel_score'] = rel_score
+                self.layers['rel_prob'] = slim.softmax(rel_score, scope='rel_prob')
+
+                # self._rel_pred(feat)
+                att = tf.tile(self.layers['rel_weight_prob'], [1, self.num_predicates])
+                self.layers['rel_weighted_prob'] = att * self.layers['rel_prob']
+                self.layers['rel_pred'] = tf.argmax(self.layers['rel_prob'], axis=1, name='rel_pred')
+
+    def weighted_attention(self, im_conv_out, vis_feat, cls_proj=None, spt=None):
+        if vis_feat is not None:
+            im_conv_out = self._net_roi_pooling([im_conv_out, self.data['rel_weight_rois']], 7, 7,
+                                             name="im_roi_out")
+            size=2048
+            im_fc = self._net_conv_reshape(im_conv_out, "im_conv_reshape")
+            im_fc = slim.fully_connected(im_fc, size)
+            im_fc = slim.dropout(im_fc, keep_prob=self.keep_prob)
+            im_fc = slim.fully_connected(im_fc, size)
+            im_fc = slim.dropout(im_fc, keep_prob=self.keep_prob)
+
+            im_fc_gather = tf.gather(im_fc, tf.cast(self.rel_rois[:, 0], tf.int32))
+            vis_feat = slim.fully_connected(vis_feat, size)
+            # vis_feat = slim.dropout(vis_feat, self.keep_prob)
+            # vis_feat = slim.fully_connected(vis_feat, size)
+            ctx = tf.concat([im_fc_gather, vis_feat], axis=1)
+            ctx = slim.fully_connected(ctx, size)
+            ctx = slim.dropout(ctx, keep_prob=self.keep_prob)
+            # ctx = slim.fully_connected(ctx, size)
+            # ctx = slim.dropout(ctx, keep_prob=self.keep_prob)
+        else: ctx=None
+        if cls_proj is not None:
+            cls_proj = slim.fully_connected(cls_proj, 2048)
+            if ctx is not None: ctx = tf.concat([ctx, cls_proj], axis=1)
+            else: ctx=cls_proj
+        if spt is not None:
+            spt = slim.fully_connected(spt, 2048)
+            if ctx is not None: ctx = tf.concat([ctx, spt], axis=1)
+            else: ctx=spt
+        assert ctx is not None
+        a = slim.fully_connected(ctx, 1, activation_fn=None, scope="rel_weights")
+        self.layers['rel_weight_score'] = a
+        b=tf.exp(tf.squeeze(a))
+        b=b/tf.reduce_sum(b)
+        self.layers['rel_weight_soft'] = tf.expand_dims(b, -1)
+        self.layers['rel_weight_prob'] = tf.sigmoid(a)
+
+    def metrics(self, ops={}):
+        super(simplenet, self).metrics(ops)
+        prob = tf.squeeze(self.layers['rel_weight_prob'])
+        thresh = tf.ones_like(prob, tf.float32) * 0.5
+        pred = tf.cast(tf.greater_equal(prob, thresh), tf.int32)
+        true_pred = tf.cast(tf.equal(pred, self.data['rel_weight_labels']), tf.float32)
+        ops['acc_weight'] = tf.reduce_mean(true_pred)
+        num_pos = tf.reduce_sum(tf.cast(self.data['rel_weight_labels'], tf.float32))
+        pos_inds = tf.where(tf.cast(self.data['rel_weight_labels'], tf.bool))
+        pos_pred = tf.reduce_sum(tf.gather(true_pred, pos_inds))
+        ops['rec_weight'] =  pos_pred/num_pos
+
+    # Losses
+    def losses(self):
+        losses = super(simplenet, self).losses()
+        weight_loss = tf.losses.sigmoid_cross_entropy(tf.expand_dims(self.data['rel_weight_labels'], axis=1), self.layers['rel_weight_score'])
+        # weight_loss = tf.reduce_mean(tf.square(self.layers['rel_weight_pred']-self.data['rel_weight_labels']))
+        # weight_loss = tf.reduce_mean(tf.abs(self.layers['rel_weights'] - self.data['rel_weights']))
+        #print(weight_loss)
+        losses['loss_weight'] = tf.reduce_mean(weight_loss)
+        losses['loss_total'] = tf.add(losses['loss_total'], losses['loss_weight'])
+        return losses

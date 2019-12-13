@@ -160,32 +160,33 @@ class Trainer(object):
 
 
     def train_model(self, sess, max_iters):
-        input_pls = {
-            'ims': tf.placeholder(dtype=tf.float32, shape=[None, None, None, 3]),
-            'rois': tf.placeholder(dtype=tf.float32, shape=[None, 5]),
-            'rel_rois': tf.placeholder(dtype=tf.float32, shape=[None, 5]),
-            'labels': tf.placeholder(dtype=tf.int32, shape=[None]),
-            # 'bboxes': tf.placeholder(dtype=tf.float32, shape=[None, 4]),
-            'relations': tf.placeholder(dtype=tf.int32, shape=[None, 2]),
-            'predicates': tf.placeholder(dtype=tf.int32, shape=[None]),
-            'rel_spts': tf.placeholder(dtype=tf.int32, shape=[None]),
-            'bbox_targets': tf.placeholder(dtype=tf.float32, shape=[None, 4 * self.imdb.num_classes]),
-            'bbox_inside_weights': tf.placeholder(dtype=tf.float32, shape=[None, 4 * self.imdb.num_classes]),
-            'num_roi': tf.placeholder(dtype=tf.int32, shape=[]),  # number of rois per batch
-            'num_rel': tf.placeholder(dtype=tf.int32, shape=[]),  # number of relationships per batch
-            'obj_context_o': tf.placeholder(dtype=tf.int32, shape=[None]),
-            'obj_context_p': tf.placeholder(dtype=tf.int32, shape=[None]),
-            'obj_context_inds': tf.placeholder(dtype=tf.int32, shape=[None]),
-            'rel_context': tf.placeholder(dtype=tf.int32, shape=[None]),
-            'rel_context_inds': tf.placeholder(dtype=tf.int32, shape=[None]),
-            'obj_embedding': tf.placeholder(dtype=tf.float32, shape=[self.imdb.num_classes, self.imdb.embedding_size]),
-            'obj_matrix': tf.placeholder(dtype=tf.float32, shape=[None, None]),
-            'rel_matrix': tf.placeholder(dtype=tf.float32, shape=[None, None]),
-            'rel_weight_labels': tf.placeholder(dtype=tf.int32, shape=[None]),
-            'rel_weight_rois': tf.placeholder(dtype=tf.float32, shape=[None, 5]),
-            'rel_triple_inds': tf.placeholder(dtype=tf.int32, shape=[None, 2]),
-            'rel_triple_labels': tf.placeholder(dtype=tf.int32, shape=[None, 1]),
-        }
+        input_pls = get_network(self.net_name).inputs(self.imdb.num_classes, self.imdb.prior.shape[1], self.imdb.embedding_size, is_training=True)
+        # input_pls = {
+        #     'ims': tf.placeholder(dtype=tf.float32, shape=[None, None, None, 3]),
+        #     'rois': tf.placeholder(dtype=tf.float32, shape=[None, 5]),
+        #     'rel_rois': tf.placeholder(dtype=tf.float32, shape=[None, 5]),
+        #     'labels': tf.placeholder(dtype=tf.int32, shape=[None]),
+        #     # 'bboxes': tf.placeholder(dtype=tf.float32, shape=[None, 4]),
+        #     'relations': tf.placeholder(dtype=tf.int32, shape=[None, 2]),
+        #     'predicates': tf.placeholder(dtype=tf.int32, shape=[None]),
+        #     'rel_spts': tf.placeholder(dtype=tf.int32, shape=[None]),
+        #     'bbox_targets': tf.placeholder(dtype=tf.float32, shape=[None, 4 * self.imdb.num_classes]),
+        #     'bbox_inside_weights': tf.placeholder(dtype=tf.float32, shape=[None, 4 * self.imdb.num_classes]),
+        #     'num_roi': tf.placeholder(dtype=tf.int32, shape=[]),  # number of rois per batch
+        #     'num_rel': tf.placeholder(dtype=tf.int32, shape=[]),  # number of relationships per batch
+        #     'obj_context_o': tf.placeholder(dtype=tf.int32, shape=[None]),
+        #     'obj_context_p': tf.placeholder(dtype=tf.int32, shape=[None]),
+        #     'obj_context_inds': tf.placeholder(dtype=tf.int32, shape=[None]),
+        #     'rel_context': tf.placeholder(dtype=tf.int32, shape=[None]),
+        #     'rel_context_inds': tf.placeholder(dtype=tf.int32, shape=[None]),
+        #     'obj_embedding': tf.placeholder(dtype=tf.float32, shape=[self.imdb.num_classes, self.imdb.embedding_size]),
+        #     'obj_matrix': tf.placeholder(dtype=tf.float32, shape=[None, None]),
+        #     'rel_matrix': tf.placeholder(dtype=tf.float32, shape=[None, None]),
+        #     'rel_weight_labels': tf.placeholder(dtype=tf.int32, shape=[None]),
+        #     'rel_weight_rois': tf.placeholder(dtype=tf.float32, shape=[None, 5]),
+        #     'rel_triple_inds': tf.placeholder(dtype=tf.int32, shape=[None, 2]),
+        #     'rel_triple_labels': tf.placeholder(dtype=tf.int32, shape=[None, 1]),
+        # }
         """Network training loop."""
         data_layer = RoIDataLayer(self.imdb, self.roidb, self.imdb.num_classes, self.bbox_means, self.bbox_stds)
 

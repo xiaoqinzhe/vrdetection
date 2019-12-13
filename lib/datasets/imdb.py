@@ -1,6 +1,7 @@
 from utils.cython_bbox import bbox_overlaps
 import numpy as np
 import scipy.sparse
+from fast_rcnn.config import cfg
 
 class imdb(object):
     """Image database."""
@@ -13,7 +14,7 @@ class imdb(object):
         self._roidb = None
         self.ind_to_classes = []
         self.ind_to_predicates = []
-
+        self._prior = None
 
     @property
     def name(self):
@@ -60,6 +61,17 @@ class imdb(object):
 
     def _get_widths(self):
         raise NotImplementedError
+
+    @property
+    def prior(self):
+        if self._prior is None:
+            path = './data/' + cfg.DATASET
+            if 'vg' in cfg.DATASET:
+                path = './data/vg/' + cfg.DATASET
+            filename = path + "/" + cfg.TEST.PRIOR_FILENAME
+            self._prior = np.load(filename)
+            # print("load prior from {}".format(filename))
+        return self._prior
 
     def get_spatial_info(self, file):
         rep = {}

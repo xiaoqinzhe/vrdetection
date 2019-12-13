@@ -220,11 +220,11 @@ __C.MODEL_PARAMS = {'if_pred_cls': False, 'if_pred_bbox': False, 'if_pred_rel': 
                     'use_vis': True, 'use_spatial': True, 'use_embedding': True, 'use_class': True,
                     'stop_gradient': True, }
 
-__C.BASENET='res50'
+# __C.BASENET='res50'
 # __C.BASENET_WEIGHT_ITER='75000'
-# __C.BASENET='vgg16'
-# __C.BASENET_WEIGHT_ITER='75000'
-__C.BASENET_WEIGHT_ITER='450000'
+__C.BASENET='vgg16'
+__C.BASENET_WEIGHT_ITER='75000'
+# __C.BASENET_WEIGHT_ITER='450000'
 
 __C.TEST.REL_EVAL = True
 __C.TEST.METRIC_EVAL = True

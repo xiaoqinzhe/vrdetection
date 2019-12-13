@@ -47,6 +47,7 @@ class vrd(imdb):
         self.word2vec = np.load(self._data_path + '/w2v_all.npy')
         self.embedding_size = self.word2vec.shape[1]
         print("load word2vec from "+self._data_path + '/w2v.npy')
+
         # if cfg.TRAIN.USE_SAMPLE_GRAPH:
         # vecs = np.zeros([self.word2vec.shape[0]+1, self.word2vec.shape[1]], np.float32)
         # vecs[1:, :] = self.word2vec

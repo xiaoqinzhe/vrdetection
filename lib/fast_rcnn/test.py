@@ -178,6 +178,11 @@ def im_detect(sess, net, inputs, im, im_i, boxes, bbox_reg, roidb, pred_ops, met
 
     # inputs_feed = data_utils.create_graph_data(num_roi, num_rel, relations)
 
+    if mode == 'pred_cls'or mode=="viz":
+        labels = roidb['gt_classes']
+    elif mode == 'sg_det' or mode == 'phrase':
+        labels = cls_preds
+
     feed_dict = {inputs['ims']: blobs['data'],
                  inputs['rois']: blobs['rois'],
                  inputs['relations']: relations,
@@ -195,20 +200,19 @@ def im_detect(sess, net, inputs, im, im_i, boxes, bbox_reg, roidb, pred_ops, met
     feed_dict[inputs['rel_rois']] = \
         data_utils.compute_rel_rois(num_rel, blobs['rois'], relations)
 
-    '''feed_dict[inputs['obj_matrix']], feed_dict[inputs['rel_matrix']] = \
-        data_utils.cal_graph_matrix(num_roi, num_rel, relations)'''
+    feed_dict[inputs['obj_matrix']], feed_dict[inputs['rel_matrix']] = \
+        data_utils.cal_graph_matrix(num_roi, num_rel, relations)
 
     feed_dict[inputs['rel_weight_labels']], feed_dict[inputs['rel_weight_rois']] = \
         data_utils.cal_rel_weights(blobs['data'], np.hstack((relations, np.expand_dims(predicates, axis=1))))
+
+    feed_dict[inputs['prior']] = data_utils.get_priors(relations, labels, num_classes, get_prior())
 
     ops_value, metrics = sess.run([pred_ops, metric_ops], feed_dict=feed_dict)
 
     rel_probs = np.zeros([num_roi, num_roi, num_predictes])
 
-    if mode == 'pred_cls'or mode=="viz":
-        labels = roidb['gt_classes']
-    elif mode == 'sg_det' or mode == 'phrase':
-        labels = cls_preds
+
     for i, rel in enumerate(relations):
         rel_probs_flat = ops_value['rel_probs']
         rel_probs[rel[0], rel[1], :] = rel_probs_flat[i, :]
@@ -265,34 +269,38 @@ def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
     else: cfg.TRAIN.USE_GRAPH_SAMPLE=False
     sess = tf.Session()
     # set up testing mode
-    rois = tf.placeholder(dtype=tf.float32, shape=[None, 5], name='rois')
-    rel_rois = tf.placeholder(dtype=tf.float32, shape=[None, 5], name='rel_rois')
-    ims = tf.placeholder(dtype=tf.float32, shape=[None, None, None, 3], name='ims')
-    relations = tf.placeholder(dtype=tf.int32, shape=[None, 2], name='relations')
-    inputs = {'rois': rois,
-              'rel_rois': rel_rois,
-              'ims': ims,
-              'labels': tf.placeholder(dtype=tf.int32, shape=[None]),
-              'relations': tf.placeholder(dtype=tf.int32, shape=[None, 2]),
-              'predicates': tf.placeholder(dtype=tf.int32, shape=[None]),
-              'rel_spts': tf.placeholder(dtype=tf.int32, shape=[None]),
-              'num_roi': tf.placeholder(dtype=tf.int32, shape=[]),
-              'num_rel': tf.placeholder(dtype=tf.int32, shape=[]),
-              'num_classes': imdb.num_classes,
-              'num_predicates': imdb.num_predicates,
-              'num_spatials': imdb.num_spatials,
-              'obj_context_o': tf.placeholder(dtype=tf.int32, shape=[None]),
-              'obj_context_p': tf.placeholder(dtype=tf.int32, shape=[None]),
-              'obj_context_inds': tf.placeholder(dtype=tf.int32, shape=[None]),
-              'rel_context': tf.placeholder(dtype=tf.int32, shape=[None]),
-              'rel_context_inds': tf.placeholder(dtype=tf.int32, shape=[None]),
-              'obj_embedding': tf.placeholder(dtype=tf.float32, shape=[imdb.num_classes, imdb.embedding_size]),
-              'obj_matrix': tf.placeholder(dtype=tf.float32, shape=[None, None]),
-              'rel_matrix': tf.placeholder(dtype=tf.float32, shape=[None, None]),
-              'rel_weight_labels': tf.placeholder(dtype=tf.int32, shape=[None]),
-              'rel_weight_rois': tf.placeholder(dtype=tf.float32, shape=[None, 5]),
-              #'n_iter': cfg.TEST.INFERENCE_ITER
-              }
+    inputs = get_network(net_name).inputs(imdb.num_classes, imdb.prior.shape[1], imdb.embedding_size, is_training=False)
+    # rois = tf.placeholder(dtype=tf.float32, shape=[None, 5], name='rois')
+    # rel_rois = tf.placeholder(dtype=tf.float32, shape=[None, 5], name='rel_rois')
+    # ims = tf.placeholder(dtype=tf.float32, shape=[None, None, None, 3], name='ims')
+    # relations = tf.placeholder(dtype=tf.int32, shape=[None, 2], name='relations')
+    # inputs = {'rois': rois,
+    #           'rel_rois': rel_rois,
+    #           'ims': ims,
+    #           'labels': tf.placeholder(dtype=tf.int32, shape=[None]),
+    #           'relations': tf.placeholder(dtype=tf.int32, shape=[None, 2]),
+    #           'predicates': tf.placeholder(dtype=tf.int32, shape=[None]),
+    #           'rel_spts': tf.placeholder(dtype=tf.int32, shape=[None]),
+    #           'num_roi': tf.placeholder(dtype=tf.int32, shape=[]),
+    #           'num_rel': tf.placeholder(dtype=tf.int32, shape=[]),
+    #           'num_classes': imdb.num_classes,
+    #           'num_predicates': imdb.num_predicates,
+    #           'num_spatials': imdb.num_spatials,
+    #           'obj_context_o': tf.placeholder(dtype=tf.int32, shape=[None]),
+    #           'obj_context_p': tf.placeholder(dtype=tf.int32, shape=[None]),
+    #           'obj_context_inds': tf.placeholder(dtype=tf.int32, shape=[None]),
+    #           'rel_context': tf.placeholder(dtype=tf.int32, shape=[None]),
+    #           'rel_context_inds': tf.placeholder(dtype=tf.int32, shape=[None]),
+    #           'obj_embedding': tf.placeholder(dtype=tf.float32, shape=[imdb.num_classes, imdb.embedding_size]),
+    #           'obj_matrix': tf.placeholder(dtype=tf.float32, shape=[None, None]),
+    #           'rel_matrix': tf.placeholder(dtype=tf.float32, shape=[None, None]),
+    #           'rel_weight_labels': tf.placeholder(dtype=tf.int32, shape=[None]),
+    #           'rel_weight_rois': tf.placeholder(dtype=tf.float32, shape=[None, 5]),
+    #           #'n_iter': cfg.TEST.INFERENCE_ITER
+    #           }
+    inputs['num_classes'] = imdb.num_classes
+    inputs['num_predicates'] = imdb.num_predicates
+    inputs['num_spatials'] = imdb.num_spatials
 
     # get network setting
     for key in cfg.MODEL_PARAMS:
@@ -333,9 +341,12 @@ def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
         use_weight = [True, False]
     else: use_weight = [False]
 
-    use_weight=[True]
-    use_prediction=[True]
-    use_prior=[True]
+    use_weight=[True, False]
+    use_prediction=[True, False]
+    use_prior=[True, False]
+
+    if 'rel_weighted_prob' not in net.layers:
+        use_weight = [False]
 
     if mode == "viz":
         top_k=[1]

@@ -52,8 +52,9 @@ class vrdnet(Network):
         self.loss_weights = { 'rel': 1, 'cls': 1, 'bbox': 1 }
         self.pooling_size = 7
 
-    def _init_inputs(self):
-        inputs = {
+    @classmethod
+    def inputs(cls, num_classes, prior_size, obj_embedding_size, is_training=False):
+        input_pls = {
             'ims': tf.placeholder(dtype=tf.float32, shape=[None, None, None, 3]),
             'rois': tf.placeholder(dtype=tf.float32, shape=[None, 5]),
             'rel_rois': tf.placeholder(dtype=tf.float32, shape=[None, 5]),
@@ -62,8 +63,8 @@ class vrdnet(Network):
             'relations': tf.placeholder(dtype=tf.int32, shape=[None, 2]),
             'predicates': tf.placeholder(dtype=tf.int32, shape=[None]),
             'rel_spts': tf.placeholder(dtype=tf.int32, shape=[None]),
-            'bbox_targets': tf.placeholder(dtype=tf.float32, shape=[None, 4 * self.imdb.num_classes]),
-            'bbox_inside_weights': tf.placeholder(dtype=tf.float32, shape=[None, 4 * self.imdb.num_classes]),
+            'bbox_targets': tf.placeholder(dtype=tf.float32, shape=[None, 4 * num_classes]),
+            'bbox_inside_weights': tf.placeholder(dtype=tf.float32, shape=[None, 4 * num_classes]),
             'num_roi': tf.placeholder(dtype=tf.int32, shape=[]),  # number of rois per batch
             'num_rel': tf.placeholder(dtype=tf.int32, shape=[]),  # number of relationships per batch
             'obj_context_o': tf.placeholder(dtype=tf.int32, shape=[None]),
@@ -71,11 +72,16 @@ class vrdnet(Network):
             'obj_context_inds': tf.placeholder(dtype=tf.int32, shape=[None]),
             'rel_context': tf.placeholder(dtype=tf.int32, shape=[None]),
             'rel_context_inds': tf.placeholder(dtype=tf.int32, shape=[None]),
-            'obj_embedding': tf.placeholder(dtype=tf.float32, shape=[self.imdb.num_classes, cfg.WORD2VEC_SIZE]),
+            'obj_embedding': tf.placeholder(dtype=tf.float32, shape=[num_classes, obj_embedding_size]),
+            'prior': tf.placeholder(dtype=tf.float32, shape=[None, prior_size]),
             'obj_matrix': tf.placeholder(dtype=tf.float32, shape=[None, None]),
-            'rel_matrix': tf.placeholder(dtype=tf.float32, shape=[None, None])
+            'rel_matrix': tf.placeholder(dtype=tf.float32, shape=[None, None]),
+            'rel_weight_labels': tf.placeholder(dtype=tf.int32, shape=[None]),
+            'rel_weight_rois': tf.placeholder(dtype=tf.float32, shape=[None, 5]),
+            'rel_triple_inds': tf.placeholder(dtype=tf.int32, shape=[None, 2]),
+            'rel_triple_labels': tf.placeholder(dtype=tf.int32, shape=[None, 1]),
         }
-        return inputs
+        return input_pls
 
     def setup(self):
         self._net()
@@ -129,6 +135,24 @@ class vrdnet(Network):
         cls_emb_sub = tf.gather(self.cls_emb, rel_inx1)
         cls_emb_obj = tf.gather(self.cls_emb, rel_inx2)
         return cls_emb_sub, cls_emb_obj
+
+    def local_attention(self, context, conv_feat, name='local_attention', reuse = False):
+        with tf.variable_scope(name, 'local_attention', reuse=reuse):
+            conv_shape = conv_feat.get_shape()
+            conv_feat = tf.reshape(conv_feat, [-1, conv_shape[1]*conv_shape[2], conv_shape[3]])
+            cont_resp = tf.reshape(tf.tile(context, [1, conv_shape[1]*conv_shape[2]]), shape=[-1, conv_shape[1]*conv_shape[2], context.get_shape().as_list()[1]])
+            input = tf.concat([conv_feat, cont_resp], axis=2)
+            net = slim.fully_connected(input, 2048, scope='att1')
+            net = slim.dropout(net, keep_prob=self.keep_prob)
+            net = slim.fully_connected(net, 2048, scope='att2')
+            net = slim.dropout(net, keep_prob=self.keep_prob)
+            net = slim.fully_connected(net, 1, scope='att3')
+            weights = tf.squeeze(net, axis=2)
+            weights = tf.nn.softmax(weights)
+            weights = tf.reshape(tf.tile(weights, [1, conv_feat.get_shape()[2]]), [-1, conv_feat.get_shape()[1], conv_feat.get_shape()[2]])
+            net = tf.reduce_mean(weights * conv_feat, axis=1)
+            # net = tf.reshape(net, [-1, conv_shape[1], conv_shape[2], conv_shape[3]])
+        return net
 
     def _normalize_bbox(self, bbox):
         wi = tf.cast(tf.shape(self.ims)[2], tf.float32)
@@ -237,8 +261,8 @@ class vrdnet(Network):
 
     def _relation_indexes(self):
         assert self.relations.get_shape().as_list()[1] == 2
-        rel1, rel2 = tf.split(self.relations, num_or_size_splits=2, axis=1)
-        return tf.squeeze(rel1, axis=1), tf.squeeze(rel2, axis=1)
+        self.rel_inx1, self.rel_inx2 = tf.split(self.relations, num_or_size_splits=2, axis=1)
+        return tf.squeeze(self.rel_inx1, axis=1), tf.squeeze(self.rel_inx2, axis=1)
 
     def _net_conv(self, inputs):
         net = slim.conv2d(inputs, 64, [3, 3], scope='conv1_1')
@@ -266,6 +290,9 @@ class vrdnet(Network):
         net = self.roi_pool(inputs, pooled_height, pooled_width, self.roi_scale, name)
         net[0].set_shape([None, pooled_height, pooled_width, inputs[0].get_shape().as_list()[3]])
         return net[0]
+
+    def _net_crop_pooling(self, inputs, pooling_size, name):
+        return self.crop_pool(inputs[0], inputs[1], pooling_size, 1.0/self.roi_scale, name)
 
     def _net_conv_reshape(self, inputs, name=None):
         shape = inputs.get_shape().as_list()
@@ -319,7 +346,9 @@ class vrdnet(Network):
         losses = {}
         losses['loss_total'] = None
         if self.if_weight_reg:
-            losses['loss_total'] = losses['loss_reg'] = tf.add_n(tf.losses.get_regularization_losses())
+            l_reg = tf.losses.get_regularization_losses()
+            if len(l_reg):
+                losses['loss_total'] = losses['loss_reg'] = tf.add_n(l_reg)
         if self.if_pred_rel:
             self._rel_losses(losses)
             if losses['loss_total'] == None:
@@ -451,8 +480,8 @@ class basenet(vrdnet):
     def _net_conv(self, inputs):
         return self.model._net_conv(inputs)
 
-    def _net_roi_fc(self, inputs):
-        return self.model._net_roi_fc(inputs)
+    def _net_roi_fc(self, inputs, reuse=False):
+        return self.model._net_roi_fc(inputs, reuse=reuse)
 
     def get_variables_to_restore(self):
         variables = tf.global_variables(scope=self._scope)

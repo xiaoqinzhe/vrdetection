@@ -53,6 +53,8 @@ class zoomnet(basenet):
             rel = slim.dropout(rel, self.keep_prob)
             rel = slim.fully_connected(rel, 4096)
             rel = slim.dropout(rel, self.keep_prob)
+            ## no sense
+            self._class_feature(self.rel_inx1, self.rel_inx2)
             self._rel_pred(rel)
 
     def _net_conv(self, inputs):
