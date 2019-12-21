@@ -130,4 +130,4 @@ def vg_prior():
     save(o2p, "./data/vg/lang_prior", origin_o2p, "./data/vg/dataset_prior")
 
 if __name__=='__main__':
-    vrd_prior('vrd', '')
+    vrd_prior('tl_vg', '')

@@ -68,7 +68,7 @@ def show_embedding(ind2class, ind2predicate, filename):
 
 if __name__=='__main__':
     # # convert('data/word2vec/glove/glove.6B.50d.txt', 'data/word2vec/glove.6B.50d.txt')
-    dataset_name = 'vg/vg_vtranse'
+    dataset_name = 'tl_vg'
     w2v = get_wordvecs('./data/word2vec/glove.6B.50d.txt')
     objs, preds = get_vrd_words('./data/{}/train.json'.format(dataset_name))
     save_wordvecs(w2v, objs, './data/{}/w2v'.format(dataset_name))

@@ -9,6 +9,7 @@
 
 import _init_paths
 from fast_rcnn.train import train_net
+from fast_rcnn import train_tl
 from fast_rcnn.config import cfg, cfg_from_file
 from datasets.factory import get_db, get_val_db
 from roi_data_layer.roidb import prepare_roidb, compute_bbox_target_normalization
@@ -48,6 +49,8 @@ def parse_args():
                         default="vggnet", type=str)
     parser.add_argument('--inference_iter', dest='inference_iter',
                         default=2, type=int)
+    parser.add_argument('--train_type', dest='train_type',
+                        default="normal", type=str)
 
     if len(sys.argv) == 1:
         parser.print_help()
@@ -85,7 +88,7 @@ if __name__ == '__main__':
         # fix the random seeds (numpy) for reproducibility
         np.random.seed(cfg.RNG_SEED)
 
-    imdb = get_db(split = 0)
+    imdb = get_db()
     print('Loaded db `{:s}` for training'.format(cfg.DATASET))
     if cfg.TRAIN.USE_FLIPPED:
         print('appending flipped images')
@@ -112,6 +115,12 @@ if __name__ == '__main__':
 
     device_name = '/gpu:{:d}'.format(args.gpu_id)
     print(device_name)
-    train_net(args.network_name, imdb, roidb, args.output_dir, args.tf_log,
-              pretrained_model=args.pretrained_model,
-              max_iters=args.max_iters, val_roidb=val_roidb)
+    if args.train_type == "tl":
+        train_tl.train_net(args.network_name, imdb, roidb, args.output_dir, args.tf_log,
+                  pretrained_model=args.pretrained_model,
+                  max_iters=args.max_iters, val_roidb=val_roidb)
+    else:
+        train_net(args.network_name, imdb, roidb, args.output_dir, args.tf_log,
+                  pretrained_model=args.pretrained_model,
+                  max_iters=args.max_iters, val_roidb=val_roidb)
+

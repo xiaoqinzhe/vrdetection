@@ -26,14 +26,10 @@ from utils.cython_bbox import bbox_overlaps
 from datasets.eval import draw_det_images, draw_gt_images, mAP, maxRelPrecision
 
 class vrd(imdb):
-  def __init__(self, image_set, version=None):
-    if version is None:
-        self._data_path = '../data/vrd'
-        name = 'vrd_'+ image_set
-    else:
-        self._data_path = '../data/vg/vg_'+version
-        name = 'vg_' + version + "_" + image_set
-    imdb.__init__(self, name)
+  def __init__(self, image_set, dataset_name, path, num_im=-1):
+    self._data_path = os.path.join(path, dataset_name)
+    name = dataset_name + "_" + image_set
+    super(vrd, self).__init__(name)
     self._image_set = image_set
 
     # image_set='train'

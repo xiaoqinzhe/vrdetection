@@ -4,13 +4,9 @@ from fast_rcnn.config import cfg
 import os, json, h5py, cv2, scipy.sparse, copy, pickle
 
 class vrd(imdb):
-    def __init__(self, image_set, version=None, num_im=-1):
-        if version is None:
-            self._data_path = './data/vrd'
-            name = 'vrd_' + image_set
-        else:
-            self._data_path = './data/vg/vg_' + version
-            name = 'vg_' + version + "_" + image_set
+    def __init__(self, image_set, dataset_name, path, num_im=-1):
+        self._data_path = os.path.join(path, dataset_name)
+        name = dataset_name + "_" + image_set
         super(vrd, self).__init__(name)
 
         # image_set='train'

@@ -66,7 +66,7 @@ class imdb(object):
     def prior(self):
         if self._prior is None:
             path = './data/' + cfg.DATASET
-            if 'vg' in cfg.DATASET:
+            if cfg.DATASET.startswith('vg'):
                 path = './data/vg/' + cfg.DATASET
             filename = path + "/" + cfg.TEST.PRIOR_FILENAME
             self._prior = np.load(filename)

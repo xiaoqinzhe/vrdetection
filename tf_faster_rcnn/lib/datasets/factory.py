@@ -41,15 +41,28 @@ for year in ['2014']:
 #     __sets[name] = (lambda split=split, year=year: coco(split, year))
 
 # Set up coco_2015_<split>
+
+path = "../data/"
+
+# vrd
 for split in ['train', 'test']:
   name = 'vrd_{}'.format(split)
-  __sets[name] = (lambda split=split,: vrd(split))
+  __sets[name] = (lambda split=split,: vrd(split, 'vrd', path))
 
 # vg
 for split in ['train', 'test']:
   for version in ['drnet', 'msdn', 'vtranse']:
     name = 'vg_{}_{}'.format(version, split)
-    __sets[name] = (lambda split=split, version=version,: vrd(split, version))
+    __sets[name] = (lambda split=split, version=version,: vrd(split, "vg/"+version, path+"vg/", version))
+
+# tl vrd
+for split in ['train', 'test']:
+  name = 'tl_vrd_{}'.format(split)
+  __sets[name] = (lambda split=split,: vrd(split, 'tl_vrd', path))
+
+for split in ['train', 'test']:
+  name = 'tl_vg_{}'.format(split)
+  __sets[name] = (lambda split=split,: vrd(split, 'tl_vg', path))
 
 def get_imdb(name):
   """Get an imdb (image database) by name."""

@@ -115,7 +115,7 @@ prior = None
 
 def get_prior():
     path = './data/' + cfg.DATASET
-    if 'vg' in cfg.DATASET:
+    if cfg.DATASET.startswith('vg'):
         path = './data/vg/' + cfg.DATASET
     filename = path + "/" + cfg.TEST.PRIOR_FILENAME
     global prior

@@ -45,7 +45,6 @@ class Trainer(object):
             # if cfg.MODEL_PARAMS['stop_gradient']:
             ds = cfg.DATASET
             if cfg.DATASET == 'tl_vrd': ds = "vrd"
-            if cfg.DATASET == 'tl_vg': ds = "vg_vtranse"
             self.pretrained_model = 'tf_faster_rcnn/output/{}/{}_train/default/{}_faster_rcnn_iter_{}.ckpt'.format(self.basenet, ds, self.basenet, self.basenet_iter)
             # self.pretrained_model = 'tf_faster_rcnn/data/imagenet_weights/imagenet_vgg16.ckpt'
 
