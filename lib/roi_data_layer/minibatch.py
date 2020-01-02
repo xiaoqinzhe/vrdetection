@@ -14,7 +14,7 @@ from roi_data_layer import data_utils
 from IPython import embed
 from utils.timer import Timer
 
-def get_minibatch(roidb, num_classes, imdb):
+def get_minibatch(roidb, num_classes):
     """Given a mini batch of roidb, construct a data blob from it."""
     num_images = len(roidb)
     # Sample random scales to use for each image in this batch
@@ -38,8 +38,8 @@ def get_minibatch(roidb, num_classes, imdb):
     labels_blob = np.zeros((0), dtype=np.float32)
     rels_blob = np.zeros((0, 3), dtype=np.int32)
     rel_spt_blob = np.zeros((0), dtype=np.int8)
-    rel_prior = imdb.prior
-    prior_blob = np.zeros((0, rel_prior.shape[1]), dtype=np.float32)
+    # rel_prior = imdb.prior
+    # prior_blob = np.zeros((0, rel_prior.shape[1]+1), dtype=np.float32)
 
     bbox_targets_blob = np.zeros((0, 4 * num_classes), dtype=np.float32)
     bbox_inside_blob = np.zeros(bbox_targets_blob.shape, dtype=np.float32)
@@ -72,8 +72,8 @@ def get_minibatch(roidb, num_classes, imdb):
         rels, labels, overlaps, im_rois, bbox_targets, bbox_inside_weights =\
             _gather_samples(roidb[im_i], roi_inds, rels, num_classes)
 
-        p = data_utils.get_priors(rels, labels, num_classes, rel_prior)
-        prior_blob = np.vstack((prior_blob, p))
+        # p = data_utils.get_priors(rels, labels, num_classes, rel_prior)
+        # prior_blob = np.vstack((prior_blob, p))
 
         # Add to RoIs blob
         rois = _project_im_rois(im_rois, im_scales[im_i])
@@ -110,7 +110,7 @@ def get_minibatch(roidb, num_classes, imdb):
     blobs['predicates'] = rels_blob[:,2].copy().astype(np.int32)
     blobs['bbox_targets'] = bbox_targets_blob.copy()
     blobs['bbox_inside_weights'] = bbox_inside_blob.copy()
-    blobs['prior'] = prior_blob
+    # blobs['prior'] = prior_blob.copy()
     #     np.array(bbox_inside_blob > 0).astype(np.float32).copy()
 
 

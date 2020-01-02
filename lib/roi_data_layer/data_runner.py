@@ -32,7 +32,16 @@ class DataRunnerMP:
         generate sample from task queue and put the sample
         into a data queue in the form of tf feed_dict
         """
+        # from pympler import tracker, summary, muppy
+        # import gc
+        # memory_tracker = tracker.SummaryTracker()
+        i = 0
+        # print(gc.isenabled())
+        # gc.set_debug(gc.DEBUG_STATS)
         while True:
+            # if i % 10 == 0: memory_tracker.print_diff()
+
+            # gc.collect()
             task = task_queue.get()
             sample = self._task_func(task)
             if sample is None:
@@ -41,6 +50,8 @@ class DataRunnerMP:
             for key in sample:
                 feed[key] = sample[key]
             data_queue.put(feed)
+            i += 1
+
 
     def _manager_main(self, queue):
         """

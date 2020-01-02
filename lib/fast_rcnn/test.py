@@ -137,6 +137,7 @@ def get_detections(im_i):
     global detections
     if detections is None:
         filename = get_detections_filename()
+        print("getting detection file: {}".format(filename))
         detections = np.load(filename, encoding="latin1")
     return [detections[j][im_i] for j in range(len(detections))]
 

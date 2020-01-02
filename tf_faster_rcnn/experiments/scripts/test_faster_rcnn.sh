@@ -44,6 +44,22 @@ case ${DATASET} in
     ANCHORS="[4,8,16,32]"
     RATIOS="[0.5,1,2]"
     ;;
+  tl_vrd)
+    TRAIN_IMDB="tl_vrd_train"
+    TEST_IMDB="tl_vrd_test"
+    STEPSIZE="[60000]"
+    ITERS=90000
+    ANCHORS="[4,8,16,32]"
+    RATIOS="[0.5,1,2]"
+    ;;
+  tl_vg)
+    TRAIN_IMDB="tl_vg_train"
+    TEST_IMDB="tl_vg_test"
+    STEPSIZE="[100000]"
+    ITERS=150000
+    ANCHORS="[4,8,16,32]"
+    RATIOS="[0.5,1,2]"
+    ;;
   vg_drnet)
     TRAIN_IMDB="vg_drnet_train"
     TEST_IMDB="vg_drnet_test"
@@ -55,6 +71,14 @@ case ${DATASET} in
   vg_msdn)
     TRAIN_IMDB="vg_msdn_train"
     TEST_IMDB="vg_msdn_test"
+    STEPSIZE="[300000]"
+    ITERS=450000
+    ANCHORS="[4,8,16,32]"
+    RATIOS="[0.5,1,2]"
+    ;;
+  vg_vtranse)
+    TRAIN_IMDB="vg_vtranse_train"
+    TEST_IMDB="vg_vtranse_test"
     STEPSIZE="[300000]"
     ITERS=450000
     ANCHORS="[4,8,16,32]"

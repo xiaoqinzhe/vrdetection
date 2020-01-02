@@ -528,6 +528,10 @@ class simplenet(basenet):
                 if self.use_embedding:
                     # class me
                     sub_emb, obj_emb = self._class_feature(self.rel_inx1, self.rel_inx2)
+                    # cls_sub = slim.fully_connected(sub_emb, emb_size, scope="cls_proj")
+                    # cls_obj = slim.fully_connected(sub_emb, emb_size, scope="cls_proj", reuse=True)
+                    # cls_proj = slim.fully_connected(tf.concat([cls_sub, cls_obj, prior], 1), emb_size)
+                    # cls_proj = slim.fully_connected(tf.concat([cls_sub, cls_obj], 1), emb_size)
                     cls_emb = tf.concat([sub_emb, obj_emb], axis=1)
                     cls_proj = slim.fully_connected(cls_emb, emb_size)
                 else:
@@ -538,7 +542,7 @@ class simplenet(basenet):
                 else:
                     spt = None
 
-                prior = slim.fully_connected(self.rel_prior, emb_size)
+
 
                 # weighted attention layer
                 if not self.use_vis:  vis_feat = None
@@ -569,8 +573,10 @@ class simplenet(basenet):
                         feat = spt
                     else:
                         feat = tf.concat([feat, spt], axis=1)
-                feat = tf.concat([feat, prior], axis=1)
+
                 feat = slim.fully_connected(feat, size)
+                # prior = slim.fully_connected(self.rel_prior, emb_size)
+                # feat = tf.concat([feat, prior], axis=1)
 
                 with tf.variable_scope('rel_score'):
                     weight = tf.get_variable("weight", shape=[feat.shape.as_list()[1], self.num_predicates])
@@ -640,5 +646,13 @@ class simplenet(basenet):
         # weight_loss = tf.reduce_mean(tf.abs(self.layers['rel_weights'] - self.data['rel_weights']))
         #print(weight_loss)
         losses['loss_weight'] = tf.reduce_mean(weight_loss)
-        losses['loss_total'] = tf.add(losses['loss_total'], losses['loss_weight'])
+        alpha = 0.5
+        losses['loss_total'] = tf.add(losses['loss_reg'], tf.add(alpha*losses['loss_rel'], (1-alpha)*losses['loss_weight']))
+        # prior loss
+        use_prior = False
+        if use_prior:
+            beta = 0.5
+            print(self.rel_prior.shape)
+            losses['loss_prior'] = tf.losses.sigmoid_cross_entropy(self.rel_prior, self.layers['rel_score'])
+            losses['loss_total'] = losses['loss_reg'] + alpha*(beta*losses['loss_rel'] + (1-beta)*losses['loss_prior']) + (1-alpha)*losses['loss_weight']
         return losses

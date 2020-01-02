@@ -35,5 +35,13 @@ def get_detections_filename(iter=450000, net="res50"):
         iter = 450000
         net = 'res50'
         return "tf_faster_rcnn/output/{}/vg_vtranse_test/default/{}_faster_rcnn_iter_{}/detections.npy".format(net, net, iter)
+    elif dataset_name == 'tl_vrd':
+        iter = 90000
+        net = 'vgg16'
+        return "tf_faster_rcnn/output/{}/tl_vrd_test/default/{}_faster_rcnn_iter_{}/detections.npy".format(net, net, iter)
+    elif dataset_name == 'tl_vg':
+        iter = 150000
+        net = 'vgg16'
+        return "tf_faster_rcnn/output/{}/tl_vg_test/default/{}_faster_rcnn_iter_{}/detections.npy".format(net, net, iter)
     else:
         raise AttributeError("dataset name does not exist")
