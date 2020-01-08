@@ -44,8 +44,8 @@ class Trainer(object):
         if self.init_conv:
             # if cfg.MODEL_PARAMS['stop_gradient']:
             ds = cfg.DATASET
-            if cfg.DATASET == 'tl_vrd': ds = "vrd"
-            if cfg.DATASET == 'tl_vg': ds = "vg_vtranse"
+            # if cfg.DATASET == 'tl_vrd': ds = "vrd"
+            # if cfg.DATASET == 'tl_vg': ds = "vg_vtranse"
             self.pretrained_model = 'tf_faster_rcnn/output/{}/{}_train/default/{}_faster_rcnn_iter_{}.ckpt'.format(self.basenet, ds, self.basenet, self.basenet_iter)
             # self.pretrained_model = 'tf_faster_rcnn/data/imagenet_weights/imagenet_vgg16.ckpt'
 
@@ -210,9 +210,9 @@ class Trainer(object):
         inputs['is_training'] = True
 
         # data_runner.start_threads(sess, n_threads=10)
-        data_runner.start_processes(sess, n_processes=3)
+        data_runner.start_processes(sess, n_processes=1)
         if self.if_val:
-            val_data_runner.start_processes(sess, n_processes=2)
+            val_data_runner.start_processes(sess, n_processes=1)
 
         print("classes = %i"%self.imdb.num_classes, "predicates = %i"%self.imdb.num_predicates)
 
@@ -292,7 +292,11 @@ class Trainer(object):
         next_stepsize = stepsizes.pop()
 
         # Training loop
+        import gc
+        print(gc.isenabled())
+        gc.set_debug(gc.DEBUG_STATS)
         for iter in range(max_iters):
+
             # tracing training information
             if iter % 10000 == 0:
                 run_metadata = tf.RunMetadata()
@@ -373,6 +377,7 @@ class Trainer(object):
             # if (iter + 1) % 5000 == 0 or (iter > 30000 and iter % 2000 == 0):
                 last_snapshot_iter = iter
                 self.snapshot(sess, iter)
+            del(feed_dict)
 
         if last_snapshot_iter != iter:
             self.snapshot(sess, iter)

@@ -80,6 +80,9 @@ if __name__ == '__main__':
         cfg.TRAIN.STEPSIZES = [150000, 300000]
         cfg.BASENET_WEIGHT_ITER = '450000'
 
+    if args.dataset == 'tl_vg':
+        cfg.TRAIN.STEPSIZES = [50000, 100000]
+        cfg.BASENET_WEIGHT_ITER = '150000'
 
     print('Using config:')
     pprint.pprint(cfg)

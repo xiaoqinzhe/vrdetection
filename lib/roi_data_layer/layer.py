@@ -56,7 +56,7 @@ class RoIDataLayer:
         add_bbox_regression_targets(minibatch_db, self.bbox_means,
                                     self.bbox_stds)
 
-        blobs = get_minibatch(minibatch_db, self._num_classes, self.imdb)
+        blobs = get_minibatch(minibatch_db, self._num_classes)
         # if blobs is not None:
         #     blobs['db_inds'] = db_inds
         return blobs

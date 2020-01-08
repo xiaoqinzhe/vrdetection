@@ -77,6 +77,17 @@ def vrd_vg_inter(vrd_path, vg_path):
     vrd_test = json.load(open(vrd_path+'test.json'))
     vg_train = json.load(open(vg_path + 'train.json'))
     vg_test = json.load(open(vg_path + 'test.json'))
+
+    vrd_filenames = set()
+    vg_filenames = set()
+    for d in vrd_train['data']:
+        vrd_filenames.add(os.path.basename(d['image_filename']))
+    for d in vg_train['data']:
+        vg_filenames.add(os.path.basename(d['image_filename']))
+    inter = vrd_filenames.intersection(vg_filenames)
+    print(list(vrd_filenames)[:10], '\n', list(vg_filenames)[:10], [i for i in inter ])
+    exit()
+
     # vrd = {
     #     "labels": vrd_train['labels'],
     #     "relations": vrd_train['relations'],
