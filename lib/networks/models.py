@@ -73,7 +73,7 @@ class vrdnet(Network):
             'rel_context': tf.placeholder(dtype=tf.int32, shape=[None]),
             'rel_context_inds': tf.placeholder(dtype=tf.int32, shape=[None]),
             'obj_embedding': tf.placeholder(dtype=tf.float32, shape=[num_classes, obj_embedding_size]),
-            'prior': tf.placeholder(dtype=tf.float32, shape=[None, prior_size]),
+            'prior': tf.placeholder(dtype=tf.float32, shape=[None, prior_size+1]),
             'obj_matrix': tf.placeholder(dtype=tf.float32, shape=[None, None]),
             'rel_matrix': tf.placeholder(dtype=tf.float32, shape=[None, None]),
             'rel_weight_labels': tf.placeholder(dtype=tf.int32, shape=[None]),

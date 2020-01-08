@@ -137,7 +137,8 @@ def get_detections(im_i):
     global detections
     if detections is None:
         filename = get_detections_filename()
-        detections = np.load(filename, encoding="latin1")
+        print("getting detection file: {}".format(filename))
+        detections = np.load(filename, encoding="latin1", allow_pickle=True)
     return [detections[j][im_i] for j in range(len(detections))]
 
 def im_detect(sess, net, inputs, im, im_i, boxes, bbox_reg, roidb, pred_ops, metric_ops, mode, cls_preds, cls_scores):
@@ -264,7 +265,7 @@ def gt_rois(roidb):
     return rois
 
 def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
-    if net_name in ["weightnet", "ranknet", 'ctxnet', 'graphnet']:
+    if net_name in ["weightednet", "ranknet", 'ctxnet', 'graphnet', 'simplenet']:
         cfg.TRAIN.USE_GRAPH_SAMPLE=True
     else: cfg.TRAIN.USE_GRAPH_SAMPLE=False
     sess = tf.Session()

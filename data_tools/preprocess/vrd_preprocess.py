@@ -89,7 +89,7 @@ def preprocess(json_file, ims_path, save_file, class_to_ind, ind_to_class, predi
         height, width = im.shape[0], im.shape[1]
         boxes, labels, rels = get_objs_rels(d)
         if len(boxes) == 0:
-            print(d)
+            # print(d)
             continue
         save_info.append({
             "image_filename" : ims_path.split("/")[-2]+"/"+filename,
@@ -118,8 +118,8 @@ def preprocess(json_file, ims_path, save_file, class_to_ind, ind_to_class, predi
         "predicate_to_ind": predicate_to_ind,
         "ind_to_predicate": ind_to_predicate,
     }
-    # with open(save_file, 'w') as f:
-    #     json.dump(final_save, f)
+    with open(save_file, 'w') as f:
+        json.dump(final_save, f)
     print("saved images = %d" % len(save_info))                                 # 3780     954
     print("average boxes per image = %f" % ((box_count*1.0)/len(save_info)))    # 6.99     7.05      7
     print("saved relationships = %f" % ((pred_count*1.0)/len(save_info)))       # 8.03     8.00      8

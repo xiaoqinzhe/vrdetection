@@ -12,7 +12,7 @@ class weightednet(basenet):
         self.if_pred_bbox = False
         self.embedded_size = 256
         self.fuse_size = 512
-        self.if_fuse = True
+        self.if_fuse = False
         print(self.use_vis, self.use_embedding, self.use_spatial)
 
     def _net(self):
@@ -33,15 +33,15 @@ class weightednet(basenet):
                             ):
             conv_net = self._net_conv(self.ims)
             self.layers['conv_out'] = conv_net
-            # roi_conv_out = self._net_roi_pooling([conv_net, self.rois], self.pooling_size, self.pooling_size,
-            #                                      name='roi_conv_out')
-            # rel_roi_conv_out = self._net_roi_pooling([conv_net, self.rel_rois], self.pooling_size,
-            #                                          self.pooling_size,
-            #                                          name='rel_roi_conv_out')
-            roi_conv_out = self._net_crop_pooling([conv_net, self.rois], self.pooling_size,
+            roi_conv_out = self._net_roi_pooling([conv_net, self.rois], self.pooling_size, self.pooling_size,
                                                  name='roi_conv_out')
-            rel_roi_conv_out = self._net_crop_pooling([conv_net, self.rel_rois], self.pooling_size,
+            rel_roi_conv_out = self._net_roi_pooling([conv_net, self.rel_rois], self.pooling_size,
+                                                     self.pooling_size,
                                                      name='rel_roi_conv_out')
+            # roi_conv_out = self._net_crop_pooling([conv_net, self.rois], self.pooling_size,
+            #                                      name='roi_conv_out')
+            # rel_roi_conv_out = self._net_crop_pooling([conv_net, self.rel_rois], self.pooling_size,
+            #                                          name='rel_roi_conv_out')
             roi_fc_out = self._net_roi_fc(roi_conv_out)
             self.rel_inx1, self.rel_inx2 = self._relation_indexes()
 
@@ -86,16 +86,16 @@ class weightednet(basenet):
                 # self.weighted_attention(conv_net, vis_feat)
 
                 if self.use_vis:
-                    if self.if_fuse: vis_feat = slim.fully_connected(vis_feat, self.fuse_size)
+                    # if self.if_fuse: vis_feat = slim.fully_connected(vis_feat, self.fuse_size)
                     feat = vis_feat
                 else:
                     feat = None
                 if self.use_embedding:
-                    if self.if_fuse: cls_proj = slim.fully_connected(cls_proj, self.fuse_size)
+                    # if self.if_fuse: cls_proj = slim.fully_connected(cls_proj, self.fuse_size)
                     if feat is None:  feat = cls_proj
                     else:  feat = tf.concat([feat, cls_proj], axis=1)
                 if self.use_spatial:
-                    if self.if_fuse: spt = slim.fully_connected(spt, self.fuse_size)
+                    # if self.if_fuse: spt = slim.fully_connected(spt, self.fuse_size)
                     if feat is None:  feat = spt
                     else: feat = tf.concat([feat, spt], axis=1)
                 # feat = tf.concat([vis_feat, cls_proj, spt], axis=1)
@@ -528,6 +528,10 @@ class simplenet(basenet):
                 if self.use_embedding:
                     # class me
                     sub_emb, obj_emb = self._class_feature(self.rel_inx1, self.rel_inx2)
+                    # cls_sub = slim.fully_connected(sub_emb, emb_size, scope="cls_proj")
+                    # cls_obj = slim.fully_connected(sub_emb, emb_size, scope="cls_proj", reuse=True)
+                    # cls_proj = slim.fully_connected(tf.concat([cls_sub, cls_obj, prior], 1), emb_size)
+                    # cls_proj = slim.fully_connected(tf.concat([cls_sub, cls_obj], 1), emb_size)
                     cls_emb = tf.concat([sub_emb, obj_emb], axis=1)
                     cls_proj = slim.fully_connected(cls_emb, emb_size)
                 else:
@@ -538,7 +542,7 @@ class simplenet(basenet):
                 else:
                     spt = None
 
-                prior = slim.fully_connected(self.rel_prior, emb_size)
+
 
                 # weighted attention layer
                 if not self.use_vis:  vis_feat = None
@@ -569,8 +573,10 @@ class simplenet(basenet):
                         feat = spt
                     else:
                         feat = tf.concat([feat, spt], axis=1)
-                feat = tf.concat([feat, prior], axis=1)
+
                 feat = slim.fully_connected(feat, size)
+                # prior = slim.fully_connected(self.rel_prior, emb_size)
+                # feat = tf.concat([feat, prior], axis=1)
 
                 with tf.variable_scope('rel_score'):
                     weight = tf.get_variable("weight", shape=[feat.shape.as_list()[1], self.num_predicates])
@@ -632,6 +638,20 @@ class simplenet(basenet):
         pos_pred = tf.reduce_sum(tf.gather(true_pred, pos_inds))
         ops['rec_weight'] =  pos_pred/num_pos
 
+    def lk_loss(self, labels, predictions, prior):
+        ont_hot_labels = tf.one_hot(labels, self.num_predicates)
+        sl = 0.0
+        alpha = 0.8
+        smooth_labels = alpha*(ont_hot_labels * (1 - sl) + sl/self.num_predicates) + (1-alpha)*prior
+        loss = tf.nn.softmax_cross_entropy_with_logits_v2(labels=smooth_labels, logits=predictions)
+        if True:  # do not penalize background class
+            loss_mask = tf.cast(tf.greater(labels, 0), tf.float32)
+            loss = tf.multiply(loss, loss_mask)
+            loss = tf.reduce_sum(loss)/(tf.reduce_sum(loss_mask)+1)
+        else:
+            loss = tf.reduce_sum(loss)
+        return loss
+
     # Losses
     def losses(self):
         losses = super(simplenet, self).losses()
@@ -640,5 +660,15 @@ class simplenet(basenet):
         # weight_loss = tf.reduce_mean(tf.abs(self.layers['rel_weights'] - self.data['rel_weights']))
         #print(weight_loss)
         losses['loss_weight'] = tf.reduce_mean(weight_loss)
-        losses['loss_total'] = tf.add(losses['loss_total'], losses['loss_weight'])
+        alpha = 0.8
+        losses['loss_total'] = tf.add(losses['loss_reg'], tf.add(alpha*losses['loss_rel'], (1-alpha)*losses['loss_weight']))
+        # prior loss
+        use_prior = False
+        if use_prior:
+            beta = 0.8
+            print(self.rel_prior.shape)
+            losses['loss_rel'] = self.lk_loss(self.predicates, self.layers['rel_score'], self.rel_prior)
+            losses['loss_total'] = 0.2 * losses['loss_reg'] + alpha * losses['loss_rel'] + (1 - alpha) * losses['loss_weight']
+            # losses['loss_prior'] = tf.losses.sigmoid_cross_entropy(self.rel_prior, self.layers['rel_score'])
+            # losses['loss_total'] = 0.2*losses['loss_reg'] + alpha*(beta*losses['loss_rel'] + (1-beta)*losses['loss_prior']) + (1-alpha)*losses['loss_weight']
         return losses

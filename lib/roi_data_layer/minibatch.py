@@ -39,7 +39,7 @@ def get_minibatch(roidb, num_classes, imdb):
     rels_blob = np.zeros((0, 3), dtype=np.int32)
     rel_spt_blob = np.zeros((0), dtype=np.int8)
     rel_prior = imdb.prior
-    prior_blob = np.zeros((0, rel_prior.shape[1]), dtype=np.float32)
+    prior_blob = np.zeros((0, rel_prior.shape[1]+1), dtype=np.float32)
 
     bbox_targets_blob = np.zeros((0, 4 * num_classes), dtype=np.float32)
     bbox_inside_blob = np.zeros(bbox_targets_blob.shape, dtype=np.float32)
