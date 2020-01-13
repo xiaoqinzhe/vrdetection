@@ -298,12 +298,12 @@ class multinet(basenet):
                 #self._rel_pred(net)
 
                 # case 5   51.2
-                net = tf.concat([vis_feat, spt], axis=1)
-                self._rel_pred(net)
+                # net = tf.concat([vis_feat, spt], axis=1)
+                # self._rel_pred(net)
 
                 # case 6
-                #net = tf.concat([vis_feat, cls_proj, spt], axis=1)
-                #self._rel_pred(net)
+                net = tf.concat([vis_feat, cls_proj, spt], axis=1)
+                self._rel_pred(net)
 
                 '''with tf.variable_scope('rel_score'):
                     weight = tf.get_variable("weight", shape=[net.shape.as_list()[1], self.num_predicates])

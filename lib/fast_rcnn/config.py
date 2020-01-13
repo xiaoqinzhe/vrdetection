@@ -58,7 +58,7 @@ __C.TRAIN.FG_THRESH = 0.5
 # Overlap threshold for a ROI to be considered background (class = 0 if
 # overlap in [LO, HI))
 __C.TRAIN.BG_THRESH_HI = 0.5
-__C.TRAIN.BG_THRESH_LO = 0.1
+__C.TRAIN.BG_THRESH_LO = 0.0
 
 # Use horizontally-flipped images during training?
 __C.TRAIN.USE_FLIPPED = True
@@ -219,6 +219,9 @@ __C.TRAIN.CONV_BP = True
 __C.MODEL_PARAMS = {'if_pred_cls': False, 'if_pred_bbox': False, 'if_pred_rel': True, 'if_pred_spt': False,
                     'use_vis': True, 'use_spatial': True, 'use_embedding': True, 'use_class': True,
                     'stop_gradient': True, }
+
+__C.TRAIN.USE_RPN_DB = True
+__C.TRAIN.USE_FG_BG = True
 
 # __C.BASENET='res50'
 # __C.BASENET_WEIGHT_ITER='75000'

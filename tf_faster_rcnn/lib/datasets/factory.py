@@ -53,7 +53,7 @@ for split in ['train', 'test']:
 for split in ['train', 'test']:
   for version in ['drnet', 'msdn', 'vtranse']:
     name = 'vg_{}_{}'.format(version, split)
-    __sets[name] = (lambda split=split, version=version,: vrd(split, "vg/"+version, path+"vg/", version))
+    __sets[name] = (lambda split=split, version=version,: vrd(split, "vg_"+version, path+"vg/"))
 
 # tl vrd
 for split in ['train', 'test']:

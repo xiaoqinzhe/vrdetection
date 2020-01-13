@@ -54,7 +54,7 @@ def eval_relation_recall(sg_entry,
         predicate_preds = predicate_preds[:, :, 1:]
 
     num_classes = sg_entry['num_classes']
-    #print("num_classes: ", num_classes, top_k)
+    # print("num_classes: ", num_classes, top_k)
 
     # use prediction, prior, weight
     if use_gt_rel:

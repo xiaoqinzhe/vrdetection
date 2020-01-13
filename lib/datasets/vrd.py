@@ -44,6 +44,19 @@ class vrd(imdb):
         self.embedding_size = self.word2vec.shape[1]
         print("load word2vec from "+self._data_path + '/w2v.npy')
 
+        # load detected rpn
+        if cfg.TRAIN.USE_RPN_DB:
+            detections = np.load(self._data_path+"/{}_detections.npy".format(image_set), allow_pickle=True)
+
+            self.rpn_rois = []
+            self.rpn_scores = []
+            assert(len(detections[0]) == len(self.info['data']), "image amount mismatch")
+            assert (len(detections) == len(self.info['ind_to_class']), "roi labels count mismatch")
+            for i in range(len(detections[0])):
+                self.rpn_rois.append(np.vstack([detections[j][i][:, :4] for j in range(1, len(detections))]))
+                self.rpn_scores.append(np.hstack([detections[j][i][:, 4] for j in range(1, len(detections))]))
+            print(self.rpn_rois[0].shape, self.rpn_scores[0].shape)
+
         # if cfg.TRAIN.USE_SAMPLE_GRAPH:
         # vecs = np.zeros([self.word2vec.shape[0]+1, self.word2vec.shape[1]], np.float32)
         # vecs[1:, :] = self.word2vec
@@ -102,7 +115,7 @@ class vrd(imdb):
                              'gt_overlaps' : overlaps,
                              'gt_relations': relation,
                              # 'gt_spatial': self.get_spatial_class(relation, self.ind_to_predicates, self.spatial_to_ind),
-                             'gt_spatial': np.zeros((0), np.int32),
+                             # 'gt_spatial': np.zeros((0), np.int32),
                              'flipped' : False,
                              'seg_areas' : seg_areas,
                              'db_idx': i,
@@ -130,6 +143,7 @@ class vrd(imdb):
         """
         Load precomputed RPN proposals
         """
+        assert(cfg.TRAIN.USE_RPN_DB == True, "use rpn?")
         gt_roidb = copy.deepcopy(gt_roidb_batch) if make_copy else gt_roidb_batch
         rpn_roidb = self._load_rpn_roidb(gt_roidb)
         roidb = imdb.merge_gt_rpn_roidb(gt_roidb, rpn_roidb)

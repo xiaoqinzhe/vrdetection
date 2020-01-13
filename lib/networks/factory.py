@@ -34,6 +34,7 @@ __sets['grunet'] = grunet
 __sets['cainet'] = cainet
 __sets['weightednet'] = weightednet
 __sets['weightednet2'] = weightednet2
+__sets['weightednet3'] = weightednet3
 __sets['ranknet'] = ranknet
 __sets['simplenet'] = simplenet
 # __sets['dual_graph_vrd_avgpool'] = dual_graph_vrd_avgpool  # avg pooling baseline

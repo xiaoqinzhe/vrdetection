@@ -62,12 +62,13 @@ class vrdnet(Network):
             # 'bboxes': tf.placeholder(dtype=tf.float32, shape=[None, 4]),
             'relations': tf.placeholder(dtype=tf.int32, shape=[None, 2]),
             'predicates': tf.placeholder(dtype=tf.int32, shape=[None]),
-            'rel_spts': tf.placeholder(dtype=tf.int32, shape=[None]),
+            # 'rel_spts': tf.placeholder(dtype=tf.int32, shape=[None]),
             'bbox_targets': tf.placeholder(dtype=tf.float32, shape=[None, 4 * num_classes]),
             'bbox_inside_weights': tf.placeholder(dtype=tf.float32, shape=[None, 4 * num_classes]),
             'num_roi': tf.placeholder(dtype=tf.int32, shape=[]),  # number of rois per batch
             'num_rel': tf.placeholder(dtype=tf.int32, shape=[]),  # number of relationships per batch
             'obj_context_o': tf.placeholder(dtype=tf.int32, shape=[None]),
+
             'obj_context_p': tf.placeholder(dtype=tf.int32, shape=[None]),
             'obj_context_inds': tf.placeholder(dtype=tf.int32, shape=[None]),
             'rel_context': tf.placeholder(dtype=tf.int32, shape=[None]),
@@ -80,6 +81,7 @@ class vrdnet(Network):
             'rel_weight_rois': tf.placeholder(dtype=tf.float32, shape=[None, 5]),
             'rel_triple_inds': tf.placeholder(dtype=tf.int32, shape=[None, 2]),
             'rel_triple_labels': tf.placeholder(dtype=tf.int32, shape=[None, 1]),
+            'fg_labels': tf.placeholder(dtype=tf.int32, shape=[None]),
         }
         return input_pls
 

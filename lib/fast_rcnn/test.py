@@ -137,8 +137,8 @@ def get_detections(im_i):
     global detections
     if detections is None:
         filename = get_detections_filename()
-        print("getting detection file: {}".format(filename))
         detections = np.load(filename, encoding="latin1", allow_pickle=True)
+        print("getting detection file: {}, containing {} boxes".format(filename, len([detections[j][0] for j in range(len(detections))])))
     return [detections[j][im_i] for j in range(len(detections))]
 
 def im_detect(sess, net, inputs, im, im_i, boxes, bbox_reg, roidb, pred_ops, metric_ops, mode, cls_preds, cls_scores):
@@ -187,7 +187,7 @@ def im_detect(sess, net, inputs, im, im_i, boxes, bbox_reg, roidb, pred_ops, met
     feed_dict = {inputs['ims']: blobs['data'],
                  inputs['rois']: blobs['rois'],
                  inputs['relations']: relations,
-                 inputs['rel_spts']: roidb['gt_spatial'],
+                 # inputs['rel_spts']: roidb['gt_spatial'],
                  inputs['labels']: roidb['gt_classes'],
                  inputs['predicates']: predicates,
                  net.keep_prob: 1
@@ -218,6 +218,7 @@ def im_detect(sess, net, inputs, im, im_i, boxes, bbox_reg, roidb, pred_ops, met
         rel_probs_flat = ops_value['rel_probs']
         rel_probs[rel[0], rel[1], :] = rel_probs_flat[i, :]
 
+
     if net.if_pred_cls:
         cls_probs = ops_value['cls_probs']
     else:
@@ -231,6 +232,7 @@ def im_detect(sess, net, inputs, im, im_i, boxes, bbox_reg, roidb, pred_ops, met
                 'relations': rel_probs.copy()}
     if 'rel_weight_prob' in pred_ops:
         out_dict['rel_weights'] = ops_value['rel_weight_prob']
+        # out_dict['rel_weights'] = ops_value['rel_weight_soft']
         # print(np.sum(ops_value["rel_weight_prob"]))
 
     # cal rels show
@@ -264,10 +266,23 @@ def gt_rois(roidb):
     rois = roidb['boxes'][gt_inds]
     return rois
 
+def get_variables_in_checkpoint_file(file_name):
+    try:
+        from tensorflow.python import pywrap_tensorflow
+        reader = pywrap_tensorflow.NewCheckpointReader(file_name)
+        var_to_shape_map = reader.get_variable_to_shape_map()
+        return var_to_shape_map
+    except Exception as e:  # pylint: disable=broad-except
+        print(str(e))
+        if "corrupted compressed block contents" in str(e):
+            print("It's likely that your checkpoint file has been compressed "
+                  "with SNAPPY.")
+
 def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
-    if net_name in ["weightednet", "ranknet", 'ctxnet', 'graphnet', 'simplenet']:
-        cfg.TRAIN.USE_GRAPH_SAMPLE=True
-    else: cfg.TRAIN.USE_GRAPH_SAMPLE=False
+    # if net_name in ["weightednet", "ranknet", 'ctxnet', 'graphnet', 'simplenet']:
+    #     cfg['TRAIN']['USE_SAMPLE_GRAPH'] = True
+    # else:
+    #     cfg['TRAIN']['USE_SAMPLE_GRAPH'] = False
     sess = tf.Session()
     # set up testing mode
     inputs = get_network(net_name).inputs(imdb.num_classes, imdb.prior.shape[1], imdb.embedding_size, is_training=False)
@@ -314,6 +329,8 @@ def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
     print(cfg.TRAIN.USE_SAMPLE_GRAPH)
     saver = tf.train.Saver()
     sess.run(tf.global_variables_initializer())
+    # var_keep_dic = get_variables_in_checkpoint_file(weight_name)
+    # print(var_keep_dic)
     saver.restore(sess, weight_name)
 
     roidb = imdb.roidb
@@ -338,16 +355,12 @@ def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
     num_pred = imdb.num_predicates-1 if cfg.TRAIN.USE_SAMPLE_GRAPH else imdb.num_predicates
     top_k = [1, num_pred]
     use_prior = [True, False]
-    if 'rel_weighted_prob' in net.layers:
+    if 'rel_weight_prob' in net.layers:
         use_weight = [True, False]
     else: use_weight = [False]
 
-    use_weight=[True, False]
     use_prediction=[True, False]
     use_prior=[True, False]
-
-    if 'rel_weighted_prob' not in net.layers:
-        use_weight = [False]
 
     if mode == "viz":
         top_k=[1]
@@ -390,6 +403,7 @@ def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
             cfg['TEST']['METRIC_EVAL'] = False
         else:
             cfg['TEST']['USE_GT_REL'] = True
+            cfg['TEST']['METRIC_EVAL'] = False
         if cfg.TEST.METRIC_EVAL:
             metric_ops = net.losses()
             net.metrics(metric_ops)
@@ -414,7 +428,11 @@ def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
 
             else:
                 detected_res = get_detections(im_i)
-                for j in range(1, imdb.num_classes):
+                #
+                # print(len(detected_res), detected_res)
+                # exit()
+
+                for j in range(1, len(detected_res)):
                     if(len(detected_res[j])==0): continue
                     # print(detected_res[j], [detected_res[j][k][:4] for k in range(len(detected_res[j]))])
                     box_proposals.extend([detected_res[j][k][:4] for k in range(len(detected_res[j]))])
@@ -446,10 +464,15 @@ def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
                     overlaps = bbox_overlaps(box_proposals.astype(np.float), gt_rois(roidb[im_i]).astype(np.float))
                     maxes = np.max(overlaps, axis=1)
                     inds = np.where(maxes>max_iou)
+                    args = np.argmax(overlaps, axis=1)
+                    num = len(gt_rois(roidb[im_i]))
+                    a = np.zeros(num)
+                    a[args[inds]] = 1
+                    print(np.sum(a)/num)
                     box_proposals = box_proposals[inds]
                     cls_preds = cls_preds[inds]
                     cls_scores = cls_scores[inds]
-                    #print("after filtered by gt box iou>0.5", len(box_proposals))
+                    print("after filtered by gt box iou>0.5", len(box_proposals))
 
                 # cls_scores = np.ones_like(cls_scores, np.float)
 
@@ -480,6 +503,7 @@ def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
                     sg_entry['cls_scores'] = cls_scores
                 for evaluator in evaluators[mode]:
                     evaluator.evaluate_scene_graph_entry(sg_entry, im_i, iou_thresh=0.5, prior=get_prior(), viz=(mode=="viz"))
+                    # print(evaluator.result_dict)
                 # evaluators[mode][iter_n].add_rels_to_show(sg_entry['rels_show'])
             if metrics_v is not None:
                 for evaluator in evaluators[mode]:

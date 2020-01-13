@@ -134,7 +134,7 @@ def _compute_targets(rois, overlaps, labels):
     # this will be the ex ROI's gt target
     gt_assignment = ex_gt_overlaps.argmax(axis=1)
 
-    # guarding against the case where a gt box doesn't get assigned to itself
+    # guarding against the case where a gt box doesn't get assigned to itself`
     gt_to_ex_inds = [np.where(ex_inds == g)[0][0] for g in gt_inds]
     for i, g in enumerate(gt_to_ex_inds):
         gt_assignment[g] = gt_inds[i]

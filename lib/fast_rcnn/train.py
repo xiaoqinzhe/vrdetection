@@ -210,7 +210,7 @@ class Trainer(object):
         inputs['is_training'] = True
 
         # data_runner.start_threads(sess, n_threads=10)
-        data_runner.start_processes(sess, n_processes=1)
+        data_runner.start_processes(sess, n_processes=5)
         if self.if_val:
             val_data_runner.start_processes(sess, n_processes=1)
 
@@ -292,9 +292,9 @@ class Trainer(object):
         next_stepsize = stepsizes.pop()
 
         # Training loop
-        import gc
-        print(gc.isenabled())
-        gc.set_debug(gc.DEBUG_STATS)
+        # import gc
+        # print(gc.isenabled())
+        # gc.set_debug(gc.DEBUG_STATS)
         for iter in range(max_iters):
 
             # tracing training information
@@ -334,7 +334,7 @@ class Trainer(object):
             timer.toc()
 
             if np.isnan(ops_value['loss_total']):
-                print('nan', iter)
+                print('nan!!!!!!!!!', iter)
                 for k in feed_dict:
                     print(k, feed_dict[k])
                 exit()

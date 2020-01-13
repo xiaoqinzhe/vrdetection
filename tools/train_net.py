@@ -72,17 +72,17 @@ if __name__ == '__main__':
     if args.dataset is not None:
         cfg['DATASET'] = args.dataset
 
-    if args.network_name in ["weightednet", "ranknet", 'ctxnet', 'graphnet', 'attnet', 'simplenet']:
-        cfg.TRAIN.USE_GRAPH_SAMPLE=True
-    else: cfg.TRAIN.USE_GRAPH_SAMPLE=False
+    if args.network_name in ["weightednet", "ranknet", 'ctxnet', 'graphnet', 'attnet', 'simplenet', "weightednet3"]:
+        cfg['TRAIN']['USE_SAMPLE_GRAPH'] = True
+    else: cfg['TRAIN']['USE_SAMPLE_GRAPH']=False
 
     if 'vg' in args.dataset:
-        cfg.TRAIN.STEPSIZES = [150000, 300000]
-        cfg.BASENET_WEIGHT_ITER = '450000'
+        cfg['TRAIN']['STEPSIZES'] = [150000, 300000]
+        cfg['BASENET_WEIGHT_ITER'] = '450000'
 
     if args.dataset == 'tl_vg':
-        cfg.TRAIN.STEPSIZES = [50000, 100000]
-        cfg.BASENET_WEIGHT_ITER = '150000'
+        cfg['TRAIN']['STEPSIZES'] = [50000, 100000]
+        cfg['BASENET_WEIGHT_ITER'] = '150000'
 
     print('Using config:')
     pprint.pprint(cfg)

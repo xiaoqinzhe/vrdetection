@@ -66,6 +66,8 @@ def maxRelPrecision(gt_roidb, gt_rels, all_boxes, iou_threshhold=0.5, cls_score_
         gt_cls = gt_roidb[im_i]['gt_classes']
         count = [0 for _ in range(len(gt_boxes))]
         pred_boxes = [[] for _ in range(len(gt_boxes))]
+        print([all_boxes[c][0] for c in range(len(all_boxes))])
+        exit()
         for i in range(len(gt_boxes)):
             # print(im_i, i)
             cls = gt_cls[i]
@@ -87,6 +89,7 @@ def maxRelPrecision(gt_roidb, gt_rels, all_boxes, iou_threshhold=0.5, cls_score_
                 prec += 1
         prec /= len(gt_rels[im_i])
         precisions.append(prec)
+        if prec == 0: print(im_i)
     prec = np.mean(precisions)
     print("max rel precision", prec)
     return prec

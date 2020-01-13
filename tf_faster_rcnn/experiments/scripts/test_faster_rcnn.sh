@@ -70,7 +70,7 @@ case ${DATASET} in
     ;;
   vg_msdn)
     TRAIN_IMDB="vg_msdn_train"
-    TEST_IMDB="vg_msdn_test"
+    TEST_IMDB="vg_msdn_train"
     STEPSIZE="[300000]"
     ITERS=450000
     ANCHORS="[4,8,16,32]"
@@ -78,7 +78,7 @@ case ${DATASET} in
     ;;
   vg_vtranse)
     TRAIN_IMDB="vg_vtranse_train"
-    TEST_IMDB="vg_vtranse_test"
+    TEST_IMDB="vg_vtranse_train"
     STEPSIZE="[300000]"
     ITERS=450000
     ANCHORS="[4,8,16,32]"

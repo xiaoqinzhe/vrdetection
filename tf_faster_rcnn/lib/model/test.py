@@ -135,7 +135,7 @@ def apply_nms(all_boxes, thresh):
       nms_boxes[cls_ind][im_ind] = dets[keep, :].copy()
   return nms_boxes
 
-def test_net(sess, net, imdb, weights_filename, max_per_image=100, thresh=0., detect=True):
+def test_net(sess, net, imdb, weights_filename, max_per_image=100, thresh=0., detect=False):
   max_per_image = 100
   thresh = 0.
   cfg.TEST.NMS = 0.3
@@ -192,7 +192,7 @@ def test_net(sess, net, imdb, weights_filename, max_per_image=100, thresh=0., de
       np.save(det_file, all_boxes)
   else:
     det_file = os.path.join(output_dir, 'detections.npy')
-    all_boxes = np.load(det_file)
+    all_boxes = np.load(det_file, allow_pickle=True)
   #     # det_file = os.path.join(output_dir, 'detections.pkl')
   #     # with open(det_file, 'wb') as f:
   #     #   pickle.dump(all_boxes, f, pickle.HIGHEST_PROTOCOL)
