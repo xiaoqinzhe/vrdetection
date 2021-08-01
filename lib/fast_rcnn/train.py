@@ -281,6 +281,7 @@ class Trainer(object):
         self.load_pretrained_models(sess)
         print("load done")
 
+        iter = 0
         last_snapshot_iter = -1
         timer = Timer()
         iter_timer = Timer()
@@ -376,7 +377,7 @@ class Trainer(object):
             if (iter + 1) % 5000 == 0:
             # if (iter + 1) % 5000 == 0 or (iter > 30000 and iter % 2000 == 0):
                 last_snapshot_iter = iter
-                self.snapshot(sess, iter)
+                self.snapshot(sess, iter+1)
             del(feed_dict)
 
         if last_snapshot_iter != iter:

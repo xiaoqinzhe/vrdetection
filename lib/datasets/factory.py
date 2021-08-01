@@ -2,6 +2,13 @@ from datasets.vg import vg
 from datasets.vrd import vrd
 from fast_rcnn.config import cfg
 
+def get_path():
+    dataset_name = cfg.DATASET
+    path = './data/'
+    if dataset_name.startswith("vg"):
+        path += "vg/"
+    return path+dataset_name+"/"
+
 def get_db(num_im = -1):
     dataset_name = cfg.DATASET
     path = './data/'

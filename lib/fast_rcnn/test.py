@@ -9,7 +9,7 @@ from roi_data_layer.roidb import prepare_roidb
 import roi_data_layer.data_utils as data_utils
 from datasets.evaluator import SceneGraphEvaluator
 from networks.factory import get_network
-from datasets.factory import get_detections_filename
+from datasets.factory import get_detections_filename, get_path
 from utils.timer import Timer
 from utils.cpu_nms import cpu_nms
 import numpy as np
@@ -133,12 +133,14 @@ def get_o2o_prior(filename):
     return o2o_prior
 
 detections = None
-def get_detections(im_i):
+def get_detections(imdb, im_i):
     global detections
     if detections is None:
-        filename = get_detections_filename()
-        detections = np.load(filename, encoding="latin1", allow_pickle=True)
-        print("getting detection file: {}, containing {} boxes".format(filename, len([detections[j][0] for j in range(len(detections))])))
+        detections = imdb.detections
+        # filename = get_detections_filename()
+        # filename = "./data/vrd/train_detections.npy"
+        # detections = np.load(filename, encoding="latin1", allow_pickle=True)
+        # print("getting detection file: {}, containing {} boxes".format(filename, len([detections[j][0] for j in range(len(detections))])))
     return [detections[j][im_i] for j in range(len(detections))]
 
 def im_detect(sess, net, inputs, im, im_i, boxes, bbox_reg, roidb, pred_ops, metric_ops, mode, cls_preds, cls_scores):
@@ -188,7 +190,7 @@ def im_detect(sess, net, inputs, im, im_i, boxes, bbox_reg, roidb, pred_ops, met
                  inputs['rois']: blobs['rois'],
                  inputs['relations']: relations,
                  # inputs['rel_spts']: roidb['gt_spatial'],
-                 inputs['labels']: roidb['gt_classes'],
+                 inputs['labels']: labels,
                  inputs['predicates']: predicates,
                  net.keep_prob: 1
                  }
@@ -230,10 +232,21 @@ def im_detect(sess, net, inputs, im, im_i, boxes, bbox_reg, roidb, pred_ops, met
     out_dict = {'scores': cls_probs.copy(),
                 'boxes': boxes.copy(),
                 'relations': rel_probs.copy()}
+    # soft // prob
+    def to_list(l):
+        if type(l) != np.ndarray:
+            l = np.array([l])
+        return l
     if 'rel_weight_prob' in pred_ops:
-        out_dict['rel_weights'] = ops_value['rel_weight_prob']
-        # out_dict['rel_weights'] = ops_value['rel_weight_soft']
-        # print(np.sum(ops_value["rel_weight_prob"]))
+        # print(ops_value['rel_weight_prob'])
+        # out_dict['rel_weights'] = ops_value['rel_weight_prob']
+        out_dict['rel_weights'] = to_list(ops_value['rel_weight_soft'])
+        # print(out_dict['rel_weights'])
+        # print(np.shape(out_dict['rel_weights']))
+        # print(np.sum(out_dict["rel_weights"]))
+    if 'fg_prob_sub' in pred_ops:
+        out_dict['fg_prob_sub'] = to_list(ops_value['fg_prob_sub'])
+        out_dict['fg_prob_obj'] = to_list(ops_value['fg_prob_obj'])
 
     # cal rels show
     # if cfg.TRAIN.USE_SAMPLE_GRAPH:
@@ -358,6 +371,10 @@ def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
     if 'rel_weight_prob' in net.layers:
         use_weight = [True, False]
     else: use_weight = [False]
+    if 'fg_prob_sub' in net.layers:
+        use_fg_prob = [True, False]
+    else:
+        use_fg_prob = [False]
 
     use_prediction=[True, False]
     use_prior=[True, False]
@@ -376,21 +393,28 @@ def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
                 for prior in use_prior:
                     if not prediction and not prior: continue
                     for weight in use_weight:
-                        if mode=="pred_cls":
-                            metric_ops = net.losses()
-                            net.metrics(metric_ops)
-                            evaluators[m].append( SceneGraphEvaluator(imdb, mode=m, metrics=metric_ops.keys(), top_k=k, use_prediction=prediction, use_prior=prior, use_weight=weight) )
-                        else: evaluators[m].append( SceneGraphEvaluator(imdb, mode=m, top_k=k, use_prediction=prediction, use_prior=prior, use_weight=weight) )
-                        if prior:
-                            evaluators[m][-1].prior = get_prior()
+                        if not prediction and weight: continue
+                        for fg in  use_fg_prob:
+                            if not prediction and fg: continue
+                            if mode=="pred_cls":
+                                metric_ops = net.losses()
+                                net.metrics(metric_ops)
+                                evaluators[m].append( SceneGraphEvaluator(imdb, mode=m, metrics=metric_ops.keys(), prior=get_prior(), top_k=k, use_prediction=prediction, use_prior=prior, use_weight=weight, use_fg_weight=fg) )
+                            else: evaluators[m].append( SceneGraphEvaluator(imdb, mode=m, prior=get_prior(), top_k=k, use_prediction=prediction, use_prior=prior, use_weight=weight, use_fg_weight=fg) )
+                            if prior:
+                                evaluators[m][-1].prior = get_prior()
     # rel predictions
     ops = {}
     if cfg.TEST.REL_EVAL:
         ops['rel_probs'] = net.rel_pred_output()
-        if 'rel_weighted_prob' in net.layers:
+        if 'rel_weight_prob' in net.layers:
             print("using weighted rel prob!!!!!!!!")
-            ops['rel_weighted_probs'] = net.layers['rel_weighted_prob']
-            ops['rel_weight_prob'] = net.layers['rel_weight_soft']
+            ops['rel_weight_prob'] = net.layers['rel_weight_prob']
+            ops['rel_weight_soft'] = net.layers['rel_weight_soft']
+        if 'fg_prob_sub' in net.layers:
+            print("using weighted fg_prob_sub!!!!!!!!")
+            ops['fg_prob_sub'] = net.layers['fg_prob_sub']
+            ops['fg_prob_obj'] = net.layers['fg_prob_obj']
     else:
         ops = tf.no_op(name="no_pred_sg")
 
@@ -409,6 +433,9 @@ def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
             net.metrics(metric_ops)
         else:
             metric_ops = tf.no_op(name='no_test_metric')
+        vrd_results = [0 for _ in range(num_images)]
+        global detections
+        detections = imdb.detections
         for im_i in range(num_images):
 
             # gt_labels = roidb[im_i]['gt_classes']
@@ -427,7 +454,7 @@ def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
                 box_proposals = gt_rois(roidb[im_i])
 
             else:
-                detected_res = get_detections(im_i)
+                detected_res = get_detections(imdb, im_i)
                 #
                 # print(len(detected_res), detected_res)
                 # exit()
@@ -501,8 +528,11 @@ def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
                     sg_entry['boxes'] = box_proposals
                     sg_entry['cls_preds'] = cls_preds
                     sg_entry['cls_scores'] = cls_scores
+                sg_entry["num_predicates"] = imdb.num_predicates
+                sg_entry["num_classes"] = imdb.num_classes
+                vrd_results[im_i] = sg_entry
                 for evaluator in evaluators[mode]:
-                    evaluator.evaluate_scene_graph_entry(sg_entry, im_i, iou_thresh=0.5, prior=get_prior(), viz=(mode=="viz"))
+                    evaluator.evaluate_scene_graph_entry(sg_entry, im_i, iou_thresh=0.5, viz=(mode=="viz"))
                     # print(evaluator.result_dict)
                 # evaluators[mode][iter_n].add_rels_to_show(sg_entry['rels_show'])
             if metrics_v is not None:
@@ -514,6 +544,10 @@ def test_net(net_name, weight_name, imdb, mode, max_per_image=100):
                 print('im_detect: {:d}/{:d} {:.3f}s {:.3f}s' \
                    .format(im_i + 1, num_images, _t['im_detect'].average_time,
                           _t['evaluate'].average_time))
+        if mode == "pred_cls":
+            suffix = "train" if "train" in imdb.name else "test"
+            np.save(get_path()+"vrd_results_"+suffix+"_pred_cls", vrd_results)
+            print("vrd results save to {}".format(get_path()+"vrd_results"))
 
     # print out evaluation results
     for mode in eval_modes:

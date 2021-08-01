@@ -1,4 +1,64 @@
 import numpy as np
+
+import multiprocessing
+
+class EvalRunnerMP:
+    """
+    A multi-processing runner for evaluation in testing
+    """
+    def __init__(self, task_func, task_capacity=10, data_capacity=100):
+        self._task_func = task_func
+        self.counter = 0
+        self.processes = []
+        self.task_capacity = task_capacity
+        self.data_capacity = data_capacity
+
+    def start_processes(self, n_processes=1):
+        self.task_queue = multiprocessing.Queue(self.task_capacity)
+        self.data_queue = multiprocessing.Queue(self.data_capacity)
+        for n in range(n_processes):
+            p = multiprocessing.Process(target=self._worker_main, args=(self.task_queue, self.data_queue))
+            p.daemon = True
+            p.start()
+            self.processes.append(p)
+
+    def get_data(self):
+        size = self.data_queue.qsize()
+        # print(size)
+        result = []
+        for i in range(size):
+            result.append(self.data_queue.get())
+        # print("end", result)
+        return result
+
+    def put_task(self, data):
+        self.task_queue.put(data)
+
+    def _worker_main(self, task_queue, data_queue):
+        """
+        generate sample from task queue and put the sample
+        into a data queue in the form of tf feed_dict
+        """
+        # from pympler import tracker, summary, muppy
+        # import gc
+        # memory_tracker = tracker.SummaryTracker()
+        i = 0
+        # print(gc.isenabled())
+        # gc.set_debug(gc.DEBUG_STATS)
+        while True:
+            # if i % 10 == 0: memory_tracker.print_diff()
+
+            # gc.collect()
+            task = task_queue.get()
+            # print("task get")
+            res = self._task_func(task)
+            # print("task comp", res)
+            if res is None:
+                continue
+            data_queue.put(res)
+            i += 1
+
+
 def _compute_gt_target(pred_boxes, pred_class_scores, gt_boxes):
     """
     compute which gt gets mapped to each predicted box
@@ -10,12 +70,12 @@ def _compute_gt_target(pred_boxes, pred_class_scores, gt_boxes):
     gt_target_iou = np.zeros(num_boxes)
     gt_target_iou.fill(-1)
 
-    for j in xrange(num_boxes):
+    for j in range(num_boxes):
         # prepare inputs
         bbox = pred_boxes[j].astype(float)
         # compute max IoU over classes
         # for c in xrange(1, num_classes):
-        for c in xrange(pred_class_scores.shape[1]):
+        for c in range(pred_class_scores.shape[1]):
             bb = bbox[4*c:4*(c+1)]
             if gt_boxes.size > 0:
                 # compute overlaps
@@ -69,7 +129,7 @@ def ground_predictions(sg_entry, roidb_entry, ovthresh=0.5):
     # if referenced more than once, use the one that
     # has the maximum IoU
     gt_to_pred = {} # {gt_ind: pred_ind}
-    for j in xrange(num_boxes):
+    for j in range(num_boxes):
         gti = gt_targets[j] # referenced gt ind
         if gti in gt_to_pred:
             pred_ind = gt_to_pred[gti]

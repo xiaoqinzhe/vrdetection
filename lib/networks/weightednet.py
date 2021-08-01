@@ -733,6 +733,11 @@ class weightednet3(basenet):
                 net = slim.conv2d(net, 512, [3, 3])
                 net = slim.flatten(net)
                 net = slim.fully_connected(net, size)
+
+                # net = self._net_roi_fc(rel_roi_conv_out, reuse=True)
+                # net = self._net_rel_roi_fc(rel_roi_conv_out)
+
+
                 net = slim.dropout(net, keep_prob=self.keep_prob)
                 net = slim.fully_connected(net, size)
                 net = slim.dropout(net, keep_prob=self.keep_prob)
@@ -753,6 +758,8 @@ class weightednet3(basenet):
                 if self.use_spatial:
                     spt = self._spatial_feature(self.rel_inx1, self.rel_inx2)
                 else:   spt = None
+
+                # feat = self._mfb([vis_feat, cls_proj, spt], 3, size)
 
                 if self.use_vis:
                     # if self.if_fuse: vis_feat = slim.fully_connected(vis_feat, self.fuse_size)
@@ -781,14 +788,16 @@ class weightednet3(basenet):
                 # weighted attention layer
                 if not self.use_vis:  vis_feat = None
                 self.weighted_attention(conv_net, vis_feat, cls_proj=cls_proj, spt=spt)
-                self.roi_attention(conv_net, roi_fc_out)
+                self.roi_attention(conv_net, roi_fc_out, cls_emb=self.cls_emb, spt=self.norm_bbox)
 
                 fg_prob = self.layers["fg_prob"]
-                fg_prob_sub = tf.gather(fg_prob, self.rel_inx1)
-                fg_prob_obj = tf.gather(fg_prob, self.rel_inx2)
-                self.layers['rel_weight_prob'] = self.layers['rel_weight_prob'] * fg_prob_sub * fg_prob_obj
-                att = tf.tile(self.layers['rel_weight_prob'], [1, self.num_predicates])
-                self.layers['rel_weighted_prob'] = att
+                # fg_prob = self.layers["fg_soft"]
+                self.layers['fg_prob_sub'] = fg_prob_sub = tf.gather(fg_prob, self.rel_inx1)
+                self.layers['fg_prob_obj'] = fg_prob_obj = tf.gather(fg_prob, self.rel_inx2)
+                # self.layers['rel_weight_soft'] = self.layers['rel_weight_soft']
+                # self.layers['rel_weight_soft'] = self.layers['rel_weight_soft'] * fg_prob_sub * fg_prob_obj
+                # att = tf.tile(self.layers['rel_weight_soft'], [1, self.num_predicates])
+                # self.layers['rel_weighted_prob'] = att
 
 
     def weighted_attention(self, im_conv_out, vis_feat, cls_proj=None, spt=None):
@@ -822,12 +831,14 @@ class weightednet3(basenet):
         assert ctx is not None
         a = slim.fully_connected(ctx, 1, activation_fn=None, scope="rel_weights")
         self.layers['rel_weight_score'] = a
-        b=tf.exp(tf.squeeze(a))
+        a = tf.squeeze(a)
+        b=tf.exp(a)
         b=b/tf.reduce_sum(b)
-        self.layers['rel_weight_soft'] = tf.expand_dims(b, -1)
+        self.layers['rel_weight_soft'] = b
         self.layers['rel_weight_prob'] = tf.sigmoid(a)
+        print(self.layers['rel_weight_soft'].shape, self.layers['rel_weight_prob'].shape)
 
-    def roi_attention(self, im_conv_out, vis_feat):
+    def roi_attention(self, im_conv_out, vis_feat, cls_emb=None, spt=None):
         size = 2048
         im_fc_gather = tf.gather(slim.fully_connected(self.layers['im_fc'], size), tf.cast(self.rois[:, 0], tf.int32))
         vis_feat = slim.fully_connected(vis_feat, size)
@@ -837,15 +848,20 @@ class weightednet3(basenet):
         #
         # ctx = vis_feat
         ctx = slim.fully_connected(ctx, size)
-        # ctx = slim.dropout(ctx, keep_prob=self.keep_prob)
-        # ctx = slim.fully_connected(ctx, size)
-        # ctx = slim.dropout(ctx, keep_prob=self.keep_prob)
+        ctx = slim.dropout(ctx, keep_prob=self.keep_prob)
+        # if cls_emb is not None:
+        #     cls_proj = slim.fully_connected(cls_emb, 128)
+        #     ctx = tf.concat([ctx, cls_proj], axis=1)
+        # if spt is not None:
+        #     print(ctx.shape, spt.shape)
+        #     ctx = tf.concat([ctx, spt], axis=1)
         assert ctx is not None
         a = slim.fully_connected(ctx, 1, activation_fn=None, scope="fg_weights")
         self.layers['fg_score'] = a
-        # b=tf.exp(tf.squeeze(a))
-        # b=b/tf.reduce_sum(b)
-        # self.layers['fg_soft'] = tf.expand_dims(b, -1)
+        a = tf.squeeze(a)
+        b=tf.exp(a)
+        b=b/tf.reduce_sum(b)
+        self.layers['fg_soft'] = b
         self.layers['fg_prob'] = tf.sigmoid(a)
 
     def get_acc_rec(self, probs, labels):

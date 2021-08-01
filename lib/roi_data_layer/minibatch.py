@@ -206,7 +206,7 @@ def _sample_all_gt(roidb):
     # return all ground-truth roidb inds and rel
     return np.where(roidb['max_overlaps'] == 1)[0], roidb['gt_relations'], roidb['gt_spatial']
 
-def _sample_graph(roidb, num_fg_rois, num_rois, num_neg_rels=128, num_neg_rel_rate=3.0):
+def _sample_graph(roidb, num_fg_rois, num_rois, num_neg_rels=128):
     """
     Sample a graph from the foreground rois of an image
 
@@ -214,6 +214,10 @@ def _sample_graph(roidb, num_fg_rois, num_rois, num_neg_rels=128, num_neg_rel_ra
     rois_per_image: maximum number of rois per image
     """
     DEBUG = False
+    num_pos_rel = 64
+    num_neg_rel_rate = 2
+    num_fg_rois = 64
+    num_bg_roi_rate = 2
 
     gt_rels = roidb['gt_relations']
     # index of assigned gt box for foreground boxes
@@ -263,7 +267,7 @@ def _sample_graph(roidb, num_fg_rois, num_rois, num_neg_rels=128, num_neg_rel_ra
         pos_rels = np.array(pos_rels)[indices, :]
 
         # random sample
-        num_pos_rel = 64
+
         if len(pos_rels) > num_pos_rel:
             np.random.shuffle(pos_rels)
             pos_rels = pos_rels[:num_pos_rel]
@@ -315,7 +319,7 @@ def _sample_graph(roidb, num_fg_rois, num_rois, num_neg_rels=128, num_neg_rel_ra
 
     if cfg.TRAIN.USE_RPN_DB and cfg.TRAIN.USE_FG_BG:
         """ sample background relations """
-        num_rois_to_sample = np.minimum(len(roidb['boxes']) - len(roi_inds), 3*len(roi_inds))
+        num_rois_to_sample = np.minimum(len(roidb['boxes']) - len(roi_inds), num_bg_roi_rate*len(roi_inds))
         if num_rois_to_sample > 0:
             bg_roi_inds = _sample_bg_rois(roidb, num_rois_to_sample)
             if DEBUG: print('sampled bg rois = %i' % len(bg_roi_inds))

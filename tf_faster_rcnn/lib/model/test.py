@@ -135,7 +135,7 @@ def apply_nms(all_boxes, thresh):
       nms_boxes[cls_ind][im_ind] = dets[keep, :].copy()
   return nms_boxes
 
-def test_net(sess, net, imdb, weights_filename, max_per_image=100, thresh=0., detect=False):
+def test_net(sess, net, imdb, weights_filename, max_per_image=100, thresh=0., detect=True):
   max_per_image = 100
   thresh = 0.
   cfg.TEST.NMS = 0.3

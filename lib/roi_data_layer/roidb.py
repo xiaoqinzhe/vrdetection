@@ -120,7 +120,9 @@ def _compute_targets(rois, overlaps, labels):
         # sanity check
         assert(gt_inds[0] == 0)
         for i in range(1, len(gt_inds)):
-            assert(gt_inds[i] - gt_inds[i-1] == 1)
+            if gt_inds[i] - gt_inds[i-1] != 1:
+                gt_inds = gt_inds[:i]
+                break
     # Indices of examples for which we try to make predictions
     ex_inds = np.where(overlaps >= cfg.TRAIN.BBOX_THRESH)[0]
 

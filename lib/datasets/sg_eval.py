@@ -1,5 +1,6 @@
 import numpy as np
 from fast_rcnn.config import cfg
+from utils.timer import Timer
 
 total = 0
 
@@ -12,7 +13,7 @@ def eval_relation_recall(sg_entry,
                          mode,
                          iou_thresh,
                          top_k=1, use_prediction=True,
-                         use_prior=False, use_weight=False, prior=None
+                         use_prior=False, use_weight=False, use_fg_weight=False, prior=None
                          ):
     use_gt_rel = True if mode=="pred_cls" else False
 
@@ -56,6 +57,8 @@ def eval_relation_recall(sg_entry,
     num_classes = sg_entry['num_classes']
     # print("num_classes: ", num_classes, top_k)
 
+    # t1 = Timer()
+    # t1.tic()
     # use prediction, prior, weight
     if use_gt_rel:
         for i, rel in enumerate(gt_relations):
@@ -65,11 +68,15 @@ def eval_relation_recall(sg_entry,
                         get_oo_id(gt_classes[rel[0]], gt_classes[rel[1]],num_classes)]
                 if use_weight:
                     predicate_preds[rel[0], rel[1], :] *= sg_entry["rel_weights"][i]
+                if use_fg_weight:
+                    predicate_preds[rel[0], rel[1], :] *= sg_entry["fg_prob_sub"][i]*sg_entry["fg_prob_obj"][i]
             else:
                 predicate_preds[rel[0], rel[1], :] = prior[
                     get_oo_id(gt_classes[rel[0]], gt_classes[rel[1]], num_classes)]
                 if use_weight:
                     predicate_preds[rel[0], rel[1], :] *= sg_entry["rel_weights"][i]
+                if use_fg_weight:
+                    predicate_preds[rel[0], rel[1], :] *= sg_entry["fg_prob_sub"][i]*sg_entry["fg_prob_obj"][i]
     else:
         k=0
         classes = sg_entry['cls_preds']
@@ -82,11 +89,15 @@ def eval_relation_recall(sg_entry,
                             get_oo_id(classes[i], classes[j],num_classes)]
                     if use_weight:
                         predicate_preds[i, j, :] *= sg_entry["rel_weights"][k]
+                    if use_fg_weight:
+                        predicate_preds[i, j, :] *= sg_entry["fg_prob_sub"][k] * sg_entry["fg_prob_obj"][k]
                 else:
                     predicate_preds[i, j, :] = prior[
                         get_oo_id(classes[i], classes[j], num_classes)]
                     if use_weight:
                         predicate_preds[i, j, :] *= sg_entry["rel_weights"][k]
+                    if use_fg_weight:
+                        predicate_preds[i, j, :] *= sg_entry["fg_prob_sub"][k] * sg_entry["fg_prob_obj"][k]
                 k += 1
 
     relations = []
@@ -106,12 +117,19 @@ def eval_relation_recall(sg_entry,
         for i in range(num_boxes):
             for j in range(num_boxes):
                 if i != j:
+                    # do not need sort?
                     arg_sort = np.argsort(-predicate_preds[i][j])
                     for k in range(top_k):
                         relations.append([i, j])
                         if cfg.TRAIN.USE_SAMPLE_GRAPH: predicates.append(arg_sort[k]+1)
                         else: predicates.append(arg_sort[k])
                         predicate_scores.append(predicate_preds[i][j][arg_sort[k]])
+                        # if cfg.TRAIN.USE_SAMPLE_GRAPH: predicates.append(k+1)
+                        # else: predicates.append(k)
+                        # predicate_scores.append(predicate_preds[i][j][k])
+
+    # t1.toc()
+    # print(t1.average_time, top_k, use_weight, use_prior, use_fg_weight)
 
     # predicates = np.argmax(predicate_preds, 2).ravel()
     # predicate_scores = predicate_preds.max(axis=2).ravel()
@@ -168,10 +186,13 @@ def eval_relation_recall(sg_entry,
     else:
         raise NotImplementedError('Incorrect Mode! %s' % mode)
 
+    # t2 = Timer()
+    # t2.tic()
     pred_triplets, pred_triplet_boxes, relation_scores = \
         _triplet(predicates, relations, classes, boxes,
                  predicate_scores, class_scores)
-
+    # t2.toc()
+    # print(t2.average_time, top_k, use_weight, use_prior, use_fg_weight)
 
     sorted_inds = np.argsort(relation_scores)[::-1]
     # compue recall

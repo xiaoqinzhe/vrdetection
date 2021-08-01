@@ -134,6 +134,7 @@ class vrdnet(Network):
         else:
             self.cls_emb = slim.fully_connected(class_prob, self.embedded_size, scope='cls_emb')
             # raise NotImplementedError()
+
         cls_emb_sub = tf.gather(self.cls_emb, rel_inx1)
         cls_emb_obj = tf.gather(self.cls_emb, rel_inx2)
         return cls_emb_sub, cls_emb_obj
@@ -177,11 +178,11 @@ class vrdnet(Network):
             bbox = self.rois[:, 1:5]
         else:
             raise NotImplementedError()
-        norm_bbox = self._normalize_bbox(bbox)
+        self.norm_bbox = self._normalize_bbox(bbox)
         bbox_sub = tf.gather(bbox, rel_inx1)
         bbox_obj = tf.gather(bbox, rel_inx2)
-        norm_bbox_sub = tf.gather(norm_bbox, rel_inx1)
-        norm_bbox_obj = tf.gather(norm_bbox, rel_inx2)
+        norm_bbox_sub = tf.gather(self.norm_bbox, rel_inx1)
+        norm_bbox_obj = tf.gather(self.norm_bbox, rel_inx2)
         rel_spt = self._relative_spatial(bbox_sub, bbox_obj)
         spatial = tf.concat([norm_bbox_sub, norm_bbox_obj, rel_spt], axis=1, name='spatial_feature')
         # boxes
@@ -266,6 +267,21 @@ class vrdnet(Network):
         self.rel_inx1, self.rel_inx2 = tf.split(self.relations, num_or_size_splits=2, axis=1)
         return tf.squeeze(self.rel_inx1, axis=1), tf.squeeze(self.rel_inx2, axis=1)
 
+    def _mfb(self, inputs, k, o):
+        embs = []
+        for i in inputs:
+            embs.append(slim.fully_connected(i, k*o, activation_fn=None))
+        net = embs[0]
+        for i in range(1, len(embs)):
+            net = tf.multiply(net, embs[i])
+        net = slim.dropout(net, keep_prob=self.keep_prob)
+        net = tf.reshape(net, shape=[-1, k, o])
+        net = tf.reduce_sum(net, axis=1)
+        net = tf.nn.l2_normalize(net, axis=1)
+        # net = net/tf.norm(net, ord=2, axis=1)
+        # print(net.shape)
+        return net
+
     def _net_conv(self, inputs):
         net = slim.conv2d(inputs, 64, [3, 3], scope='conv1_1')
         net = slim.conv2d(net, 64, [3, 3], scope='conv1_2')
@@ -310,6 +326,7 @@ class vrdnet(Network):
         return net
 
     def _net_rel_roi_fc(self, inputs):
+        inputs = slim.flatten(inputs)
         net = slim.fully_connected(inputs, 4096, scope='rel_fc6')
         net = slim.dropout(net, self.keep_prob, scope='rel_drop6')
         net = slim.fully_connected(net, 4096, scope='rel_fc7')

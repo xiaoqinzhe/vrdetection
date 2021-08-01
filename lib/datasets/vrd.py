@@ -47,6 +47,7 @@ class vrd(imdb):
         # load detected rpn
         if cfg.TRAIN.USE_RPN_DB:
             detections = np.load(self._data_path+"/{}_detections.npy".format(image_set), allow_pickle=True)
+            self.detections = copy.deepcopy(detections)
 
             self.rpn_rois = []
             self.rpn_scores = []
